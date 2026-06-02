@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>医療DX実践問題</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #141b24;
+    --panel2: #1b2430;
+    --text: #e6edf3;
+    --muted: #9aa7b4;
+    --line: #2a3441;
+    --accent: #7aa2f7;
+    --accent2: #9ece6a;
+    --danger: #f7768e;
+    --warning: #e0af68;
+    --shadow: rgba(0,0,0,.32);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at top left, rgba(122,162,247,.12), transparent 34rem),
+      radial-gradient(circle at bottom right, rgba(158,206,106,.08), transparent 28rem),
+      var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    line-height: 1.72;
+  }
+  .wrap {
+    width: min(920px, 100%);
+    margin: 0 auto;
+    padding: 18px 14px 40px;
+  }
+  header {
+    padding: 18px 4px 14px;
+  }
+  h1 {
+    font-size: clamp(1.55rem, 5vw, 2.3rem);
+    line-height: 1.25;
+    margin: 0 0 10px;
+    letter-spacing: .02em;
+  }
+  .lead {
+    color: var(--muted);
+    margin: 0;
+    font-size: .98rem;
+  }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: rgba(13,17,23,.88);
+    backdrop-filter: blur(12px);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(42,52,65,.7);
+  }
+  .barbox {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+  .progressOuter {
+    height: 10px;
+    background: #0a0e13;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progressInner {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width .25s ease;
+  }
+  .small {
+    color: var(--muted);
+    font-size: .88rem;
+    white-space: nowrap;
+  }
+  .card {
+    margin-top: 16px;
+    background: linear-gradient(180deg, rgba(27,36,48,.96), rgba(20,27,36,.96));
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 14px 28px var(--shadow);
+    overflow: hidden;
+  }
+  .cardInner {
+    padding: 18px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border: 1px solid rgba(122,162,247,.45);
+    color: #c7d7ff;
+    border-radius: 999px;
+    font-size: .82rem;
+    background: rgba(122,162,247,.08);
+  }
+  .qno {
+    color: var(--muted);
+    margin: 13px 0 4px;
+    font-size: .92rem;
+  }
+  .stem {
+    white-space: pre-wrap;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+  }
+  .choices {
+    display: grid;
+    gap: 10px;
+  }
+  label.choice {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 11px;
+    align-items: start;
+    min-height: 48px;
+    padding: 12px 12px;
+    background: rgba(255,255,255,.035);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  label.choice:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(122,162,247,.12);
+  }
+  input[type="radio"] {
+    margin-top: .42em;
+    accent-color: var(--accent);
+    transform: scale(1.12);
+  }
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  button {
+    appearance: none;
+    border: 1px solid var(--line);
+    color: var(--text);
+    background: #202a36;
+    border-radius: 14px;
+    padding: 12px 14px;
+    min-height: 48px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button.primary {
+    background: linear-gradient(180deg, #2b5ca8, #234a86);
+    border-color: rgba(122,162,247,.6);
+  }
+  button:disabled {
+    opacity: .48;
+    cursor: not-allowed;
+  }
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(0,0,0,.16);
+  }
+  .feedback.show { display: block; }
+  .ok {
+    color: var(--accent2);
+    font-weight: 800;
+  }
+  .ng {
+    color: var(--danger);
+    font-weight: 800;
+  }
+  .correctBox {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(158,206,106,.08);
+    border: 1px solid rgba(158,206,106,.25);
+  }
+  .explain {
+    color: #d5dde7;
+    margin: 10px 0 0;
+  }
+  .result {
+    display: none;
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(27,36,48,.92);
+  }
+  .result.show { display: block; }
+  .score {
+    font-size: 1.35rem;
+    font-weight: 900;
+    margin: 0 0 8px;
+  }
+  .review {
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+  }
+  details {
+    background: rgba(255,255,255,.035);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .footnote {
+    color: var(--muted);
+    font-size: .82rem;
+    margin: 18px 4px 0;
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 12px 10px 34px; }
+    .cardInner { padding: 15px; }
+    .actions { grid-template-columns: 1fr; }
+    label.choice { padding: 12px 10px; }
+    .stem { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>医療DX実践問題</h1>
+    <p class="lead">医療DXの全体像、電子処方箋、オンライン資格確認、電子カルテ三原則、令和8年度診療報酬改定での評価を、医療経営士2級向けに確認します。各カテゴリ3問のプールから毎回1問ずつ、合計10問を出題します。</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="barbox">
+      <div class="progressOuter" aria-label="進捗"><div id="progress" class="progressInner"></div></div>
+      <div id="count" class="small">0 / 10</div>
+    </div>
+  </div>
+
+  <main id="quiz" class="card" aria-live="polite">
+    <div class="cardInner">
+      <span id="category" class="badge"></span>
+      <div id="qno" class="qno"></div>
+      <p id="stem" class="stem"></p>
+      <div id="choices" class="choices"></div>
+      <div class="actions">
+        <button id="answerBtn" class="primary">回答</button>
+        <button id="nextBtn" disabled>次の問題へ</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+  </main>
+
+  <section id="result" class="result"></section>
+
+  <p class="footnote">注：令和8年度診療報酬改定関連の内容は、全体概要版ベースの学習用整理です。正式な算定要件・施設基準は告示・通知で確認してください。</p>
+</div>
+
+<script>
+const QUESTION_CATEGORIES = [
+  {
+    "category": "医療DXの全体像",
+    "pool": [
+      {
+        "stem": "医療DXの説明として、最も適切でないものはどれか。",
+        "choices": [
+          {
+            "text": "医療DXは、医療情報を安全に連携・活用し、医療の質、安全性、業務効率化を進める取組である。",
+            "correct": false
+          },
+          {
+            "text": "マイナ保険証は医療DXの要素の一つであるが、医療DXをマイナ保険証の導入だけに限定して理解するのは適切でない。",
+            "correct": false
+          },
+          {
+            "text": "電子処方箋、電子カルテ情報共有、オンライン資格確認などは、医療DXを構成する代表的な仕組みである。",
+            "correct": false
+          },
+          {
+            "text": "医療DXの推進では、情報連携の利便性だけでなく、サイバーセキュリティや個人情報保護も重要となる。",
+            "correct": false
+          },
+          {
+            "text": "オンライン資格確認を整備していれば、電子処方箋や電子カルテ情報共有サービスとの連携体制は診療報酬上の評価対象になりにくい。",
+            "correct": true
+          }
+        ],
+        "explanation": "オンライン資格確認は医療DXの基盤ですが、それだけで完結するものではありません。2026年度改定では、電子処方箋、電子カルテ共有、サイバーセキュリティ対策等を含む新たな評価が整理されています。"
+      },
+      {
+        "stem": "医療DXに関連する内容として適切なものを選ぶ場合、正しい組み合わせはどれか。\n\na オンライン資格確認\nb 電子処方箋\nc 電子カルテ情報共有サービス\nd サイバーセキュリティ対策\ne 医療機関債による資金調達",
+        "choices": [
+          {
+            "text": "a・b・c",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d",
+            "correct": true
+          },
+          {
+            "text": "b・c・e",
+            "correct": false
+          },
+          {
+            "text": "a・d・e",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d・e",
+            "correct": false
+          }
+        ],
+        "explanation": "a〜dはいずれも医療DXと関連します。eの医療機関債は資金調達の論点であり、医療DXそのものの構成要素ではありません。"
+      },
+      {
+        "stem": "令和8年度診療報酬改定の基本方針における医療DXの位置づけとして、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "医療DXは、診療報酬上の評価から外れ、医療機関の自主的努力のみで進めるものとされた。",
+            "correct": false
+          },
+          {
+            "text": "医療DXやICT連携を活用する医療機関・薬局の体制を評価する方向性が示された。",
+            "correct": true
+          },
+          {
+            "text": "医療DXは薬局に限定され、医療機関の評価には含まれない。",
+            "correct": false
+          },
+          {
+            "text": "医療DXは入院医療に限定され、外来や在宅医療には関係しない。",
+            "correct": false
+          },
+          {
+            "text": "医療DXは、後発医薬品の使用促進とは完全に切り離された評価体系として扱われる。",
+            "correct": false
+          }
+        ],
+        "explanation": "令和8年度改定では、安心・安全で質の高い医療の推進や医療保険制度の持続可能性の観点から、医療DXやICT連携を活用する医療機関・薬局の体制評価が位置づけられています。"
+      }
+    ]
+  },
+  {
+    "category": "電子処方箋",
+    "pool": [
+      {
+        "stem": "電子処方箋について、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "電子処方箋を発行するためには、患者が必ずマイナンバーカードを持参していなければならない。",
+            "correct": false
+          },
+          {
+            "text": "電子処方箋管理サービスは、オンライン資格確認等システムとは独立しており、相互の仕組みを活用しない。",
+            "correct": false
+          },
+          {
+            "text": "医師・歯科医師が電子署名を行う方法は、HPKIカード内の電子証明書を用いる方法に限られる。",
+            "correct": false
+          },
+          {
+            "text": "複数の医療機関・薬局を横断して、直近の処方・調剤情報を参照し、重複投薬等チェックを行うことができる。",
+            "correct": true
+          },
+          {
+            "text": "電子処方箋は、導入していない医療機関に対して一律に罰則を科す制度として運用される。",
+            "correct": false
+          }
+        ],
+        "explanation": "電子処方箋の中心的機能は、処方・調剤情報の共有と重複投薬等チェックです。マイナンバーカードがない場合でも資格確認書等を用いた取扱いがあり、電子署名の方法もHPKIカード方式に限られません。"
+      },
+      {
+        "stem": "電子処方箋に関する記述として、適切なものの組み合わせはどれか。\n\na オンライン資格確認等システムの仕組みを活用する。\nb 処方・調剤情報をより迅速に確認する仕組みである。\nc 重複投薬等チェックに活用できる。\nd 電子署名の仕組みが関係する。\ne 紙の処方箋と異なり、薬局側では処方内容を確認しない。",
+        "choices": [
+          {
+            "text": "a・b・c",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d",
+            "correct": true
+          },
+          {
+            "text": "b・c・d・e",
+            "correct": false
+          },
+          {
+            "text": "a・d・e",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d・e",
+            "correct": false
+          }
+        ],
+        "explanation": "a〜dが適切です。eは不適切です。電子処方箋であっても、薬局では処方内容を確認し、調剤・服薬指導につなげます。"
+      },
+      {
+        "stem": "電子処方箋とオンライン資格確認の関係について、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "電子処方箋はオンライン資格確認とは関係がなく、別個の資格確認制度として位置づけられる。",
+            "correct": false
+          },
+          {
+            "text": "オンライン資格確認では資格情報だけを扱うため、薬剤情報等の閲覧とは制度上結びつかない。",
+            "correct": false
+          },
+          {
+            "text": "電子処方箋はオンライン資格確認等の基盤を活用し、処方・調剤情報の共有や重複投薬等チェックに機能を広げるものと理解できる。",
+            "correct": true
+          },
+          {
+            "text": "オンライン資格確認が導入されていれば、電子処方箋の導入による運用上の変更は生じない。",
+            "correct": false
+          },
+          {
+            "text": "電子処方箋は医療機関内のオーダリングシステムに限定され、薬局側の調剤情報とは連携しない。",
+            "correct": false
+          }
+        ],
+        "explanation": "電子処方箋は、オンライン資格確認等の基盤を活用し、医療機関・薬局間で処方・調剤情報を連携する仕組みです。単なる院内オーダリングではありません。"
+      }
+    ]
+  },
+  {
+    "category": "オンライン資格確認・情報閲覧",
+    "pool": [
+      {
+        "stem": "オンライン資格確認に関する説明として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "保険資格の確認だけでなく、患者同意等に基づき薬剤情報や診療情報を閲覧・活用する基盤となる。",
+            "correct": true
+          },
+          {
+            "text": "診療報酬請求を紙レセプトに戻すための制度である。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテを導入していない医療機関では、オンライン資格確認を導入しても診療情報を閲覧することは制度上想定されない。",
+            "correct": false
+          },
+          {
+            "text": "オンライン資格確認は、電子処方箋とは異なり、薬剤情報の確認とは関係しない。",
+            "correct": false
+          },
+          {
+            "text": "オンライン資格確認は、病院に限定され、診療所や薬局では評価の対象とならない。",
+            "correct": false
+          }
+        ],
+        "explanation": "オンライン資格確認は、資格情報の確認に加え、患者同意等に基づく薬剤情報・診療情報の閲覧にも関係します。医療DXの基盤として捉えることが重要です。"
+      },
+      {
+        "stem": "患者がマイナンバーカードを持参していない場合の電子処方箋の理解として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "電子処方箋の発行自体が一切できない。",
+            "correct": false
+          },
+          {
+            "text": "資格確認書等を用いることで電子処方箋を発行できる場合があるが、マイナンバーカードによる本人確認・同意がある場合に比べ、閲覧できる情報に差が生じる。",
+            "correct": true
+          },
+          {
+            "text": "マイナンバーカードがなければ、紙の処方箋も含め処方はできない。",
+            "correct": false
+          },
+          {
+            "text": "マイナンバーカードを持参しない患者では、薬局での調剤情報の登録が法律上禁止される。",
+            "correct": false
+          },
+          {
+            "text": "マイナンバーカードの有無は、処方・調剤情報の閲覧範囲や同意取得の実務に影響しない。",
+            "correct": false
+          }
+        ],
+        "explanation": "電子処方箋はマイナンバーカードの持参が絶対条件ではありません。ただし、本人確認・同意の方法により、参照できる情報や運用に差が出る点が問われやすいです。"
+      },
+      {
+        "stem": "令和8年度改定における医療情報取得加算等の見直しとして、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "医療DX推進体制整備加算と医療情報取得加算はそのまま残り、電子処方箋等とは別枠で評価が維持される。",
+            "correct": false
+          },
+          {
+            "text": "医療DX関連施策の進捗を踏まえ、医療DX推進体制整備加算・医療情報取得加算を廃止し、マイナ保険証の利用、電子処方箋、電子カルテ共有、サイバーセキュリティ対策等に係る新たな評価が新設される。",
+            "correct": true
+          },
+          {
+            "text": "医療情報取得加算は、外来では廃止されるが入院では点数を倍増して継続される。",
+            "correct": false
+          },
+          {
+            "text": "医療DX推進体制整備加算は、マイナ保険証の利用率のみで評価され、電子処方箋や電子カルテ共有は考慮されない。",
+            "correct": false
+          },
+          {
+            "text": "医療情報取得加算は、薬局に限定した評価に再編され、医療機関は対象外となる。",
+            "correct": false
+          }
+        ],
+        "explanation": "令和8年度改定では、医療DX推進体制整備加算・医療情報取得加算を廃止し、電子的診療情報連携体制整備加算など、医療DX関連施策の進捗を踏まえた評価に再編する方向です。"
+      }
+    ]
+  },
+  {
+    "category": "電子カルテ三原則",
+    "pool": [
+      {
+        "stem": "電子カルテの三原則の組み合わせとして、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "真正性・見読性・保存性",
+            "correct": true
+          },
+          {
+            "text": "安全性・効率性・経済性",
+            "correct": false
+          },
+          {
+            "text": "即時性・匿名性・収益性",
+            "correct": false
+          },
+          {
+            "text": "可用性・収益性・拡張性",
+            "correct": false
+          },
+          {
+            "text": "機密性・公益性・市場性",
+            "correct": false
+          }
+        ],
+        "explanation": "電子保存に必要な三原則は、真正性・見読性・保存性です。安全性や効率性は重要ですが、三原則そのものではありません。"
+      },
+      {
+        "stem": "電子カルテ三原則のうち、見読性の説明として適切なものの組み合わせはどれか。\n\na 記録した情報を必要に応じて肉眼で見ることができる。\nb 必要に応じて書面に印刷できる。\nc 患者ごとの情報の所在が日常的に把握されている。\nd 法定保存期間中、復元可能な状態で保存する。\ne 作成責任の所在が明確で、虚偽入力や改ざんを防止する。",
+        "choices": [
+          {
+            "text": "a・b",
+            "correct": false
+          },
+          {
+            "text": "a・b・c",
+            "correct": true
+          },
+          {
+            "text": "b・d・e",
+            "correct": false
+          },
+          {
+            "text": "c・d・e",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d・e",
+            "correct": false
+          }
+        ],
+        "explanation": "a〜cが見読性に関する内容です。dは保存性、eは真正性に関する説明です。"
+      },
+      {
+        "stem": "電子カルテ三原則の説明として、最も適切でないものはどれか。",
+        "choices": [
+          {
+            "text": "真正性では、作成責任の所在を明確にし、虚偽入力、書き換え、消去、混同を防止することが求められる。",
+            "correct": false
+          },
+          {
+            "text": "見読性では、必要に応じて情報を画面表示や書面出力できる状態が求められる。",
+            "correct": false
+          },
+          {
+            "text": "保存性では、定められた保存期間内、復元可能な状態で保存することが求められる。",
+            "correct": false
+          },
+          {
+            "text": "真正性とは、記録した情報を肉眼で見読できることを意味する。",
+            "correct": true
+          },
+          {
+            "text": "電子カルテを運用する場合、診療に用いるだけでなく監査等にも対応できる状態が求められる。",
+            "correct": false
+          }
+        ],
+        "explanation": "真正性は、作成責任の明確化や改ざん防止に関する原則です。肉眼で見読できることは見読性に関する説明です。"
+      }
+    ]
+  },
+  {
+    "category": "病院情報システム",
+    "pool": [
+      {
+        "stem": "病院情報システムの基本的な流れとして、空欄ア〜オに入る組み合わせで最も適切なものはどれか。\n\n患者受付はアで行い、医師は診療内容をイに入力し、検査や処方の指示はウで行う。検査部門の結果はエに入力され、複数医療機関間の診療情報共有にはオが用いられる。",
+        "choices": [
+          {
+            "text": "ア 医事会計システム　イ 電子カルテシステム　ウ オーダエントリシステム　エ 検査システム　オ 地域連携システム",
+            "correct": true
+          },
+          {
+            "text": "ア 地域連携システム　イ 医事会計システム　ウ 電子カルテシステム　エ SPDシステム　オ 検査システム",
+            "correct": false
+          },
+          {
+            "text": "ア SPDシステム　イ オーダエントリシステム　ウ 地域連携システム　エ 医事会計システム　オ 電子カルテシステム",
+            "correct": false
+          },
+          {
+            "text": "ア 検査システム　イ 地域連携システム　ウ SPDシステム　エ 電子カルテシステム　オ 医事会計システム",
+            "correct": false
+          },
+          {
+            "text": "ア 医事会計システム　イ オーダエントリシステム　ウ 電子カルテシステム　エ 地域連携システム　オ 原価計算システム",
+            "correct": false
+          }
+        ],
+        "explanation": "受付・会計は医事会計システム、診療録は電子カルテ、検査・処方の指示はオーダエントリ、検査結果は検査システム、医療機関間の共有は地域連携システムで整理します。"
+      },
+      {
+        "stem": "病院情報システムの説明として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "電子カルテシステムは、診療録等の診療情報を電子化して保存・閲覧するためのシステムである。",
+            "correct": true
+          },
+          {
+            "text": "医事会計システムは、検査部門が検査結果を入力するための専用システムである。",
+            "correct": false
+          },
+          {
+            "text": "オーダエントリシステムは、病院間で診療情報を共有する地域ネットワークの総称である。",
+            "correct": false
+          },
+          {
+            "text": "地域連携システムは、院内の薬品・診療材料の在庫管理に限定される。",
+            "correct": false
+          },
+          {
+            "text": "検査システムは、診療報酬請求をオンラインで行うためのシステムである。",
+            "correct": false
+          }
+        ],
+        "explanation": "電子カルテは診療情報の電子的保存・閲覧が中心です。医事会計、オーダエントリ、検査、地域連携の役割を取り違えないようにします。"
+      },
+      {
+        "stem": "オーダエントリシステムの説明として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "紙の伝票で行っていた検査・処方等の指示を、医師がオンラインで入力し、検査部門や薬剤部門、医事会計等と連携する仕組みである。",
+            "correct": true
+          },
+          {
+            "text": "患者の保険資格を確認することに特化したシステムであり、検査や処方の指示とは関係しない。",
+            "correct": false
+          },
+          {
+            "text": "診療報酬債権を金融機関に売却する資金調達の仕組みである。",
+            "correct": false
+          },
+          {
+            "text": "医療機関間で患者紹介状を郵送するための文書管理手続である。",
+            "correct": false
+          },
+          {
+            "text": "検査結果を患者が自宅で入力し、医師の診療録を自動的に削除する仕組みである。",
+            "correct": false
+          }
+        ],
+        "explanation": "オーダエントリは、検査・処方等のオーダをオンラインで行い、関連部門や医事会計と連携する仕組みです。"
+      }
+    ]
+  },
+  {
+    "category": "令和8年度改定と医療DX評価",
+    "pool": [
+      {
+        "stem": "令和8年度診療報酬改定における医療DX・オンライン診療の評価として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "電子的診療情報連携体制整備加算が新設され、医療DXに係る評価が改組された。",
+            "correct": true
+          },
+          {
+            "text": "医療DXに関する評価は廃止され、オンライン診療の評価のみが残された。",
+            "correct": false
+          },
+          {
+            "text": "電子処方箋の活用は、調剤報酬に限られ、医科診療報酬では評価の対象とされない。",
+            "correct": false
+          },
+          {
+            "text": "サイバーセキュリティ対策は、医療DX評価の要素から外された。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテ共有サービスは、診療報酬上の評価と関係しないものとして整理された。",
+            "correct": false
+          }
+        ],
+        "explanation": "令和8年度改定では、電子的診療情報連携体制整備加算が新設され、マイナ保険証、電子処方箋、電子カルテ共有、セキュリティ等を含めた評価体系に再編されています。"
+      },
+      {
+        "stem": "電子的診療情報連携体制整備加算の点数として、令和8年度改定資料上の医科の評価に照らし、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "初診時1/2/3：15点・9点・4点、再診時：2点、入院時1/2：160点・80点",
+            "correct": true
+          },
+          {
+            "text": "初診時1/2/3：50点・30点・10点、再診時：15点、入院時1/2：500点・250点",
+            "correct": false
+          },
+          {
+            "text": "初診時1/2/3：5点・4点・3点、再診時：1点、入院時1/2：20点・10点",
+            "correct": false
+          },
+          {
+            "text": "初診時は評価せず、再診時のみ15点、入院時は80点に統一",
+            "correct": false
+          },
+          {
+            "text": "外来では評価せず、入院時のみ160点に統一",
+            "correct": false
+          }
+        ],
+        "explanation": "全体概要版では、電子的診療情報連携体制整備加算について、初診時1/2/3が15点・9点・4点、再診時2点、入院時1/2が160点・80点と整理されています。"
+      },
+      {
+        "stem": "令和8年度改定における医療DX関連評価の整理として、最も適切でないものはどれか。",
+        "choices": [
+          {
+            "text": "マイナ保険証の利用は、医療DX関連評価の要素として位置づけられる。",
+            "correct": false
+          },
+          {
+            "text": "電子処方箋の体制や活用は、医療DX関連評価の要素として位置づけられる。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテ共有サービスや地域の診療情報共有ネットワークの活用は、医療DX関連評価の要素となりうる。",
+            "correct": false
+          },
+          {
+            "text": "サイバーセキュリティ対策は、電子カルテ等の安全管理と関連して評価上の論点となる。",
+            "correct": false
+          },
+          {
+            "text": "医療DX関連評価は、マイナ保険証の利用率のみで完結し、電子処方箋や情報共有体制は評価に含まれない。",
+            "correct": true
+          }
+        ],
+        "explanation": "医療DX関連評価は、マイナ保険証の利用率だけで完結するものではありません。電子処方箋、電子カルテ共有、サイバーセキュリティ対策等を含む体制評価として理解します。"
+      }
+    ]
+  },
+  {
+    "category": "電子的診療情報連携体制整備加算",
+    "pool": [
+      {
+        "stem": "電子的診療情報連携体制整備加算1〜3の施設基準の整理として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "加算1は(1)〜(10)の全て、加算2は(1)〜(7)の全てかつ(8)〜(10)のいずれか、加算3は(1)〜(7)の全てを満たす。",
+            "correct": true
+          },
+          {
+            "text": "加算1は(1)〜(7)の全て、加算2は(8)〜(10)の全て、加算3はオンライン請求のみで足りる。",
+            "correct": false
+          },
+          {
+            "text": "加算1〜3はいずれも同一基準であり、点数だけが異なる。",
+            "correct": false
+          },
+          {
+            "text": "加算1は入院のみ、加算2は外来のみ、加算3は薬局のみの評価である。",
+            "correct": false
+          },
+          {
+            "text": "加算1では電子処方箋体制のみが要件となり、オンライン資格確認体制は求められない。",
+            "correct": false
+          }
+        ],
+        "explanation": "加算1・2・3は、満たすべき体制の範囲が異なります。特に加算1は(1)〜(10)の全てを満たす高い体制評価として整理されます。"
+      },
+      {
+        "stem": "電子的診療情報連携体制整備加算の基本的な施設基準に含まれるものとして、適切なものの組み合わせはどれか。\n\na オンライン請求を行っていること\nb 診療報酬明細書を患者に無償で交付していること\nc オンライン資格確認を行う体制を有していること\nd 取得した診療情報を診察室等で閲覧・活用できる体制を有していること\ne 病院機能評価を受審していること",
+        "choices": [
+          {
+            "text": "a・b・c",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d",
+            "correct": true
+          },
+          {
+            "text": "a・c・e",
+            "correct": false
+          },
+          {
+            "text": "b・d・e",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d・e",
+            "correct": false
+          }
+        ],
+        "explanation": "a〜dが基本的な施設基準に含まれます。eの病院機能評価は重要な第三者評価ですが、この加算の基本要件として整理するものではありません。"
+      },
+      {
+        "stem": "電子的診療情報連携体制整備加算における(8)〜(10)に関する理解として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "電子処方箋体制、一定の電子カルテ体制、電子カルテ情報共有サービスや地域ネットワークの活用体制などが関係する。",
+            "correct": true
+          },
+          {
+            "text": "診療科別原価計算、診療報酬債権流動化、リース契約の有無が関係する。",
+            "correct": false
+          },
+          {
+            "text": "在宅復帰率、平均在院日数、病床利用率だけで評価される。",
+            "correct": false
+          },
+          {
+            "text": "医療DXと関係なく、主に職員処遇改善の賃上げ実績を評価する項目である。",
+            "correct": false
+          },
+          {
+            "text": "救急搬送件数と全身麻酔手術件数のみで評価される。",
+            "correct": false
+          }
+        ],
+        "explanation": "(8)〜(10)は、電子処方箋、電子カルテ、電子カルテ情報共有サービスや地域の診療情報共有ネットワークなど、医療DX・ICT連携に関わる体制が中心です。"
+      }
+    ]
+  },
+  {
+    "category": "オンライン診療・D to P with N",
+    "pool": [
+      {
+        "stem": "D to P with N のオンライン診療の理解として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "医師が患者にオンライン診療を行う場面で、患者側に看護師等が同席・支援する形態である。",
+            "correct": true
+          },
+          {
+            "text": "医師同士が遠隔で相談し、患者は診療に参加しない形態である。",
+            "correct": false
+          },
+          {
+            "text": "薬剤師が患者にオンライン服薬指導を行うことのみを指す。",
+            "correct": false
+          },
+          {
+            "text": "医療機関の事務職員が患者にオンラインで診断を行う形態である。",
+            "correct": false
+          },
+          {
+            "text": "救急搬送中の医師同士の画像共有に限定される制度である。",
+            "correct": false
+          }
+        ],
+        "explanation": "D to P with Nは、Doctor to Patient with Nurseのイメージで、患者側に看護師等が関与するオンライン診療の形態です。D to P with Dとは区別します。"
+      },
+      {
+        "stem": "令和8年度改定におけるオンライン診療の評価として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "D to P with Nによるオンライン診療の評価が明確化され、訪問看護遠隔診療補助料などが新設された。",
+            "correct": true
+          },
+          {
+            "text": "オンライン診療は原則として診療報酬の評価対象から除外された。",
+            "correct": false
+          },
+          {
+            "text": "オンライン診療は外来に限定され、在宅医療や訪問看護との連携では評価されない。",
+            "correct": false
+          },
+          {
+            "text": "D to P with Nでは、看護師等が同席しても診療報酬上は一切評価されない。",
+            "correct": false
+          },
+          {
+            "text": "遠隔連携診療料は、医師と患者のみのD to Pに限定して評価される。",
+            "correct": false
+          }
+        ],
+        "explanation": "令和8年度改定では、D to P with Nのオンライン診療の評価が明確化され、訪問看護遠隔診療補助料などが整理されています。"
+      },
+      {
+        "stem": "情報通信機器を用いた診療に関する施設基準の見直しとして、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "チェックリストのウェブサイト掲示や医療広告安全ガイドラインの遵守などが整理された。",
+            "correct": true
+          },
+          {
+            "text": "オンライン診療を行う医療機関は、電子カルテ三原則のうち保存性を満たさなくてもよい。",
+            "correct": false
+          },
+          {
+            "text": "オンライン診療では、診療録の記載を省略できる。",
+            "correct": false
+          },
+          {
+            "text": "オンライン診療は広告規制と関係しないため、ウェブサイト上の表示は自由に行える。",
+            "correct": false
+          },
+          {
+            "text": "オンライン診療の施設基準は、救急搬送件数と全身麻酔手術件数で判定される。",
+            "correct": false
+          }
+        ],
+        "explanation": "オンライン診療では、情報通信機器を用いる診療としての適切性に加え、ウェブサイトでの情報提供や広告関連の遵守も問われます。"
+      }
+    ]
+  },
+  {
+    "category": "サイバーセキュリティ・安全管理",
+    "pool": [
+      {
+        "stem": "電子カルテとサイバーセキュリティに関する説明として、最も適切でないものはどれか。",
+        "choices": [
+          {
+            "text": "ランサムウェアにより電子カルテ等が利用できなくなると、患者診療の継続性に影響することがある。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテは、民事訴訟等において医療機関側の重要な証拠資料となりうる。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテ導入により、字が読めないことによる誤処方の減少やカルテ搬送業務の軽減が期待される。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテを導入すると、ランサムウェア攻撃は制度上発生しなくなる。",
+            "correct": true
+          },
+          {
+            "text": "電子カルテの導入は業務効率化に資するが、入力負担やシステム停止時の対応も考慮する必要がある。",
+            "correct": false
+          }
+        ],
+        "explanation": "電子カルテは利便性を高める一方、ランサムウェア等のサイバーリスクをなくすものではありません。バックアップ、訓練、復旧手順などが重要です。"
+      },
+      {
+        "stem": "医療DX推進におけるサイバーセキュリティ対策の位置づけとして、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "医療情報の連携が進むほど、可用性・真正性・機密性を守る体制が重要になる。",
+            "correct": true
+          },
+          {
+            "text": "紙カルテを廃止すれば、災害や停電時の情報参照リスクはなくなる。",
+            "correct": false
+          },
+          {
+            "text": "電子処方箋を導入した医療機関では、バックアップやアクセス管理は不要になる。",
+            "correct": false
+          },
+          {
+            "text": "地域連携システムを使う場合、院内のID管理や権限管理は診療報酬上も実務上も問題にならない。",
+            "correct": false
+          },
+          {
+            "text": "サイバーセキュリティは医療DXとは別領域であり、電子カルテや電子処方箋の評価とは関係しない。",
+            "correct": false
+          }
+        ],
+        "explanation": "医療情報の共有・連携が進むほど、アクセス管理、バックアップ、インシデント対応、システム停止時の代替手順などが重要です。"
+      },
+      {
+        "stem": "電子カルテに関する令和8年度医療DX評価の施設基準の理解として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "厚生労働省の医療情報システムの安全管理に関するガイドラインに準拠した体制や、電子処方箋管理サービス・電子カルテ情報共有サービスとの接続体制などが論点となる。",
+            "correct": true
+          },
+          {
+            "text": "電子カルテを導入していれば、医療情報システムの安全管理に関するガイドラインへの準拠は不要とされる。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテがある場合、オンライン資格確認で取得した診療情報を診察室で閲覧する体制は評価と無関係である。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテは、診療情報を保存しないオーダ専用端末であっても同じ評価を受ける。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテ情報共有サービスとの接続体制は、歯科診療に限って評価される。",
+            "correct": false
+          }
+        ],
+        "explanation": "令和8年度の医療DX評価では、電子カルテの有無だけでなく、安全管理ガイドラインへの準拠、電子処方箋管理サービスや電子カルテ情報共有サービスとの接続体制などが問われます。"
+      }
+    ]
+  },
+  {
+    "category": "医療情報の利活用と個人情報",
+    "pool": [
+      {
+        "stem": "匿名加工情報と仮名加工情報に関する説明として、最も適切でないものはどれか。",
+        "choices": [
+          {
+            "text": "匿名加工情報は、特定の個人を識別できず、かつ元の個人情報を復元できないように加工した情報である。",
+            "correct": false
+          },
+          {
+            "text": "仮名加工情報は、他の情報と照合しない限り特定の個人を識別できないように加工した情報である。",
+            "correct": false
+          },
+          {
+            "text": "仮名加工情報では、対応表等の管理が重要となる。",
+            "correct": false
+          },
+          {
+            "text": "匿名加工情報は、必要に応じて元の個人情報に戻せるように加工する情報である。",
+            "correct": true
+          },
+          {
+            "text": "医療データの利活用では、個人情報保護と安全管理を踏まえた取扱いが必要である。",
+            "correct": false
+          }
+        ],
+        "explanation": "匿名加工情報は、元の個人情報を復元できないように加工する点が重要です。必要に応じて戻せるという説明は、匿名加工情報の理解として不適切です。"
+      },
+      {
+        "stem": "医療DXにおけるデータ利活用の理解として、最も適切なものはどれか。",
+        "choices": [
+          {
+            "text": "医療DXでは、診療情報を連携・活用する一方で、個人情報保護、安全管理、患者同意等の取扱いが重要となる。",
+            "correct": true
+          },
+          {
+            "text": "医療DXで扱う情報は全て匿名加工情報となるため、個人情報保護の検討は不要である。",
+            "correct": false
+          },
+          {
+            "text": "電子カルテ情報共有では、患者を識別できる情報を常に削除してから診療に用いる。",
+            "correct": false
+          },
+          {
+            "text": "地域連携システムでは、患者情報の所在管理やアクセス権限の設定は不要である。",
+            "correct": false
+          },
+          {
+            "text": "医療DXで扱う情報は、診療報酬請求情報に限られ、診療情報や薬剤情報は含まれない。",
+            "correct": false
+          }
+        ],
+        "explanation": "医療DXは医療情報の共有・利活用を進めるものですが、患者の診療に使う情報は個人情報としての管理が必要です。匿名加工情報にすればよい、という単純な話ではありません。"
+      },
+      {
+        "stem": "医療情報の取扱いに関する記述として、適切なものの組み合わせはどれか。\n\na 診療情報の共有では、アクセス権限や閲覧記録の管理が重要である。\nb 匿名加工情報は、元の個人情報に戻せることを前提に作成される。\nc 仮名加工情報は、他の情報と照合しない限り個人を識別できないように加工した情報である。\nd 医療DXでは、データの利活用と安全管理を両立させる必要がある。\ne 電子カルテ三原則は、電子保存された診療情報の取扱いと関係しない。",
+        "choices": [
+          {
+            "text": "a・c・d",
+            "correct": true
+          },
+          {
+            "text": "a・b・c",
+            "correct": false
+          },
+          {
+            "text": "b・d・e",
+            "correct": false
+          },
+          {
+            "text": "a・b・c・d",
+            "correct": false
+          },
+          {
+            "text": "a・c・d・e",
+            "correct": false
+          }
+        ],
+        "explanation": "a・c・dが適切です。bは匿名加工情報の説明として不適切で、eも不適切です。電子カルテ三原則は、電子保存された診療情報の運用と深く関係します。"
+      }
+    ]
+  }
+];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function pickQuestions() {
+  const selected = QUESTION_CATEGORIES.map(cat => {
+    const q = cat.pool[Math.floor(Math.random() * cat.pool.length)];
+    return {
+      category: cat.category,
+      stem: q.stem,
+      explanation: q.explanation,
+      choices: shuffle(q.choices.map((choice, idx) => ({ ...choice, originalIndex: idx })))
+    };
+  });
+  return shuffle(selected);
+}
+
+const state = {
+  questions: pickQuestions(),
+  index: 0,
+  score: 0,
+  answered: false,
+  records: []
+};
+
+const el = {
+  quiz: document.getElementById('quiz'),
+  category: document.getElementById('category'),
+  qno: document.getElementById('qno'),
+  stem: document.getElementById('stem'),
+  choices: document.getElementById('choices'),
+  answerBtn: document.getElementById('answerBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  feedback: document.getElementById('feedback'),
+  progress: document.getElementById('progress'),
+  count: document.getElementById('count'),
+  result: document.getElementById('result')
+};
+
+function renderQuestion() {
+  const q = state.questions[state.index];
+  state.answered = false;
+  el.category.textContent = q.category;
+  el.qno.textContent = `第${state.index + 1}問 / ${state.questions.length}`;
+  el.stem.textContent = q.stem;
+  el.choices.innerHTML = '';
+  q.choices.forEach((choice, i) => {
+    const id = `choice-${state.index}-${i}`;
+    const label = document.createElement('label');
+    label.className = 'choice';
+    label.innerHTML = `
+      <input type="radio" name="answer" id="${id}" value="${i}">
+      <span>${choice.text}</span>
+    `;
+    el.choices.appendChild(label);
+  });
+  el.feedback.className = 'feedback';
+  el.feedback.innerHTML = '';
+  el.answerBtn.disabled = false;
+  el.nextBtn.disabled = true;
+  el.nextBtn.textContent = state.index === state.questions.length - 1 ? '結果を見る' : '次の問題へ';
+  updateProgress();
+  setTimeout(() => el.quiz.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+}
+
+function updateProgress() {
+  const answeredCount = state.records.length;
+  const pct = (answeredCount / state.questions.length) * 100;
+  el.progress.style.width = `${pct}%`;
+  el.count.textContent = `${answeredCount} / ${state.questions.length}`;
+}
+
+function getSelectedIndex() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  return selected ? Number(selected.value) : null;
+}
+
+function markAnswer() {
+  if (state.answered) return;
+  const selectedIndex = getSelectedIndex();
+  if (selectedIndex === null) {
+    el.feedback.className = 'feedback show';
+    el.feedback.innerHTML = `<span class="ng">選択肢を1つ選んでください。</span>`;
+    return;
+  }
+  const q = state.questions[state.index];
+  const selected = q.choices[selectedIndex];
+  const correct = q.choices.find(c => c.correct);
+  const isCorrect = Boolean(selected.correct);
+  state.answered = true;
+  if (isCorrect) state.score += 1;
+
+  document.querySelectorAll('input[name="answer"]').forEach(input => input.disabled = true);
+  el.answerBtn.disabled = true;
+  el.nextBtn.disabled = false;
+
+  state.records.push({
+    no: state.index + 1,
+    category: q.category,
+    stem: q.stem,
+    selected: selected.text,
+    correct: correct.text,
+    ok: isCorrect,
+    explanation: q.explanation
+  });
+
+  el.feedback.className = 'feedback show';
+  el.feedback.innerHTML = `
+    <div class="${isCorrect ? 'ok' : 'ng'}">${isCorrect ? '正解です。' : '不正解です。'}</div>
+    <div class="correctBox"><strong>正答：</strong>${correct.text}</div>
+    <p class="explain">${q.explanation}</p>
+  `;
+  updateProgress();
+}
+
+function nextQuestion() {
+  if (!state.answered) return;
+  if (state.index < state.questions.length - 1) {
+    state.index += 1;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  el.quiz.style.display = 'none';
+  el.progress.style.width = '100%';
+  el.count.textContent = `${state.questions.length} / ${state.questions.length}`;
+  const percent = Math.round((state.score / state.questions.length) * 100);
+  const message = percent >= 80 ? '仕上がり良好です。誤答カテゴリだけ見直しましょう。' :
+                  percent >= 60 ? 'あと少しです。電子処方箋・診療情報連携・三原則を重点復習しましょう。' :
+                  '基礎用語から再確認しましょう。医療DX＝マイナ保険証だけではない点が軸です。';
+  const review = state.records.map(r => `
+    <details>
+      <summary>${r.no}問目｜${r.category}｜${r.ok ? '○' : '×'}</summary>
+      <p><strong>問題：</strong>${r.stem.replace(/\n/g, '<br>')}</p>
+      <p><strong>あなたの回答：</strong>${r.selected}</p>
+      <p><strong>正答：</strong>${r.correct}</p>
+      <p><strong>解説：</strong>${r.explanation}</p>
+    </details>
+  `).join('');
+  el.result.className = 'result show';
+  el.result.innerHTML = `
+    <p class="score">結果：${state.score} / ${state.questions.length}問正解（${percent}%）</p>
+    <p>${message}</p>
+    <div class="actions">
+      <button class="primary" onclick="location.reload()">もう一度ランダム出題</button>
+      <button onclick="window.scrollTo({top:0, behavior:'smooth'})">ページ上部へ</button>
+    </div>
+    <div class="review">${review}</div>
+  `;
+  el.result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+el.answerBtn.addEventListener('click', markAnswer);
+el.nextBtn.addEventListener('click', nextQuestion);
+
+renderQuestion();
+</script>
+</body>
+</html>
