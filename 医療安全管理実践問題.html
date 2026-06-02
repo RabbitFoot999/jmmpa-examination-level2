@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>医療安全管理実践問題</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#162033;
+      --panel2:#1f2a44;
+      --text:#e8edf7;
+      --muted:#aab6ca;
+      --accent:#8fb5ff;
+      --accent2:#9bd4c0;
+      --danger:#ff9b9b;
+      --border:#33415f;
+      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(143,181,255,.13), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(155,212,192,.10), transparent 30rem),
+        var(--bg);
+      color:var(--text);
+      line-height:1.75;
+      min-height:100vh;
+    }
+    .wrap{
+      width:min(920px,100%);
+      margin:0 auto;
+      padding:18px 14px calc(32px + env(safe-area-inset-bottom));
+    }
+    header{
+      padding:18px 4px 14px;
+    }
+    .badge{
+      display:inline-flex;
+      gap:.45rem;
+      align-items:center;
+      color:var(--accent2);
+      background:rgba(155,212,192,.10);
+      border:1px solid rgba(155,212,192,.25);
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:.82rem;
+      letter-spacing:.02em;
+    }
+    h1{
+      font-size:clamp(1.55rem,6vw,2.25rem);
+      line-height:1.25;
+      margin:14px 0 8px;
+      letter-spacing:.02em;
+    }
+    .lead{
+      color:var(--muted);
+      margin:0;
+      font-size:.96rem;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), transparent 18rem), var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin:14px 0;
+    }
+    .status{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      color:var(--muted);
+      font-size:.9rem;
+      margin-bottom:12px;
+    }
+    .progressbar{
+      height:9px;
+      background:rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+      margin:8px 0 18px;
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .progressbar span{
+      display:block;
+      height:100%;
+      width:0;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border-radius:999px;
+      transition:width .25s ease;
+    }
+    .question{
+      font-size:1.05rem;
+      font-weight:700;
+      margin:0 0 14px;
+      line-height:1.7;
+    }
+    .options{
+      display:grid;
+      gap:10px;
+      margin:14px 0;
+    }
+    .option{
+      width:100%;
+      text-align:left;
+      color:var(--text);
+      background:rgba(31,42,68,.78);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:13px 13px;
+      font-size:1rem;
+      line-height:1.55;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      min-height:52px;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .option .mark{
+      flex:0 0 1.8rem;
+      height:1.8rem;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.25);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:.82rem;
+      margin-top:.1rem;
+    }
+    .option.selected{
+      border-color:var(--accent);
+      background:rgba(143,181,255,.13);
+    }
+    .option.selected .mark{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+    .option.correct{
+      border-color:rgba(155,212,192,.9);
+      background:rgba(155,212,192,.13);
+    }
+    .option.wrong{
+      border-color:rgba(255,155,155,.85);
+      background:rgba(255,155,155,.11);
+    }
+    .controls{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:16px;
+    }
+    button.main{
+      appearance:none;
+      border:0;
+      border-radius:14px;
+      min-height:52px;
+      font-weight:800;
+      font-size:1rem;
+      color:#0c1220;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 10px 24px rgba(143,181,255,.2);
+    }
+    button.sub{
+      appearance:none;
+      border:1px solid var(--border);
+      border-radius:14px;
+      min-height:48px;
+      font-weight:700;
+      font-size:.95rem;
+      color:var(--text);
+      background:rgba(255,255,255,.06);
+    }
+    button:disabled{opacity:.45}
+    .feedback{
+      margin-top:14px;
+      padding:14px;
+      border-radius:14px;
+      background:rgba(0,0,0,.18);
+      border:1px solid var(--border);
+    }
+    .feedback h2{
+      font-size:1.05rem;
+      margin:0 0 8px;
+    }
+    .feedback.ok h2{color:var(--accent2)}
+    .feedback.ng h2{color:var(--danger)}
+    .feedback p{margin:8px 0;color:var(--text)}
+    .feedback .subtle{color:var(--muted);font-size:.92rem}
+    .resultBox{
+      text-align:center;
+      padding:22px 14px;
+    }
+    .score{
+      font-size:2.4rem;
+      font-weight:900;
+      margin:10px 0;
+      color:var(--accent2);
+    }
+    details{
+      margin-top:12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .reviewItem{border-top:1px solid var(--border);padding:12px 0;text-align:left}
+    .reviewItem:first-of-type{border-top:0}
+    footer{
+      color:var(--muted);
+      font-size:.8rem;
+      padding:12px 4px 4px;
+    }
+    @media (min-width:720px){
+      .wrap{padding-top:28px}
+      .card{padding:24px}
+      .controls{grid-template-columns:1fr 1fr}
+      .controls .full{grid-column:1/-1}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">医療経営士2級対策・夜間スマホ向け</div>
+      <h1>医療安全管理実践問題</h1>
+      <p class="lead">医療安全管理体制、医薬品・医療機器の安全管理責任者、医療事故調査制度、異状死届出義務などを、6問で確認します。各カテゴリ3問のプールから毎回ランダムに出題します。</p>
+    </header>
+
+    <main id="app" class="card" aria-live="polite"></main>
+
+    <footer>
+      ※学習用の実践問題です。制度改正や通知の詳細は、試験直前に最新資料で再確認してください。
+    </footer>
+  </div>
+
+<script>
+const pools = [
+  {
+    category: "安全管理体制",
+    questions: [
+      {
+        q: "医療機関における医療安全管理体制について、最も適切なものはどれか。",
+        options: [
+          {t:"医療事故やインシデントは、関係職員の注意不足を確認する手続であり、組織的な改善活動とは区別される。", ok:false, fb:"医療安全管理では、個人の注意不足に限定せず、業務手順・情報共有・教育体制など組織的要因を分析します。"},
+          {t:"医療安全管理体制は、指針、委員会、研修、事故報告・分析、改善策の実施などを組織として整備するものである。", ok:true, fb:"正しい理解です。安全管理は、報告・分析・改善・教育を組織で回す仕組みとして押さえます。"},
+          {t:"医療安全管理委員会は、事故が発生した月だけ開催し、平時のヒヤリハット事例は各部門で保管すれば足りる。", ok:false, fb:"重大事故時だけでなく、平時から安全管理上の課題を検討し、改善につなげる体制が重要です。"},
+          {t:"職員研修は、医師と看護師を対象にすれば足り、薬剤師や事務職員を含める必要はない。", ok:false, fb:"医療安全は多職種に関わるため、職種横断的に実施することが重要です。"},
+          {t:"医療安全管理は、患者満足度向上を目的とする広報活動であり、事故報告体制とは直接関係しない。", ok:false, fb:"患者に安全な医療を提供するための体制であり、事故報告・分析・再発防止と密接に関係します。"}
+        ],
+        exp:"医療安全管理は、事故やヒヤリハットを個人責任で終わらせず、組織として原因分析と再発防止を行う仕組みです。試験では、責任追及中心の記述や、研修・報告体制を軽視する記述が誤りになりやすいです。"
+      },
+      {
+        q: "医療安全管理体制に関する記述として、適切なものの組み合わせはどれか。\n\nア 医療安全管理のための指針を整備する。\nイ 職員研修を実施し、内容等を記録する。\nウ 事故やヒヤリハットを報告・分析し、改善策につなげる。\nエ 医療事故の原因分析は、処分対象者の特定を主目的とする。\nオ 医療安全管理は、診療報酬請求の点検業務に限定される。",
+        options: [
+          {t:"ア・イ・ウ", ok:true, fb:"正しい組み合わせです。指針、研修、報告・分析、改善策が安全管理体制の中心です。"},
+          {t:"ア・イ・エ", ok:false, fb:"エが不適切です。原因分析は処分対象者の特定ではなく、再発防止のための構造的分析が中心です。"},
+          {t:"ア・ウ・オ", ok:false, fb:"オが不適切です。医療安全管理は診療報酬請求の点検に限定されません。"},
+          {t:"イ・エ・オ", ok:false, fb:"エとオが不適切です。安全管理は責任追及や請求点検に限定されるものではありません。"},
+          {t:"ウ・エ・オ", ok:false, fb:"エとオが不適切です。事故報告・分析は重要ですが、責任追及中心ではありません。"}
+        ],
+        exp:"医療安全管理体制では、指針の整備、委員会、職員研修、事故報告・分析、改善策の実施を一連の仕組みとして理解します。"
+      },
+      {
+        q: "医療安全管理における事故報告・分析の考え方として、最も適切なものはどれか。",
+        options: [
+          {t:"事故報告は、院外への説明責任を果たすための手続であり、院内の改善策には原則として反映しない。", ok:false, fb:"報告された事例は、原因分析を行い、改善策に反映することが重要です。"},
+          {t:"ヒヤリハットは結果として患者被害が生じていないため、医療安全管理上の検討対象から外す。", ok:false, fb:"ヒヤリハットも事故防止に有用な情報であり、分析・共有の対象になります。"},
+          {t:"事故分析では、背景要因や業務プロセスを検討し、再発防止策を組織として実施する。", ok:true, fb:"正しいです。医療安全では、個人の失敗だけでなく、背景要因やシステムを分析します。"},
+          {t:"医療事故が発生した場合は、医療安全管理委員会での検討よりも、当該職員への注意喚起を優先して完結させる。", ok:false, fb:"注意喚起だけで完結させず、組織的な原因分析と改善が必要です。"},
+          {t:"同種事例が複数発生しても、各職員が異なる場合には共通要因の分析は行わない。", ok:false, fb:"複数事例に共通する手順・環境・情報伝達などを分析することが重要です。"}
+        ],
+        exp:"事故報告・分析は、再発防止に向けた組織学習の仕組みです。ヒヤリハットも含めて情報を集め、背景要因を検討します。"
+      }
+    ]
+  },
+  {
+    category: "医療安全管理者",
+    questions: [
+      {
+        q: "医療安全管理者について、最も適切なものはどれか。",
+        options: [
+          {t:"医療安全管理者は、医師免許を有する者に限られ、他職種が担当することはできない。", ok:false, fb:"医療安全管理者は医療安全に関する十分な知識を有する常勤職員であり、医師に限定されるものではありません。"},
+          {t:"医療安全管理者は、医療安全管理委員会の支援、職員研修の実施支援、改善方策の実施支援などを担う。", ok:true, fb:"正しいです。医療安全管理者は、安全管理体制の運用を支援する役割を担います。"},
+          {t:"医療安全管理者は、医薬品の購入価格を決定する責任者として配置される。", ok:false, fb:"医療安全管理者の中心業務は安全管理体制の支援であり、医薬品購入価格の決定ではありません。"},
+          {t:"医療安全管理者は、医療事故調査・支援センターに所属し、各病院へ派遣される外部職員である。", ok:false, fb:"医療安全管理者は当該医療機関内で安全管理業務を担う職員として整理されます。"},
+          {t:"医療安全管理者は、医療機器の保守点検計画だけを担当し、研修や改善策には関与しない。", ok:false, fb:"医療機器の保守点検計画は医療機器安全管理責任者の論点です。医療安全管理者はより広く安全管理体制を支援します。"}
+        ],
+        exp:"医療安全管理者は、医療安全管理委員会、研修、事故報告・分析、改善策の実施を支える役割です。医薬品安全管理責任者や医療機器安全管理責任者と混同しないようにします。"
+      },
+      {
+        q: "医療安全管理者の業務として適切なものの組み合わせはどれか。\n\nア 医療安全管理委員会の活動を支援する。\nイ 職員研修の実施を支援する。\nウ 改善方策が円滑に実施されるよう支援する。\nエ 医薬品の製造販売承認を行う。\nオ 医療事故調査・支援センターの設置を認可する。",
+        options: [
+          {t:"ア・イ・ウ", ok:true, fb:"正しい組み合わせです。医療安全管理者は院内の安全管理体制を支援します。"},
+          {t:"ア・エ・オ", ok:false, fb:"エとオが不適切です。製造販売承認やセンター設置認可は医療安全管理者の業務ではありません。"},
+          {t:"イ・ウ・エ", ok:false, fb:"エが不適切です。医薬品の製造販売承認は医療機関内の医療安全管理者の業務ではありません。"},
+          {t:"イ・エ・オ", ok:false, fb:"エとオが不適切です。院内の安全管理支援とは異なる行政・薬事の論点です。"},
+          {t:"ウ・エ・オ", ok:false, fb:"ウは適切ですが、エとオは不適切です。"}
+        ],
+        exp:"医療安全管理者は、医療安全管理委員会、職員研修、改善策の実施など、院内の安全管理活動を実務面で支援します。"
+      },
+      {
+        q: "医療安全管理者と関連責任者の整理として、最も適切なものはどれか。",
+        options: [
+          {t:"医療安全管理者、医薬品安全管理責任者、医療機器安全管理責任者は、名称が異なるだけで業務範囲は同一である。", ok:false, fb:"三者は関連しますが、業務範囲は異なります。医薬品、医療機器はそれぞれ安全使用のための責任者です。"},
+          {t:"医療安全管理者は、院内の医療安全管理活動を支援する役割であり、医薬品・医療機器の安全管理責任者と役割を区別して理解する。", ok:true, fb:"正しいです。試験では名称の混同が狙われやすいため、役割の違いを押さえます。"},
+          {t:"医薬品安全管理責任者が配置されていれば、医療安全管理体制として職員研修や事故報告体制は不要となる。", ok:false, fb:"医薬品安全管理責任者は医薬品の安全使用に関する責任者であり、医療安全管理体制全体を代替するものではありません。"},
+          {t:"医療機器安全管理責任者は、医療安全管理委員会と連携することは想定されていない。", ok:false, fb:"医療機器の安全使用も医療安全に関わるため、院内の安全管理体制との連携が重要です。"},
+          {t:"医療安全管理者は、診療録の保存期間を短縮する権限を持つ職員である。", ok:false, fb:"診療録の保存期間を任意に短縮する権限はありません。医療安全管理者の論点とは異なります。"}
+        ],
+        exp:"医療安全管理者は安全管理体制全体の実務支援、医薬品安全管理責任者は医薬品、医療機器安全管理責任者は医療機器の安全使用を担う、と分けて押さえます。"
+      }
+    ]
+  },
+  {
+    category: "医薬品安全管理責任者",
+    questions: [
+      {
+        q: "病院における医薬品安全管理責任者について、最も適切なものはどれか。",
+        options: [
+          {t:"医薬品安全管理責任者は、医薬品に関する十分な知識を有する常勤職員であり、病院では管理者との兼務は認められない。", ok:true, fb:"正しいです。過去メモの『薬剤の安全管理者と管理者の兼務』に直結する論点です。"},
+          {t:"医薬品安全管理責任者は、医薬品の採用品目を増やすための営業担当者であり、医療安全管理体制とは関係しない。", ok:false, fb:"医薬品安全管理責任者は医薬品の安全使用を目的とする院内責任者です。"},
+          {t:"医薬品安全管理責任者は、非常勤職員から選任することが原則である。", ok:false, fb:"医薬品安全管理責任者は、医薬品に関する十分な知識を有する常勤職員として整理されます。"},
+          {t:"病院の医薬品安全管理責任者は、管理者と兼務することで迅速な意思決定を行うことが求められる。", ok:false, fb:"病院では管理者との兼務は不可とされる点が重要です。"},
+          {t:"医薬品安全管理責任者の業務は、医薬品の在庫金額の集計に限られる。", ok:false, fb:"業務手順書、研修、情報収集、改善策など、安全使用のための業務が中心です。"}
+        ],
+        exp:"医薬品安全管理責任者は、医薬品の安全使用のための責任者です。病院では管理者との兼務不可という条件が特に出題されやすいです。"
+      },
+      {
+        q: "医薬品安全管理責任者の業務として適切なものの組み合わせはどれか。\n\nア 医薬品の安全使用のための業務手順書の作成\nイ 職員に対する医薬品の安全使用のための研修\nウ 医薬品の安全使用に必要な情報の収集と改善方策の実施\nエ 医療機器の全機種について保守点検周期を法定する\nオ 支払基金に対する診療報酬債権の譲渡",
+        options: [
+          {t:"ア・イ・ウ", ok:true, fb:"正しい組み合わせです。医薬品安全管理責任者の中心業務です。"},
+          {t:"ア・イ・エ", ok:false, fb:"エが不適切です。医療機器の保守点検は医療機器安全管理責任者の論点です。"},
+          {t:"ア・ウ・オ", ok:false, fb:"オが不適切です。診療報酬債権の譲渡は資金調達の論点であり、医薬品安全管理責任者の業務ではありません。"},
+          {t:"イ・エ・オ", ok:false, fb:"エとオが不適切です。医薬品の安全使用と医療機器保守・債権流動化は区別します。"},
+          {t:"ウ・エ・オ", ok:false, fb:"ウは適切ですが、エとオは不適切です。"}
+        ],
+        exp:"医薬品安全管理責任者は、手順書、研修、情報収集、改善策の実施が中心です。医療機器や資金調達の論点と混同しないようにします。"
+      },
+      {
+        q: "医薬品安全管理責任者に関する記述として、誤っているものはどれか。",
+        options: [
+          {t:"病院、診療所又は助産所の管理者は、医薬品の安全使用のための責任者を配置する。", ok:false, fb:"これは適切な記述です。管理者が配置する責任者として整理されます。"},
+          {t:"医薬品安全管理責任者は、医薬品に関する十分な知識を有する常勤職員である。", ok:false, fb:"これは適切な記述です。常勤職員である点も重要です。"},
+          {t:"病院では、医薬品安全管理責任者と管理者の兼務は認められない。", ok:false, fb:"これは適切な記述です。過去メモに近い重要論点です。"},
+          {t:"医薬品安全管理責任者は、医薬品の安全使用に関する職員研修に関与する。", ok:false, fb:"これは適切な記述です。研修は重要な業務の一つです。"},
+          {t:"病院の医薬品安全管理責任者は、管理者が兼務することを原則とする。", ok:true, fb:"誤りです。病院では、医薬品安全管理責任者と管理者の兼務は不可と整理されます。"}
+        ],
+        exp:"『誤っているもの』を選ぶ問題です。病院では医薬品安全管理責任者と管理者の兼務が不可という点を押さえます。"
+      }
+    ]
+  },
+  {
+    category: "医療機器安全管理責任者",
+    questions: [
+      {
+        q: "医療機器安全管理責任者について、最も適切なものはどれか。",
+        options: [
+          {t:"医療機器安全管理責任者は、医療機器の安全使用のための研修、保守点検計画、安全情報の収集等に関与する。", ok:true, fb:"正しいです。医療機器の安全使用に関する中心的業務です。"},
+          {t:"医療機器安全管理責任者は、医薬品の副作用情報だけを管理する責任者である。", ok:false, fb:"副作用情報は医薬品安全管理の論点です。医療機器安全管理責任者は医療機器の安全使用を担います。"},
+          {t:"医療機器安全管理責任者を配置した場合、医療機器の保守点検を外部委託すると院内での管理状況把握は不要となる。", ok:false, fb:"外部委託しても、保守点検の実施状況等を把握することが重要です。"},
+          {t:"医療機器安全管理責任者の主な業務は、病院の借入可能額の算定である。", ok:false, fb:"借入可能額は財務の論点であり、医療機器安全管理責任者の業務ではありません。"},
+          {t:"医療機器安全管理責任者は、患者からの選定療養費の徴収額を決定する責任者である。", ok:false, fb:"選定療養費の論点とは異なります。医療機器の安全使用を担う責任者です。"}
+        ],
+        exp:"医療機器安全管理責任者は、医療機器の研修、保守点検、情報収集・改善策を担います。医薬品安全管理責任者との違いが問われやすいです。"
+      },
+      {
+        q: "病院における医療機器安全管理責任者の兼務に関する記述として、最も適切なものはどれか。",
+        options: [
+          {t:"病院では管理者との兼務は認められないが、医薬品安全管理責任者等の他の役職との兼務は可能と整理される。", ok:true, fb:"正しいです。管理者との兼務不可と、他の役職との兼務可能性を分けて押さえます。"},
+          {t:"病院では管理者との兼務が原則であり、他の役職との兼務は一切認められない。", ok:false, fb:"逆です。病院では管理者との兼務は不可とされ、他の役職との兼務は可能と整理されます。"},
+          {t:"病院では医療機器安全管理責任者を置く場合、医薬品安全管理責任者の配置は不要となる。", ok:false, fb:"医療機器と医薬品は別の安全管理責任者として整理されます。"},
+          {t:"医療機器安全管理責任者は、病院長でなければならない。", ok:false, fb:"病院では管理者との兼務不可であり、病院長でなければならないという理解は誤りです。"},
+          {t:"医療機器安全管理責任者は、医療機器を取り扱わない部署の非常勤職員から任命することが原則である。", ok:false, fb:"医療機器に関する十分な知識を有する常勤職員として整理します。"}
+        ],
+        exp:"病院では医療機器安全管理責任者と管理者の兼務は不可です。一方で、医薬品安全管理責任者など他の役職との兼務可能性は区別して押さえます。"
+      },
+      {
+        q: "医療機器安全管理責任者の業務として適切なものの組み合わせはどれか。\n\nア 医療機器の安全使用のための研修\nイ 医療機器の保守点検に関する計画の策定\nウ 医療機器の安全使用に必要な情報の収集\nエ 医薬品の安全使用のための業務手順書の作成\nオ 医療事故調査・支援センターへの報告対象の最終認定",
+        options: [
+          {t:"ア・イ・ウ", ok:true, fb:"正しい組み合わせです。医療機器安全管理責任者の中心業務です。"},
+          {t:"ア・イ・エ", ok:false, fb:"エは医薬品安全管理責任者の論点です。"},
+          {t:"ア・ウ・オ", ok:false, fb:"オが不適切です。報告対象の判断は医療機関の管理者の論点です。"},
+          {t:"イ・エ・オ", ok:false, fb:"エとオが不適切です。医療機器の保守点検と、医薬品・医療事故調査制度を区別します。"},
+          {t:"ウ・エ・オ", ok:false, fb:"ウは適切ですが、エとオは不適切です。"}
+        ],
+        exp:"医療機器安全管理責任者は、研修、保守点検計画、情報収集・改善策を担います。医薬品の手順書や医療事故調査制度の報告判断とは区別します。"
+      }
+    ]
+  },
+  {
+    category: "医療事故調査制度",
+    questions: [
+      {
+        q: "医療事故調査制度の対象となる医療事故について、最も適切なものはどれか。",
+        options: [
+          {t:"医療過誤が明らかで、患者または遺族がセンターに直接申請した事案に限られる。", ok:false, fb:"過誤の有無で対象を限定する制度ではなく、最初の報告は医療機関の管理者が行います。"},
+          {t:"医療に起因し、又は起因すると疑われる死亡又は死産で、管理者が予期しなかったものが対象となる。", ok:true, fb:"正しいです。『医療に起因』『死亡又は死産』『予期しなかった』が中心論点です。"},
+          {t:"医療に起因しない原病の進行による死亡であっても、院内で死亡した場合は一律に対象となる。", ok:false, fb:"医療に起因し、又は起因すると疑われる死亡・死産が対象です。院内死亡という事実だけでは足りません。"},
+          {t:"予期された死亡であっても、家族が納得しない場合は医療事故調査制度の対象として扱われる。", ok:false, fb:"制度上は、管理者が当該死亡又は死産を予期しなかったものが対象です。"},
+          {t:"死亡又は死産を伴わないインシデントも、すべて医療事故調査制度の報告対象となる。", ok:false, fb:"医療事故調査制度の対象は、死亡又は死産に関するものです。ヒヤリハット等とは区別します。"}
+        ],
+        exp:"医療事故調査制度は、医療に起因し、又は起因すると疑われる死亡・死産で、管理者が予期しなかったものを対象とします。過誤の有無を問う制度ではありません。"
+      },
+      {
+        q: "医療事故調査制度に関する記述として、適切なものの組み合わせはどれか。\n\nア 医療事故に該当するかどうかは、医療機関の管理者が判断する。\nイ 対象は、医療に起因し、又は起因すると疑われる死亡又は死産である。\nウ 過誤の有無は、制度上の対象該当性を判断する唯一の基準である。\nエ 医療事故が発生した場合、管理者は医療事故調査・支援センターへ報告する。\nオ 遺族が最初の報告をセンターに直接行う仕組みである。",
+        options: [
+          {t:"ア・イ・エ", ok:true, fb:"正しい組み合わせです。判断・報告主体は管理者、対象は医療に起因する予期しなかった死亡・死産です。"},
+          {t:"ア・ウ・オ", ok:false, fb:"ウとオが不適切です。過誤の有無に限定されず、遺族が最初の報告主体になる仕組みではありません。"},
+          {t:"イ・ウ・エ", ok:false, fb:"ウが不適切です。過誤の有無だけで対象該当性を判断するわけではありません。"},
+          {t:"イ・エ・オ", ok:false, fb:"オが不適切です。最初の報告は医療機関の管理者が行います。"},
+          {t:"ウ・エ・オ", ok:false, fb:"ウとオが不適切です。制度の基本構造と異なります。"}
+        ],
+        exp:"医療事故調査制度は、医療機関の管理者が対象該当性を判断し、医療事故調査・支援センターへ報告する仕組みです。"
+      },
+      {
+        q: "医療事故調査制度と院内調査に関する記述として、最も適切なものはどれか。",
+        options: [
+          {t:"制度の目的は、医療事故に関与した職員の刑事責任を判断することに限られる。", ok:false, fb:"制度は医療の安全確保を目的とするもので、刑事責任の判断に限定されません。"},
+          {t:"管理者は、医療事故に該当すると判断した場合、報告と調査を行い、再発防止に資する検討を進める。", ok:true, fb:"正しいです。報告・調査を通じて、医療安全の確保につなげる制度です。"},
+          {t:"院内調査は、遺族から訴訟提起があった場合に限って実施される。", ok:false, fb:"訴訟提起の有無とは別に、制度上の対象に該当すれば調査を行います。"},
+          {t:"予期しなかった死亡であっても、医療に起因する疑いがなければ医療事故調査制度の対象となる。", ok:false, fb:"医療に起因し、又は起因すると疑われる死亡・死産であることが必要です。"},
+          {t:"医療事故調査制度では、患者が死亡していない場合でも、重症度が高ければ同じ手続で報告する。", ok:false, fb:"この制度の対象は死亡又は死産です。重大インシデント等の院内対応とは区別します。"}
+        ],
+        exp:"医療事故調査制度は、医療の安全確保を目的とし、対象となる死亡・死産について管理者が報告・調査を行う制度です。"
+      }
+    ]
+  },
+  {
+    category: "異状死届出・法的責任",
+    questions: [
+      {
+        q: "医師法第21条の異状死届出義務について、最も適切なものはどれか。",
+        options: [
+          {t:"医師は、死体又は妊娠4月以上の死産児を検案して異状があると認めたときは、24時間以内に所轄警察署へ届け出る。", ok:true, fb:"正しいです。24時間以内、所轄警察署がポイントです。"},
+          {t:"医師は、異状があると認めた場合でも、医療機関の管理者が承認するまで届出を行ってはならない。", ok:false, fb:"医師法第21条は医師の届出義務として整理されます。管理者承認待ちという理解は不適切です。"},
+          {t:"異状死の届出先は、医療事故調査・支援センターに限られる。", ok:false, fb:"異状死届出は所轄警察署への届出義務です。医療事故調査制度と届出先を区別します。"},
+          {t:"届出期限は、死体検案後7日以内である。", ok:false, fb:"7日以内ではなく、24時間以内です。"},
+          {t:"妊娠4月以上の死産児は、異状があっても届出義務の対象から除かれる。", ok:false, fb:"死体又は妊娠4月以上の死産児を検案して異状があると認めたときが対象です。"}
+        ],
+        exp:"異状死届出義務は、医療事故調査制度と混同しやすい論点です。『24時間以内』『所轄警察署』『死体又は妊娠4月以上の死産児』を押さえます。"
+      },
+      {
+        q: "医療事故後の責任や手続の整理として、最も適切なものはどれか。",
+        options: [
+          {t:"医療事故が発生した場合、医療従事者や医療機関が民事上、刑事上、行政上の責任を問われることがある。", ok:true, fb:"正しいです。医療事故後の責任は民事・刑事・行政に分けて整理します。"},
+          {t:"医療事故では、患者側が追及できるのは行政上の責任に限られる。", ok:false, fb:"患者側は民事上の損害賠償責任を追及することがあります。行政上の責任だけではありません。"},
+          {t:"医療事故があった場合、刑事責任は常に発生し、民事責任は発生しない。", ok:false, fb:"刑事責任が常に発生するわけではなく、民事上の責任が問題となることもあります。"},
+          {t:"医療事故調査制度の報告を行えば、民事上の損害賠償責任は当然に免除される。", ok:false, fb:"医療事故調査制度と民事責任の有無は別の問題です。"},
+          {t:"異状死届出義務は、民事訴訟の判決が確定した後に発生する。", ok:false, fb:"異状があると認めたときの届出義務であり、民事訴訟の判決確定後ではありません。"}
+        ],
+        exp:"医療事故後の論点は、医療事故調査制度、異状死届出義務、民事・刑事・行政上の責任を区別して整理します。"
+      },
+      {
+        q: "異状死届出義務と医療事故調査制度の関係について、適切なものの組み合わせはどれか。\n\nア 異状死届出義務の届出先は所轄警察署である。\nイ 医療事故調査制度の報告先は医療事故調査・支援センターである。\nウ 異状死届出義務の期限は24時間以内である。\nエ 医療事故調査制度は、死亡を伴わないヒヤリハットを一律に報告対象とする。\nオ 医療事故調査制度では、遺族が最初の報告主体となる。",
+        options: [
+          {t:"ア・イ・ウ", ok:true, fb:"正しい組み合わせです。異状死届出と医療事故調査制度の届出先・報告先を区別します。"},
+          {t:"ア・イ・エ", ok:false, fb:"エが不適切です。医療事故調査制度は死亡又は死産が対象であり、ヒヤリハットを一律に対象とするものではありません。"},
+          {t:"ア・ウ・オ", ok:false, fb:"オが不適切です。医療事故調査制度の最初の報告主体は医療機関の管理者です。"},
+          {t:"イ・エ・オ", ok:false, fb:"エとオが不適切です。死亡・死産が対象であり、報告主体は管理者です。"},
+          {t:"ウ・エ・オ", ok:false, fb:"エとオが不適切です。異状死届出の24時間以内は正しいですが、他制度との混同に注意します。"}
+        ],
+        exp:"異状死届出義務は所轄警察署へ24時間以内、医療事故調査制度は医療事故調査・支援センターへ管理者が報告、という形で整理します。"
+      }
+    ]
+  }
+];
+
+const app = document.getElementById('app');
+let quiz = [];
+let current = 0;
+let selected = null;
+let answered = false;
+let score = 0;
+let history = [];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQuiz(){
+  quiz = pools.map(pool => {
+    const q = shuffle(pool.questions)[0];
+    return {...q, category: pool.category, options: shuffle(q.options)};
+  });
+  quiz = shuffle(quiz);
+  current = 0;
+  selected = null;
+  answered = false;
+  score = 0;
+  history = [];
+  renderQuestion();
+}
+
+function optionLabel(i){ return String.fromCharCode(65+i); }
+
+function renderQuestion(){
+  const item = quiz[current];
+  const pct = Math.round((current/quiz.length)*100);
+  selected = null;
+  answered = false;
+  app.innerHTML = `
+    <div class="status">
+      <span>問題 ${current+1} / ${quiz.length}</span>
+      <span>正答 ${score} 問</span>
+    </div>
+    <div class="progressbar"><span style="width:${pct}%"></span></div>
+    <p class="question">${escapeHtml(item.q).replace(/\n/g,'<br>')}</p>
+    <div class="options" id="options"></div>
+    <div id="feedback"></div>
+    <div class="controls">
+      <button class="main full" id="answerBtn" disabled>回答</button>
+      <button class="sub" id="restartBtn">最初からやり直す</button>
+    </div>
+  `;
+  const optionsEl = document.getElementById('options');
+  item.options.forEach((opt, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.type = 'button';
+    btn.innerHTML = `<span class="mark">${optionLabel(i)}</span><span>${escapeHtml(opt.t)}</span>`;
+    btn.addEventListener('click',()=>selectOption(i));
+    optionsEl.appendChild(btn);
+  });
+  document.getElementById('answerBtn').addEventListener('click',showAnswer);
+  document.getElementById('restartBtn').addEventListener('click',buildQuiz);
+  app.scrollIntoView({block:'start'});
+}
+
+function selectOption(i){
+  if(answered) return;
+  selected = i;
+  [...document.querySelectorAll('.option')].forEach((el, idx)=>{
+    el.classList.toggle('selected', idx===i);
+  });
+  document.getElementById('answerBtn').disabled = false;
+}
+
+function showAnswer(){
+  if(selected === null || answered) return;
+  answered = true;
+  const item = quiz[current];
+  const opt = item.options[selected];
+  const correctIndex = item.options.findIndex(o=>o.ok);
+  const isOk = !!opt.ok;
+  if(isOk) score++;
+  history.push({q:item.q, category:item.category, selected:opt.t, correct:item.options[correctIndex].t, ok:isOk, fb:opt.fb, exp:item.exp});
+  [...document.querySelectorAll('.option')].forEach((el, idx)=>{
+    el.disabled = true;
+    if(item.options[idx].ok) el.classList.add('correct');
+    if(idx===selected && !item.options[idx].ok) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('feedback');
+  fb.innerHTML = `
+    <div class="feedback ${isOk?'ok':'ng'}">
+      <h2>${isOk?'正解です':'不正解です'}</h2>
+      <p><strong>選択肢の確認：</strong>${escapeHtml(opt.fb)}</p>
+      <p><strong>解説：</strong>${escapeHtml(item.exp)}</p>
+      <p class="subtle">確認論点：${escapeHtml(item.category)}</p>
+    </div>
+  `;
+  const controls = document.querySelector('.controls');
+  document.getElementById('answerBtn').remove();
+  const next = document.createElement('button');
+  next.className = 'main full';
+  next.textContent = current < quiz.length-1 ? '次の問題へ' : '結果を見る';
+  next.addEventListener('click',()=>{
+    if(current < quiz.length-1){ current++; renderQuestion(); }
+    else renderResult();
+  });
+  controls.prepend(next);
+}
+
+function renderResult(){
+  const pct = Math.round((score/quiz.length)*100);
+  const message = pct >= 85 ? 'かなり仕上がっています。兼務可否と報告先の区別も安定しています。' : pct >= 65 ? '重要論点は押さえられています。誤答したカテゴリを再確認しましょう。' : '安全管理は似た名称が多い分野です。管理者、医薬品、医療機器、事故調査制度を分けて復習しましょう。';
+  app.innerHTML = `
+    <div class="resultBox">
+      <div class="badge">結果</div>
+      <div class="score">${score} / ${quiz.length}</div>
+      <p>${message}</p>
+      <button class="main" id="retryBtn">もう一度ランダム出題</button>
+    </div>
+    <details open>
+      <summary>解答レビューを開く / 閉じる</summary>
+      ${history.map((h,i)=>`
+        <div class="reviewItem">
+          <p><strong>Q${i+1} ${escapeHtml(h.category)}</strong><br>${escapeHtml(h.q).replace(/\n/g,'<br>')}</p>
+          <p>${h.ok ? '○' : '×'} あなたの選択：${escapeHtml(h.selected)}</p>
+          ${h.ok ? '' : `<p>正答：${escapeHtml(h.correct)}</p>`}
+          <p>${escapeHtml(h.exp)}</p>
+        </div>
+      `).join('')}
+    </details>
+  `;
+  document.getElementById('retryBtn').addEventListener('click', buildQuiz);
+  app.scrollIntoView({block:'start'});
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
