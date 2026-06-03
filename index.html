@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>医療経営士2級 実践問題インデックス</title>
+  <style>
+    :root{
+      --bg:#0f1720;
+      --panel:#151f2b;
+      --panel-2:#1a2633;
+      --text:#eef3f7;
+      --muted:#aebbc8;
+      --line:#2c3c4d;
+      --accent:#7fb7d8;
+      --accent-2:#a8d5ba;
+      --warn:#e7c27d;
+      --shadow:0 16px 45px rgba(0,0,0,.28);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(127,183,216,.16), transparent 34rem),
+        radial-gradient(circle at top right, rgba(168,213,186,.12), transparent 30rem),
+        var(--bg);
+      color:var(--text);
+      line-height:1.75;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(1040px,100%);margin:0 auto;padding:22px 16px 48px}
+    header{
+      padding:26px 0 18px;
+    }
+    .eyebrow{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:5px 10px;
+      border:1px solid rgba(127,183,216,.35);
+      border-radius:999px;
+      color:#c9dfef;
+      background:rgba(127,183,216,.09);
+      font-size:.82rem;
+      letter-spacing:.04em;
+    }
+    h1{
+      margin:14px 0 8px;
+      font-size:clamp(1.55rem,5vw,2.4rem);
+      line-height:1.25;
+      letter-spacing:.01em;
+    }
+    .lead{margin:0;color:var(--muted);font-size:.98rem;max-width:760px}
+    .toolbar{
+      margin:22px 0 16px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    .searchBox{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:rgba(21,31,43,.88);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:10px 12px;
+      box-shadow:var(--shadow);
+    }
+    .searchBox span{color:var(--muted)}
+    input[type="search"]{
+      width:100%;
+      border:0;
+      outline:0;
+      background:transparent;
+      color:var(--text);
+      font:inherit;
+      min-height:36px;
+    }
+    input[type="search"]::placeholder{color:#8797a7}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{
+      border:1px solid var(--line);
+      background:rgba(26,38,51,.78);
+      color:var(--muted);
+      border-radius:999px;
+      padding:8px 11px;
+      font-size:.86rem;
+      cursor:pointer;
+    }
+    .chip.active{
+      color:#0f1720;
+      background:var(--accent);
+      border-color:var(--accent);
+      font-weight:700;
+    }
+    .metaRow{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin:10px 0 14px;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+    .card{
+      position:relative;
+      overflow:hidden;
+      min-height:176px;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(26,38,51,.96), rgba(21,31,43,.96));
+      box-shadow:var(--shadow);
+      transition:transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+    .card:hover,.card:focus-within{
+      transform:translateY(-2px);
+      border-color:rgba(127,183,216,.72);
+      background:linear-gradient(180deg, rgba(31,47,63,.98), rgba(21,31,43,.98));
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:auto -40px -70px auto;
+      width:150px;
+      height:150px;
+      border-radius:50%;
+      background:rgba(127,183,216,.07);
+      pointer-events:none;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:rgba(168,213,186,.12);
+      color:#cce8d7;
+      font-size:.78rem;
+      border:1px solid rgba(168,213,186,.22);
+    }
+    .card h2{
+      margin:12px 0 8px;
+      font-size:1.08rem;
+      line-height:1.45;
+      padding-right:20px;
+    }
+    .card p{margin:0;color:var(--muted);font-size:.9rem}
+    .openBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      margin-top:14px;
+      padding:9px 12px;
+      border-radius:12px;
+      background:rgba(127,183,216,.14);
+      border:1px solid rgba(127,183,216,.28);
+      color:#d7edf9;
+      font-weight:700;
+      font-size:.9rem;
+    }
+    .openBtn::after{content:"→"}
+    .empty{
+      display:none;
+      margin:18px 0 0;
+      padding:18px;
+      border-radius:16px;
+      background:rgba(231,194,125,.12);
+      border:1px solid rgba(231,194,125,.26);
+      color:#f1d7a6;
+    }
+    footer{
+      margin-top:24px;
+      color:var(--muted);
+      font-size:.86rem;
+      border-top:1px solid var(--line);
+      padding-top:18px;
+    }
+    .footerLinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    .footerLinks a{
+      color:#c9dfef;
+      border-bottom:1px solid rgba(127,183,216,.35);
+    }
+    @media (max-width:720px){
+      .wrap{padding:18px 12px 42px}
+      header{padding-top:16px}
+      .grid{grid-template-columns:1fr;gap:12px}
+      .card{min-height:auto;padding:16px}
+      .metaRow{align-items:flex-start;flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">医療経営士2級 対策用リンク集</div>
+      <h1>実践問題インデックス</h1>
+      <p class="lead">このページから、GitHub Pages上に保存した各テーマのHTML実践問題へアクセスできます。夜間のスマホ利用を想定した、暗めで落ち着いた目次ページです。</p>
+    </header>
+
+    <section class="toolbar" aria-label="問題検索と絞り込み">
+      <label class="searchBox">
+        <span aria-hidden="true">検索</span>
+        <input id="search" type="search" placeholder="例：医療DX、病床、薬機法、働き方改革" autocomplete="off" />
+      </label>
+      <div class="chips" id="chips" aria-label="カテゴリ"></div>
+    </section>
+
+    <div class="metaRow">
+      <div id="count">8件</div>
+      <div>最終更新：2026年6月</div>
+    </div>
+
+    <main class="grid" id="list" aria-live="polite"></main>
+    <div class="empty" id="empty">該当する問題が見つかりませんでした。検索語を短くするか、カテゴリを「すべて」に戻してください。</div>
+
+    <footer>
+      <div>新しい問題HTMLを追加した場合は、この <code>items</code> 配列に1行追加すると目次に反映できます。</div>
+      <div class="footerLinks">
+        <a href="https://github.com/RabbitFoot999/jmmpa-examination-level2">GitHubリポジトリ</a>
+        <a href="https://rabbitfoot999.github.io/jmmpa-examination-level2/">GitHub Pagesトップ</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const items = [
+      {
+        title: "2026診療報酬改定・医師の働き方改革 実践問題",
+        category: "診療報酬・働き方改革",
+        description: "2026年度診療報酬改定、過去改定の特徴、医師の働き方改革、宿日直などを復習します。",
+        href: "2026%E8%A8%BA%E7%99%82%E5%A0%B1%E9%85%AC%E6%94%B9%E5%AE%9A%E3%83%BB%E5%8C%BB%E5%B8%AB%E3%81%AE%E5%83%8D%E3%81%8D%E6%96%B9%E6%94%B9%E9%9D%A9%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      },
+      {
+        title: "医療DX 実践問題",
+        category: "医療DX・情報",
+        description: "医療DX、電子処方箋、診療情報連携、オンライン資格確認などの論点を復習します。",
+        href: "%E5%8C%BB%E7%99%82DX%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      },
+      {
+        title: "医療安全管理 実践問題",
+        category: "医療安全・質管理",
+        description: "医療機関の安全管理体制、医療事故、感染対策、医薬品・医療機器安全などを確認します。",
+        href: "%E5%8C%BB%E7%99%82%E5%AE%89%E5%85%A8%E7%AE%A1%E7%90%86%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      },
+      {
+        title: "病床ごとの特徴 実践問題",
+        category: "病床・入院医療",
+        description: "急性期、回復期、地域包括ケア、療養病床など、病床ごとの機能や収益構造を復習します。",
+        href: "%E7%97%85%E5%BA%8A%E3%81%93%E3%82%99%E3%81%A8%E3%81%AE%E7%89%B9%E5%BE%B4%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      },
+      {
+        title: "病床機能・地域医療構想 実践問題",
+        category: "病床・地域医療構想",
+        description: "病床機能報告、地域医療構想、医療機能の分化・連携に関する論点を確認します。",
+        href: "%E7%97%85%E5%BA%8A%E6%A9%9F%E8%83%BD%E3%83%BB%E5%9C%B0%E5%9F%9F%E5%8C%BB%E7%99%82%E6%A7%8B%E6%83%B3%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      },
+      {
+        title: "第三者認証・第三者評価 実践問題",
+        category: "第三者評価・認証",
+        description: "病院機能評価、ISO、プライバシーマーク、JIS Q 15001などの違いを整理します。",
+        href: "%E7%AC%AC%E4%B8%89%E8%80%85%E8%AA%8D%E8%A8%BC%E3%83%BB%E7%AC%AC%E4%B8%89%E8%80%85%E8%A9%95%E4%BE%A1%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      },
+      {
+        title: "経営・分析理論 実践問題",
+        category: "経営・分析",
+        description: "BSC、SWOT、ECRS、非市場戦略など、医療機関経営に関する理論を復習します。",
+        href: "%E7%B5%8C%E5%96%B6%E3%83%BB%E5%88%86%E6%9E%90%E7%90%86%E8%AB%96%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      },
+      {
+        title: "薬機法重要ポイント 実践問題",
+        category: "薬機法・薬価",
+        description: "薬機法、医薬品分類、医療機器分類、承認、薬価収載・薬価算定などを確認します。",
+        href: "%E8%96%AC%E6%A9%9F%E6%B3%95%E9%87%8D%E8%A6%81%E3%83%9B%E3%82%9A%E3%82%A4%E3%83%B3%E3%83%88%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html"
+      }
+    ];
+
+    const list = document.getElementById("list");
+    const count = document.getElementById("count");
+    const empty = document.getElementById("empty");
+    const search = document.getElementById("search");
+    const chips = document.getElementById("chips");
+    let activeCategory = "すべて";
+
+    const categories = ["すべて", ...new Set(items.map(item => item.category))];
+
+    function normalizeText(text){
+      return text.toLowerCase().normalize("NFKC");
+    }
+
+    function renderChips(){
+      chips.innerHTML = categories.map(category => `
+        <button class="chip${category === activeCategory ? " active" : ""}" type="button" data-category="${category}">${category}</button>
+      `).join("");
+    }
+
+    function renderList(){
+      const keyword = normalizeText(search.value.trim());
+      const filtered = items.filter(item => {
+        const inCategory = activeCategory === "すべて" || item.category === activeCategory;
+        const haystack = normalizeText(`${item.title} ${item.category} ${item.description}`);
+        return inCategory && (!keyword || haystack.includes(keyword));
+      });
+
+      list.innerHTML = filtered.map(item => `
+        <article class="card">
+          <span class="tag">${item.category}</span>
+          <h2>${item.title}</h2>
+          <p>${item.description}</p>
+          <a class="openBtn" href="${item.href}">問題を開く</a>
+        </article>
+      `).join("");
+
+      count.textContent = `${filtered.length}件 / 全${items.length}件`;
+      empty.style.display = filtered.length ? "none" : "block";
+    }
+
+    chips.addEventListener("click", event => {
+      const button = event.target.closest("button[data-category]");
+      if(!button) return;
+      activeCategory = button.dataset.category;
+      renderChips();
+      renderList();
+    });
+
+    search.addEventListener("input", renderList);
+
+    renderChips();
+    renderList();
+  </script>
+</body>
+</html>
