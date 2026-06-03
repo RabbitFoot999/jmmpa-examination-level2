@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026診療報酬改定・医師の働き方改革 実践問題</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:#f4f1ea;color:#2f2b26;line-height:1.7}
+  .wrap{max-width:860px;margin:0 auto;padding:22px 14px 48px}
+  .card{background:#fffaf1;border:1px solid #d8cbb6;border-radius:14px;padding:18px;box-shadow:0 3px 12px rgba(80,60,30,.08)}
+  h1{font-size:1.35rem;margin:0 0 8px}.lead{margin:0 0 14px;color:#5a5146;font-size:.95rem}
+  .status{display:flex;justify-content:space-between;gap:10px;margin:14px 0;color:#5a5146;font-size:.92rem}
+  .category{display:inline-block;background:#e7ded0;color:#3d352c;padding:3px 10px;border-radius:999px;font-size:.85rem;margin-bottom:10px}
+  .question{font-weight:700;font-size:1.05rem;margin:8px 0 14px}.options{display:grid;gap:9px;margin:12px 0}
+  label.option{display:block;border:1px solid #d6c9b8;border-radius:10px;padding:10px 12px;background:#fffdf8;cursor:pointer}
+  label.option:hover{background:#f2eadf}label.option input{margin-right:8px}
+  .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  button{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;background:#6b5b4a;color:#fff}
+  button.secondary{background:#a58f78}button:disabled{opacity:.45;cursor:not-allowed}
+  .result{margin-top:14px;padding:12px;border-radius:10px;display:none}.correct{background:#e7f3e6;border:1px solid #9bc89a}.wrong{background:#f8e5df;border:1px solid #d8a08e}
+  .explain{margin-top:8px}.final{display:none;margin-top:14px;padding:14px;border-radius:10px;background:#eee4d4}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>2026診療報酬改定・過去改定・医師の働き方改革 実践問題</h1>
+    <p class="lead">各カテゴリ3問のプールから毎回10問をランダム出題します。五者択一、解説付きです。</p>
+    <div class="status"><div id="progress">問題 1 / 10</div><div id="score">正答 0</div></div>
+    <div id="quizArea">
+      <div class="category" id="category"></div>
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <div class="buttons">
+        <button id="answerBtn">回答</button>
+        <button id="nextBtn" class="secondary" disabled>次の問題へ</button>
+        <button id="restartBtn" class="secondary">最初から</button>
+      </div>
+      <div id="result" class="result"></div>
+    </div>
+    <div id="final" class="final"></div>
+  </div>
+</div>
+<script>
+const questionPools=[
+{category:"2026年度改定の基本的視点",questions:[
+{q:"令和8年度診療報酬改定の基本的視点として、適切でないものはどれか。",options:[
+{t:"物価や賃金、人手不足等の医療機関等を取りまく環境の変化への対応",c:false},
+{t:"2040年頃を見据えた医療機関の機能分化・連携と地域医療の確保",c:false},
+{t:"安心・安全で質の高い医療の推進",c:false},
+{t:"効率化・適正化を通じた医療保険制度の安定性・持続可能性の向上",c:false},
+{t:"ポスト2025を見据えた地域包括ケアシステムの深化・推進や医療DXを含めた医療機能の分化・強化、連携の推進",c:true}],exp:"5は2024年度改定の基本的視点に近い表現である。2026年度改定では、物価・賃金・人手不足への対応と、2040年頃を見据えた機能分化・連携が特徴的である。"},
+{q:"令和8年度診療報酬改定の重点課題として最も適切なものはどれか。",options:[
+{t:"物価や賃金、人手不足等の医療機関等を取りまく環境の変化への対応",c:true},
+{t:"不妊治療の保険適用の開始",c:false},{t:"地域包括医療病棟の新設",c:false},{t:"医療DX推進体制整備加算の新設",c:false},{t:"介護報酬との同時改定における地域包括ケア病棟の創設",c:false}],exp:"2026年度改定では、物価・賃金・人手不足等への対応が重点課題として位置づけられている。"},
+{q:"令和8年度診療報酬改定の基本的視点と具体的方向性の組み合わせとして、最も適切なものはどれか。",options:[
+{t:"物価・賃金対応 ― ベースアップ評価料の見直し、物価対応料の新設",c:true},
+{t:"安心・安全で質の高い医療 ― 後発医薬品への置換えのみを中心とする評価",c:false},{t:"制度の持続可能性 ― 急性期病院A/B一般入院料の新設",c:false},{t:"地域医療の確保 ― OTC類似薬を含む薬剤自己負担の見直し",c:false},{t:"物価・賃金対応 ― 不妊治療の保険適用の開始",c:false}],exp:"ベースアップ評価料の見直しや物価対応料の新設は、2026年度の物価・賃金対応の代表論点である。"}]},
+{category:"2026年度改定の賃上げ・物価対応",questions:[
+{q:"令和8年度改定におけるベースアップ評価料の見直しについて、最も適切なものはどれか。",options:[
+{t:"対象職員が拡大され、事務職員や一定の若手医師等も対象に含まれる方向となった",c:true},{t:"対象職員は看護職員に限定され、事務職員は対象外のままとされた",c:false},{t:"ベースアップ評価料は廃止され、全て初診料に包括された",c:false},{t:"賃上げ目標は令和8年度から令和9年度にかけて段階的に引き下げられる",c:false},{t:"評価料による収入は医療材料費の補填に充てることを主な目的とする",c:false}],exp:"人材確保と賃上げを目的に、ベースアップ評価料の対象職員が拡大される。"},
+{q:"令和8年度改定における物価対応料について、最も適切なものはどれか。",options:[
+{t:"令和8年度・令和9年度の物価上昇に段階的に対応するため、基本診療料等に併せて算定できる加算として新設された",c:true},{t:"医療DXを推進する施設に限り、電子処方箋利用時だけ算定する評価である",c:false},{t:"入院時食費の患者負担を据え置くため、保険者負担を減額する仕組みである",c:false},{t:"急性期病院A一般入院料を算定する病院だけが対象となる評価である",c:false},{t:"令和6年度改定で新設され、令和8年度改定で廃止された",c:false}],exp:"物価対応料は物件費等の高騰を踏まえた2026年度改定の特徴的な新設評価である。"},
+{q:"令和8年度改定における入院時の食費・光熱水費の見直しとして、適切な組み合わせはどれか。",options:[
+{t:"食費基準額は1食当たり40円、光熱水費基準額は1日当たり60円引き上げ",c:true},{t:"食費基準額は1食当たり20円、光熱水費基準額は1日当たり40円引き上げ",c:false},{t:"食費基準額は1日当たり40円、光熱水費基準額は1食当たり60円引き上げ",c:false},{t:"食費基準額は据え置き、光熱水費基準額のみ1日当たり60円引き上げ",c:false},{t:"食費・光熱水費ともに患者負担をなくし、全額を診療報酬で評価",c:false}],exp:"食費は1食当たり40円、光熱水費は1日当たり60円の引上げ。数値の入れ替えに注意する。"}]},
+{category:"過去改定の特徴",questions:[
+{q:"2018年度診療報酬改定の特徴として、最も適切なものはどれか。",options:[
+{t:"医療・介護同時改定として、地域包括ケアシステムの推進や医療と介護の連携が重視された",c:true},{t:"不妊治療の保険適用が開始された",c:false},{t:"ベースアップ評価料が新設された",c:false},{t:"物価対応料が新設された",c:false},{t:"急性期病院A/B一般入院料が新設された",c:false}],exp:"2018年度は医療・介護同時改定であり、地域包括ケアや医療介護連携が重要テーマであった。"},
+{q:"2022年度診療報酬改定の特徴として、最も適切なものはどれか。",options:[
+{t:"新型コロナ対応を踏まえた感染対策、不妊治療の保険適用、リフィル処方箋の導入などが特徴である",c:true},{t:"地域包括医療病棟が新設され、生活習慣病管理料Ⅱが新設された",c:false},{t:"物価対応料が新設され、入院時光熱水費基準額が引き上げられた",c:false},{t:"医療・介護・障害福祉サービス等報酬のトリプル改定として実施された",c:false},{t:"急性期病院一般入院基本料が新設された",c:false}],exp:"2022年度は感染対策、不妊治療の保険適用、リフィル処方箋導入が特徴である。"},
+{q:"2024年度診療報酬改定の特徴として、適切な組み合わせはどれか。",options:[
+{t:"ベースアップ評価料、医療DX推進体制整備加算、地域包括医療病棟、生活習慣病管理料Ⅱ",c:true},{t:"物価対応料、急性期病院A/B一般入院料、電子的診療情報連携体制整備加算、外科医療確保特別加算",c:false},{t:"不妊治療の保険適用、リフィル処方箋導入、外来感染対策向上加算、感染対策向上加算",c:false},{t:"地域包括ケア病棟の創設、DPC制度の導入、7対1入院基本料の創設、介護医療院の創設",c:false},{t:"食費基準額40円引上げ、光熱水費基準額60円引上げ、物価対応料、急性期総合体制加算",c:false}],exp:"2024年度は賃上げ、医療DX、地域包括医療病棟、生活習慣病管理料Ⅱが重要。"}]},
+{category:"医師の働き方改革：A・B・C水準",questions:[
+{q:"医師の時間外・休日労働の上限水準について、最も適切なものはどれか。",options:[
+{t:"A水準は通常の診療従事勤務医を対象とし、原則として年960時間が上限となる",c:true},{t:"A水準は地域医療確保のための特例であり、年1,860時間が原則上限となる",c:false},{t:"B水準は研修医の技能習得だけを対象とする水準である",c:false},{t:"C水準は通常の勤務医に広く適用され、年360時間を上限とする",c:false},{t:"A・B・C水準はいずれも同じ上限時間であり、業務内容による区分はない",c:false}],exp:"A水準は通常の診療従事勤務医の原則的な水準で、年960時間が上限である。"},
+{q:"B水準・連携B水準について、最も適切なものはどれか。",options:[
+{t:"B水準は地域医療確保のために長時間労働が必要な医師、連携B水準は副業・兼業先を含めて地域医療を支える医師に関係する",c:true},{t:"B水準は初期研修医、連携B水準は専門研修中の専攻医だけを対象とする",c:false},{t:"連携B水準では副業・兼業先の労働時間を通算しない",c:false},{t:"B水準は救急医療を担う病院では適用できない",c:false},{t:"B水準は一般労働者の限度時間である月45時間・年360時間を超えることができない",c:false}],exp:"B水準は地域医療確保暫定特例水準。連携B水準では副業・兼業先を含める。"},
+{q:"C水準について、最も適切なものはどれか。",options:[
+{t:"C-1水準は臨床研修・専門研修、C-2水準は高度技能の習得に関係する",c:true},{t:"C水準は地域医療確保のための救急搬送受入件数だけで判定される",c:false},{t:"C-1水準は管理職医師、C-2水準は看護職員を対象とする",c:false},{t:"C水準はA水準より低い上限時間を設定する水準である",c:false},{t:"C水準は宿日直許可を受けた勤務だけを対象にする",c:false}],exp:"C水準は研修や高度技能習得に関する水準である。"}]},
+{category:"医師の働き方改革：健康確保措置",questions:[
+{q:"医師の働き方改革における面接指導について、最も適切なものはどれか。",options:[
+{t:"時間外・休日労働が月100時間以上となる見込みの医師について、睡眠・疲労の状況確認を含む面接指導が求められる",c:true},{t:"A水準の医師には面接指導は不要であり、B・C水準の医師だけに限定される",c:false},{t:"面接指導は診療報酬上の任意の取組であり、労務管理とは関係しない",c:false},{t:"面接指導は年1回の健康診断で代替でき、長時間労働の状況確認は不要である",c:false},{t:"面接指導は患者への説明義務を指し、医師本人の健康確保とは関係しない",c:false}],exp:"長時間労働が見込まれる医師には、睡眠や疲労の状況を確認する面接指導が重要である。"},
+{q:"勤務間インターバルについて、最も適切なものはどれか。",options:[
+{t:"終業から次の始業まで一定の休息時間を確保し、長時間連続勤務による健康リスクを下げるための仕組みである",c:true},{t:"宿日直許可の有無にかかわらず、病院内に滞在していれば常に休息時間として扱われる",c:false},{t:"勤務間インターバルは患者の待ち時間を短縮するための外来予約制度である",c:false},{t:"医師の働き方改革では勤務間インターバルは扱われていない",c:false},{t:"勤務間インターバルは休日勤務を増やすための制度である",c:false}],exp:"勤務間インターバルは、勤務と勤務の間に休息時間を確保する仕組みである。"},
+{q:"医師の働き方改革に関する記述として、適切でないものはどれか。",options:[
+{t:"応召義務があるため、医師は労働時間規制の対象外となり、時間外労働の上限規制を受けない",c:true},{t:"A水準では原則として年960時間が時間外・休日労働の上限となる",c:false},{t:"B・C水準では一定の要件のもとで年1,860時間までの特例水準が設定される",c:false},{t:"長時間労働が見込まれる医師には面接指導などの健康確保措置が求められる",c:false},{t:"タスク・シフト／タスク・シェアは医師の負担軽減策の一つである",c:false}],exp:"応召義務があることを理由に、医師が労働時間規制の対象外となるわけではない。"}]},
+{category:"宿直・宿日直許可",questions:[
+{q:"医療機関における宿日直許可について、最も適切なものはどれか。",options:[
+{t:"労働基準監督署長の許可を受けた宿日直勤務は、許可の範囲で労働時間規制の適用除外となる",c:true},{t:"医療法上の宿直義務を行うためには、必ず宿日直許可を取得していなければならない",c:false},{t:"宿日直許可を受けると、宿直中に行った通常診療の時間も常に労働時間から除外される",c:false},{t:"宿日直許可は病院全体でしか取得できず、診療科や時間帯を限定した申請はできない",c:false},{t:"宿日直許可は診療報酬上の加算を算定するための施設基準であり、労働基準法とは関係しない",c:false}],exp:"宿日直許可は労働基準法上の許可である。ただし、通常業務と同態様の業務時間は労働時間として扱う。"},
+{q:"宿日直許可の判断に関する記述として、最も適切なものはどれか。",options:[
+{t:"通常業務と異なる軽度または短時間の業務であり、宿直では相当の睡眠設備があることなどが判断要素となる",c:true},{t:"救急や産科では診療科の性質上、宿日直許可を取得することは認められない",c:false},{t:"救急対応が頻繁に発生しても、夜間勤務であれば宿日直許可の対象となる",c:false},{t:"宿日直許可は医師本人の申請により取得し、医療機関の勤務実態は問われない",c:false},{t:"宿日直許可の有無は、医師の時間外労働上限規制とは関係しない",c:false}],exp:"宿日直許可は勤務実態に基づき判断される。救急や産科という診療科名だけで一律に不可とはならない。"},
+{q:"宿直・日直の回数の原則として、最も適切なものはどれか。",options:[
+{t:"宿直は同一医師につき原則週1回、日直は同一医師につき原則月1回である",c:true},{t:"宿直は同一医師につき原則週2回、日直は同一医師につき原則月4回である",c:false},{t:"宿直・日直ともに同一医師につき原則月8回までである",c:false},{t:"宿直は同一医師につき原則月1回、日直は同一医師につき原則週1回である",c:false},{t:"宿直・日直の回数には原則がなく、医療機関の裁量で自由に設定できる",c:false}],exp:"宿直は原則週1回、日直は原則月1回である。"}]},
+{category:"働き方改革と診療報酬上の評価",questions:[
+{q:"働き方改革に関連する診療報酬上の評価として、関連が最も薄いものはどれか。",options:[
+{t:"救急医療管理加算",c:true},{t:"地域医療体制確保加算",c:false},{t:"医師事務作業補助体制加算",c:false},{t:"看護職員夜間配置加算",c:false},{t:"手術及び処置の時間外加算1",c:false}],exp:"救急医療管理加算は重症救急患者の受入れ評価であり、働き方改革そのものを主目的とする評価ではない。"},
+{q:"地域医療体制確保加算について、最も適切なものはどれか。",options:[
+{t:"地域の救急医療体制等で重要な機能を担う病院について、医師労働時間短縮計画などを通じた働き方改革の取組を評価する",c:true},{t:"外来患者の待ち時間短縮だけを評価する加算である",c:false},{t:"地域包括ケア病棟を有する全ての病院が自動的に算定できる",c:false},{t:"医師の労働時間短縮計画とは関係しない救急患者受入れ評価である",c:false},{t:"療養病棟入院基本料を算定する病院だけを対象とする",c:false}],exp:"地域医療体制確保加算は、地域で重要な役割を担う病院の医師の働き方改革を後押しする評価である。"},
+{q:"医師事務作業補助体制加算について、最も適切なものはどれか。",options:[
+{t:"医師事務作業補助者の配置により、診断書作成補助や電子カルテ入力補助など医師の事務負担軽減を評価する",c:true},{t:"看護補助者の夜勤配置のみを評価する加算である",c:false},{t:"医師本人の宿日直許可取得を評価する加算である",c:false},{t:"外来患者のキャンセル料徴収体制を評価する加算である",c:false},{t:"患者の紹介率のみを基準に算定する加算である",c:false}],exp:"医師事務作業補助体制加算は、医師の事務負担を軽減するための配置を評価する。"}]},
+{category:"2026年度改定の急性期・包括期評価",questions:[
+{q:"令和8年度改定で新設された急性期病院一般入院基本料について、最も適切なものはどれか。",options:[
+{t:"病棟単位の患者割合だけでなく、救急搬送や全身麻酔手術など病院単位の急性期機能にも着目した評価である",c:true},{t:"地域包括医療病棟の届出を行っている病院を主な対象とする評価である",c:false},{t:"外来患者の紹介率のみでA・Bの区分を決定する入院料である",c:false},{t:"慢性期病棟の医療区分2・3の割合を評価する入院料である",c:false},{t:"療養病棟入院基本料を急性期病院A/Bに再編したものである",c:false}],exp:"急性期病院一般入院基本料は、病院単位の急性期機能を評価する点が特徴である。"},
+{q:"令和8年度改定における包括期・慢性期入院医療の見直しとして、最も適切なものはどれか。",options:[
+{t:"地域包括医療病棟、回復期リハビリテーション病棟、療養病棟などについて、患者像やアウトカム、支援機能に応じた見直しが行われた",c:true},{t:"包括期入院医療の評価は廃止され、全て急性期一般入院料に統合された",c:false},{t:"回復期リハビリテーション病棟では実績指数の評価がなくなった",c:false},{t:"療養病棟では医療区分に基づく評価が廃止された",c:false},{t:"入退院支援加算は外来診療料に包括され評価対象外となった",c:false}],exp:"2040年を見据えた機能分化の中で、包括期・慢性期入院医療も見直されている。"},
+{q:"令和8年度改定における外来医療の機能分化に関する内容として、最も適切なものはどれか。",options:[
+{t:"特定機能病院等の外来診療料等の減算に係る逆紹介割合の基準見直しや、紹介患者の初診に関する加算が示された",c:true},{t:"外来機能分化の評価は廃止され、全て入院医療の評価に移行した",c:false},{t:"紹介状なし受診時定額負担は全ての診療所で義務化された",c:false},{t:"外来医療では生活習慣病管理料の評価が廃止された",c:false},{t:"逆紹介の評価は2022年度に廃止され、2026年度では扱われていない",c:false}],exp:"外来の機能分化では、特定機能病院等の外来診療料等の減算基準や紹介患者の初診に関する加算などが論点である。"}]},
+{category:"2024年度改定と2026年度改定の比較",questions:[
+{q:"2026年度改定の内容として適切で、2024年度改定の内容ではないものはどれか。",options:[
+{t:"物価対応料の新設",c:true},{t:"地域包括医療病棟の新設",c:false},{t:"生活習慣病管理料Ⅱの新設",c:false},{t:"医療DX推進体制整備加算の新設",c:false},{t:"外来・在宅ベースアップ評価料の新設",c:false}],exp:"物価対応料は2026年度改定の特徴である。"},
+{q:"2024年度改定の内容として適切で、2026年度改定の新設項目ではないものはどれか。",options:[
+{t:"生活習慣病管理料Ⅱの新設と、特定疾患療養管理料から一部生活習慣病を除外する見直し",c:true},{t:"急性期病院A/B一般入院料の新設",c:false},{t:"物価対応料の新設",c:false},{t:"地域医療体制確保加算2の新設",c:false},{t:"電子的診療情報連携体制整備加算の新設",c:false}],exp:"生活習慣病管理料Ⅱの新設は2024年度改定の特徴である。"},
+{q:"次のうち、2024年度改定と2026年度改定の関係として最も適切なものはどれか。",options:[
+{t:"2024年度に賃上げ評価が導入され、2026年度では物価・賃金対応の重点課題のもとでベースアップ評価料が見直された",c:true},{t:"2024年度では賃上げ評価が廃止され、2026年度で初めて導入された",c:false},{t:"2024年度では物価対応料が導入され、2026年度で廃止された",c:false},{t:"2024年度と2026年度はいずれも介護報酬との同時改定であり、改定間隔は同じである",c:false},{t:"2024年度では医療DXの評価が扱われず、2026年度で初めて医療DXが評価された",c:false}],exp:"2024年度に賃上げ評価が導入され、2026年度で見直し・拡充される流れで整理する。"}]},
+{category:"外来・在宅・医療DX",questions:[
+{q:"令和8年度改定における医療DX・オンライン診療の見直しとして、最も適切なものはどれか。",options:[
+{t:"電子的診療情報連携体制整備加算の新設など、医療DXに係る評価の改組が行われた",c:true},{t:"オンライン診療の評価は全て廃止され、対面診療だけが評価対象となった",c:false},{t:"医療DXの評価は調剤報酬には関係せず、病院入院料だけに限定された",c:false},{t:"医療DX推進体制整備加算は2026年度に初めて新設された",c:false},{t:"電子処方箋の活用は医療保険制度の持続可能性とは無関係とされた",c:false}],exp:"2026年度改定では医療DXに係る評価の改組が示されている。"},
+{q:"令和8年度改定における在宅医療・訪問看護の見直しとして、最も適切なものはどれか。",options:[
+{t:"地域で在宅医療における積極的役割を担う医療機関の評価や、訪問看護の同一建物居住者数等に応じた評価の見直しが行われた",c:true},{t:"在宅医療は医療保険から介護保険へ全面的に移行した",c:false},{t:"訪問看護では同一建物居住者数による評価差が廃止された",c:false},{t:"D to P with Nの訪問看護同時実施は算定不可とされた",c:false},{t:"精神科訪問看護の地域連携は評価対象から外された",c:false}],exp:"在宅医療を担う医療機関の評価、訪問看護のきめ細かな評価が見直しの対象である。"},
+{q:"令和8年度改定で明確化された外来診察のキャンセル料の扱いとして、最も適切なものはどれか。",options:[
+{t:"予約診察の患者都合による直前キャンセルについて、事前説明・同意等を条件に保険外負担として徴収できる扱いが明確化された",c:true},{t:"外来診療料にキャンセル料という診療報酬点数が新設された",c:false},{t:"予約の有無にかかわらず全ての外来キャンセルで一律徴収できる",c:false},{t:"患者への事前説明や同意は不要である",c:false},{t:"キャンセル料は診療報酬請求として審査支払機関へ請求する",c:false}],exp:"キャンセル料は診療報酬点数ではなく、条件付きの保険外負担として整理される点が重要である。"}]}
+];
+
+let quiz=[],current=0,score=0,answered=false;
+function shuffle(arr){return arr.map(v=>({v,r:Math.random()})).sort((a,b)=>a.r-b.r).map(x=>x.v)}
+function buildQuiz(){quiz=questionPools.map(pool=>{const q=shuffle(pool.questions)[0];return{category:pool.category,q:q.q,exp:q.exp,options:shuffle(q.options)}});quiz=shuffle(quiz)}
+function renderQuestion(){
+  answered=false;const item=quiz[current];
+  document.getElementById("progress").textContent="問題 "+(current+1)+" / "+quiz.length;
+  document.getElementById("score").textContent="正答 "+score;
+  document.getElementById("category").textContent=item.category;
+  document.getElementById("question").textContent=item.q;
+  document.getElementById("result").style.display="none";
+  document.getElementById("result").className="result";
+  document.getElementById("answerBtn").disabled=false;document.getElementById("nextBtn").disabled=true;
+  const optionsEl=document.getElementById("options");optionsEl.innerHTML="";
+  item.options.forEach((op,i)=>{const label=document.createElement("label");label.className="option";label.innerHTML='<input type="radio" name="answer" value="'+i+'"> '+op.t;optionsEl.appendChild(label)});
+  document.getElementById("quizArea").style.display="block";document.getElementById("final").style.display="none";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function checkAnswer(){
+  if(answered)return;const selected=document.querySelector('input[name="answer"]:checked');
+  if(!selected){alert("選択肢を選んでください。");return}
+  answered=true;const item=quiz[current];const chosen=item.options[Number(selected.value)];const result=document.getElementById("result");
+  if(chosen.c){score++;result.className="result correct";result.innerHTML="<strong>正解です。</strong><div class='explain'>"+item.exp+"</div>"}
+  else{const correct=item.options.find(op=>op.c);result.className="result wrong";result.innerHTML="<strong>不正解です。</strong><div class='explain'>正答： "+correct.t+"<br>"+item.exp+"</div>"}
+  result.style.display="block";document.getElementById("score").textContent="正答 "+score;
+  document.getElementById("answerBtn").disabled=true;document.getElementById("nextBtn").disabled=false;
+}
+function nextQuestion(){current++;if(current>=quiz.length)showFinal();else renderQuestion()}
+function showFinal(){
+  document.getElementById("quizArea").style.display="none";const final=document.getElementById("final");
+  final.style.display="block";final.innerHTML="<strong>終了です。</strong><br>正答数： "+score+" / "+quiz.length+"<div class='buttons'><button onclick='restart()'>再チャレンジ</button></div>";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function restart(){current=0;score=0;buildQuiz();renderQuestion()}
+document.getElementById("answerBtn").addEventListener("click",checkAnswer);
+document.getElementById("nextBtn").addEventListener("click",nextQuestion);
+document.getElementById("restartBtn").addEventListener("click",restart);
+restart();
+</script>
+</body>
+</html>
