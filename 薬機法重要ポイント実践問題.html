@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>薬機法重要ポイント実践問題</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel2: #1e293b;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #334155;
+      --accent: #93c5fd;
+      --good: #86efac;
+      --bad: #fca5a5;
+      --goodBg: #052e1a;
+      --badBg: #3b1115;
+      --btn: #2563eb;
+      --btn2: #334155;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 42%, #020617 100%);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .wrap {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: 20px 14px 40px;
+    }
+    .card {
+      background: rgba(17, 24, 39, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.28);
+      padding: 18px;
+      margin: 14px 0;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #0b1220;
+      color: var(--accent);
+      border: 1px solid #1d4ed8;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    h1 {
+      font-size: clamp(23px, 5.6vw, 34px);
+      line-height: 1.25;
+      margin: 12px 0 10px;
+      letter-spacing: 0.01em;
+    }
+    .lead { color: var(--muted); font-size: 14px; margin: 0; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .stat {
+      background: #0b1220;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      min-height: 64px;
+    }
+    .stat small { color: var(--muted); display: block; font-size: 11px; }
+    .stat b { font-size: 20px; display: block; margin-top: 2px; }
+    .question-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #172554;
+      color: #bfdbfe;
+      border: 1px solid #1d4ed8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill.gray { background: #111827; color: #cbd5e1; border-color: #475569; }
+    .pill.good { background: var(--goodBg); color: var(--good); border-color: #15803d; }
+    .pill.bad { background: var(--badBg); color: var(--bad); border-color: #b91c1c; }
+    .qtext {
+      white-space: pre-line;
+      font-size: 17px;
+      font-weight: 800;
+      margin: 8px 0 16px;
+      color: #f8fafc;
+    }
+    .choices { display: grid; gap: 10px; }
+    .choice {
+      width: 100%;
+      text-align: left;
+      color: var(--text);
+      background: #0b1220;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px 14px;
+      font-size: 15px;
+      line-height: 1.65;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+    .choice:hover { border-color: #60a5fa; background: #0f1b33; }
+    .choice.selected { border-color: #93c5fd; background: #172554; }
+    .choice.correct { border-color: #22c55e; background: var(--goodBg); color: #dcfce7; }
+    .choice.wrong { border-color: #ef4444; background: var(--badBg); color: #fee2e2; }
+    .choice.dim { opacity: 0.55; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button.action {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--btn);
+      min-width: 112px;
+    }
+    button.action.secondary { background: var(--btn2); }
+    button.action:disabled { opacity: 0.45; cursor: not-allowed; }
+    .explain {
+      margin-top: 16px;
+      background: #0b1220;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 14px;
+    }
+    .explain h3 { margin: 0 0 8px; font-size: 16px; }
+    .feedback {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--panel2);
+    }
+    .feedback.ok { border-color: #16a34a; background: var(--goodBg); }
+    .feedback.ng { border-color: #dc2626; background: var(--badBg); }
+    .summary-item {
+      background: #0b1220;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px;
+      margin-top: 10px;
+    }
+    .small { color: var(--muted); font-size: 13px; }
+    @media (max-width: 560px) {
+      .wrap { padding: 12px 10px 28px; }
+      .card { padding: 15px; border-radius: 18px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .choice { font-size: 14px; padding: 12px; }
+      .qtext { font-size: 16px; }
+      button.action { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="card">
+      <span class="tag">医療経営士2級対策</span>
+      <h1>薬機法重要ポイント実践問題</h1>
+      <p class="lead">薬機法、一般用医薬品、インターネット販売、添付文書電子化、課徴金制度、薬局機能、医療機器分類に加え、承認後に保険診療で使うための薬価収載・薬価算定を確認する実践問題です。各カテゴリの問題プールから、毎回12問を出題します。</p>
+      <div class="stats">
+        <div class="stat"><small>進捗</small><b id="progress">0 / 12</b></div>
+        <div class="stat"><small>正答数</small><b id="right">0</b></div>
+        <div class="stat"><small>誤答数</small><b id="wrong">0</b></div>
+        <div class="stat"><small>正答率</small><b id="rate">0%</b></div>
+      </div>
+    </header>
+
+    <main id="quiz" class="card"></main>
+  </div>
+
+<script>
+const C = {
+  otc: "一般用医薬品の分類・販売者",
+  net: "インターネット販売",
+  insert: "添付文書の電子化",
+  surcharge: "虚偽・誇大広告と課徴金制度",
+  pharmacy: "薬局機能・地域連携",
+  device: "医療機器分類と審査方法",
+  price: "薬価収載・薬価算定"
+};
+
+function ch(text, correct, feedback) {
+  return { text, correct, feedback };
+}
+
+const POOL = [
+  {
+    id: "otc-001", cat: C.otc,
+    q: ["一般用医薬品の販売に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("第1類医薬品は、薬剤師による情報提供が必要である。", true, "正しい説明です。第1類医薬品は薬剤師が対応します。"),
+      ch("第1類医薬品は、登録販売者が単独で販売できる。", false, "誤りです。登録販売者が販売できるのは第2類・第3類医薬品です。"),
+      ch("第2類医薬品は、薬剤師のみが販売できる。", false, "誤りです。第2類医薬品は登録販売者も販売できます。"),
+      ch("第3類医薬品は、医師の処方箋がなければ販売できない。", false, "誤りです。第3類医薬品は一般用医薬品であり、医療用医薬品ではありません。"),
+      ch("一般用医薬品は、すべて薬剤師のみが販売できる。", false, "誤りです。第2類・第3類医薬品は登録販売者も販売できます。")
+    ],
+    exp: "一般用医薬品は第1類・第2類・第3類に分類されます。第1類は薬剤師、第2類・第3類は薬剤師または登録販売者が販売できます。"
+  },
+  {
+    id: "otc-002", cat: C.otc,
+    q: ["登録販売者が販売できる医薬品の組み合わせとして、最も適切なものはどれか。"],
+    choices: [
+      ch("第2類医薬品と第3類医薬品", true, "正しい組み合わせです。"),
+      ch("第1類医薬品と第2類医薬品", false, "誤りです。第1類医薬品は薬剤師対応です。"),
+      ch("第1類医薬品と要指導医薬品", false, "誤りです。どちらも薬剤師対応です。"),
+      ch("医療用医薬品と第3類医薬品", false, "誤りです。医療用医薬品は登録販売者の販売範囲ではありません。"),
+      ch("要指導医薬品と第2類医薬品", false, "誤りです。要指導医薬品は薬剤師対応です。")
+    ],
+    exp: "登録販売者の販売範囲は、第2類医薬品と第3類医薬品です。"
+  },
+  {
+    id: "otc-003", cat: C.otc,
+    q: ["一般用医薬品の分類に関する次の記述のうち、正しいものの組み合わせはどれか。", "ア 第1類医薬品は薬剤師が販売する。", "イ 第2類医薬品は登録販売者も販売できる。", "ウ 第3類医薬品は医師の処方箋が必要である。"],
+    choices: [
+      ch("ア・イ", true, "正しい組み合わせです。ウは誤りです。"),
+      ch("アのみ", false, "誤りです。イも正しい説明です。"),
+      ch("イのみ", false, "誤りです。アも正しい説明です。"),
+      ch("イ・ウ", false, "誤りです。ウが誤りです。"),
+      ch("ア・イ・ウ", false, "誤りです。ウが誤りです。")
+    ],
+    exp: "第3類医薬品は一般用医薬品であり、医師の処方箋が必要な医療用医薬品ではありません。"
+  },
+
+  {
+    id: "net-001", cat: C.net,
+    q: ["医薬品のインターネット販売に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("一般用医薬品は、適切なルールの下で第1類から第3類までインターネット販売が可能である。", true, "正しい説明です。"),
+      ch("第1類医薬品は、インターネット販売が全面的に禁止されている。", false, "誤りです。第1類医薬品もルールを守ればネット販売可能です。"),
+      ch("要指導医薬品は、一般用医薬品と同じく自由にインターネット販売できる。", false, "誤りです。要指導医薬品は対面指導が原則です。"),
+      ch("医療用医薬品は、処方箋なしで一般消費者にインターネット販売できる。", false, "誤りです。医療用医薬品は一般用医薬品と同じ扱いではありません。"),
+      ch("登録販売者は、要指導医薬品をインターネットで販売できる。", false, "誤りです。要指導医薬品は薬剤師対応です。")
+    ],
+    exp: "一般用医薬品はネット販売可能ですが、要指導医薬品は薬剤師による対面指導が原則です。"
+  },
+  {
+    id: "net-002", cat: C.net,
+    q: ["要指導医薬品に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("薬剤師による対面での情報提供・指導が原則である。", true, "正しい説明です。"),
+      ch("第3類医薬品よりリスクが低いため、情報提供は不要である。", false, "誤りです。薬剤師による情報提供・指導が原則です。"),
+      ch("登録販売者が単独で販売できる。", false, "誤りです。要指導医薬品は薬剤師対応です。"),
+      ch("一般用医薬品と同じくインターネット販売が原則である。", false, "誤りです。対面指導が原則です。"),
+      ch("医師の処方箋があれば薬局以外でも自由に販売できる。", false, "誤りです。処方箋医薬品ではありません。")
+    ],
+    exp: "要指導医薬品は、薬剤師による対面での情報提供・指導が原則です。"
+  },
+  {
+    id: "net-003", cat: C.net,
+    q: ["医薬品販売に関する次の記述のうち、正しいものの組み合わせはどれか。", "ア 一般用医薬品はルールに従えばインターネット販売が可能である。", "イ 要指導医薬品は薬剤師による対面指導が原則である。", "ウ 医療用医薬品は一般用医薬品と同様に自由にネット販売できる。"],
+    choices: [
+      ch("ア・イ", true, "正しい組み合わせです。ウは誤りです。"),
+      ch("アのみ", false, "誤りです。イも正しい説明です。"),
+      ch("イのみ", false, "誤りです。アも正しい説明です。"),
+      ch("ア・ウ", false, "誤りです。ウが誤りです。"),
+      ch("ア・イ・ウ", false, "誤りです。ウが誤りです。")
+    ],
+    exp: "医療用医薬品は、一般用医薬品と同じように自由にネット販売できるものではありません。"
+  },
+
+  {
+    id: "insert-001", cat: C.insert,
+    q: ["添付文書の電子化に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("医療用医薬品等では、PMDA等で最新の電子化された添付文書を確認する仕組みが導入されている。", true, "正しい説明です。"),
+      ch("電子化により、医療従事者は添付文書を確認する必要がなくなった。", false, "誤りです。電子化後も確認は必要です。"),
+      ch("電子化により、一般用医薬品を含め紙の添付文書はすべて廃止された。", false, "誤りです。一般用医薬品などでは紙の添付文書が同梱されます。"),
+      ch("電子化された添付文書は、医療機器には関係しない。", false, "誤りです。医療機器等にも関係します。"),
+      ch("添付文書電子化は、薬機法ではなく介護保険法の制度である。", false, "誤りです。薬機法改正に関する論点です。")
+    ],
+    exp: "医療用医薬品等では、PMDA等で最新の電子化された添付文書を確認する仕組みがあります。一般用医薬品などには紙の添付文書が同梱されます。"
+  },
+  {
+    id: "insert-002", cat: C.insert,
+    q: ["添付文書等に関する薬機法上の名称変更について、最も適切なものはどれか。"],
+    choices: [
+      ch("従来の『添付文書等記載事項』は『注意事項等情報』とされた。", true, "正しい説明です。"),
+      ch("従来の『添付文書等記載事項』は『診療報酬明細情報』とされた。", false, "誤りです。注意事項等情報です。"),
+      ch("従来の『添付文書等記載事項』は『地域連携情報』とされた。", false, "誤りです。注意事項等情報です。"),
+      ch("名称変更により、安全性情報の更新は不要となった。", false, "誤りです。安全性情報の更新が不要になるわけではありません。"),
+      ch("名称変更により、PMDAは添付文書情報を扱わないことになった。", false, "誤りです。PMDAで確認できます。")
+    ],
+    exp: "薬機法上、従来の『添付文書等記載事項』は『注意事項等情報』とされました。"
+  },
+  {
+    id: "insert-003", cat: C.insert,
+    q: ["電子化された添付文書に関する次の記述のうち、正しいものの組み合わせはどれか。", "ア PMDA等で最新情報を確認する仕組みである。", "イ 医療用医薬品等で導入されている。", "ウ 一般用医薬品を含め紙の添付文書はすべて不要となった。"],
+    choices: [
+      ch("ア・イ", true, "正しい組み合わせです。ウは誤りです。"),
+      ch("アのみ", false, "誤りです。イも正しい説明です。"),
+      ch("イのみ", false, "誤りです。アも正しい説明です。"),
+      ch("ア・ウ", false, "誤りです。ウが誤りです。"),
+      ch("ア・イ・ウ", false, "誤りです。ウが誤りです。")
+    ],
+    exp: "電子化された添付文書はPMDA等で最新情報を確認する仕組みです。ただし一般用医薬品等では紙の添付文書が同梱されます。"
+  },
+
+  {
+    id: "surcharge-001", cat: C.surcharge,
+    q: ["薬機法における課徴金制度の対象として、最も適切なものはどれか。"],
+    choices: [
+      ch("医薬品等に関する虚偽・誇大広告違反", true, "正しい説明です。"),
+      ch("診療報酬請求における施設基準の届出漏れ", false, "誤りです。診療報酬上の届出漏れは薬機法の課徴金制度の対象ではありません。"),
+      ch("病院の平均在院日数が長いこと", false, "誤りです。平均在院日数は対象ではありません。"),
+      ch("介護報酬の加算要件を満たさないこと", false, "誤りです。介護報酬の論点とは異なります。"),
+      ch("地域連携薬局の認定を取得していないこと", false, "誤りです。認定未取得自体が課徴金制度の対象になるわけではありません。")
+    ],
+    exp: "薬機法の課徴金制度は、医薬品等の虚偽・誇大広告違反に対して導入された制度です。"
+  },
+  {
+    id: "surcharge-002", cat: C.surcharge,
+    q: ["薬機法の課徴金額に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("原則として、違反広告に関係する商品の売上額の4.5％である。", true, "正しい説明です。"),
+      ch("原則として、違反広告に関係する商品の売上額の0.45％である。", false, "誤りです。0.45％ではなく4.5％です。"),
+      ch("原則として、医業収益全体の10％である。", false, "誤りです。対象商品の売上額が基礎です。"),
+      ch("原則として、一律100万円である。", false, "誤りです。一律額ではありません。"),
+      ch("課徴金制度はあるが、金銭的負担は発生しない。", false, "誤りです。金銭的不利益処分です。")
+    ],
+    exp: "薬機法の課徴金は、原則として違反広告に関係する対象商品の売上額の4.5％です。"
+  },
+  {
+    id: "surcharge-003", cat: C.surcharge,
+    q: ["薬機法の課徴金制度に関する次の記述のうち、正しいものの組み合わせはどれか。", "ア 虚偽・誇大広告違反が対象となる。", "イ 原則として対象商品の売上額の4.5％である。", "ウ 刑事罰としての罰金そのものである。"],
+    choices: [
+      ch("ア・イ", true, "正しい組み合わせです。ウは誤りです。"),
+      ch("アのみ", false, "誤りです。イも正しい説明です。"),
+      ch("イのみ", false, "誤りです。アも正しい説明です。"),
+      ch("ア・ウ", false, "誤りです。ウが誤りです。"),
+      ch("ア・イ・ウ", false, "誤りです。ウが誤りです。")
+    ],
+    exp: "課徴金制度は、刑事罰としての罰金ではなく、行政上の金銭的不利益処分です。"
+  },
+
+  {
+    id: "pharmacy-001", cat: C.pharmacy,
+    q: ["かかりつけ薬剤師・薬局に期待される基本的機能として、最も適切なものはどれか。"],
+    choices: [
+      ch("服薬情報の一元的・継続的把握、24時間対応・在宅対応、医療機関等との連携", true, "正しい説明です。"),
+      ch("医師の診断を代行し、処方内容を自由に決定すること", false, "誤りです。医師の診断や処方決定を代行するものではありません。"),
+      ch("患者の服薬情報を把握しないことで個人情報保護を徹底すること", false, "誤りです。服薬情報の把握が重要です。"),
+      ch("医療機関との情報連携を行わず、薬局単独で完結すること", false, "誤りです。医療機関等との連携が重要です。"),
+      ch("入院基本料の算定要件を管理すること", false, "誤りです。入院基本料は診療報酬上の論点です。")
+    ],
+    exp: "かかりつけ薬剤師・薬局は、服薬情報の一元的・継続的把握、24時間対応・在宅対応、医療機関等との連携を通じて地域の薬物療法を支えます。"
+  },
+  {
+    id: "pharmacy-002", cat: C.pharmacy,
+    q: ["地域連携薬局に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("地域の医療機関等と連携し、入退院時や在宅医療を含めた薬物療法を支援する薬局である。", true, "正しい説明です。"),
+      ch("がん等の専門的薬学管理だけを行い、地域医療機関とは連携しない薬局である。", false, "誤りです。地域連携薬局は地域の医療機関等との連携が重要です。"),
+      ch("一般用医薬品の販売のみを行い、処方箋調剤を行わない薬局である。", false, "誤りです。地域における薬物療法支援を担います。"),
+      ch("介護保険施設の入所判定を主な機能とする薬局である。", false, "誤りです。入所判定は地域連携薬局の機能ではありません。"),
+      ch("薬歴管理を行わず、患者の服薬情報を保有しない薬局である。", false, "誤りです。薬歴管理や服薬情報の把握が重要です。")
+    ],
+    exp: "地域連携薬局は、地域の医療機関等と連携し、入退院時や在宅医療を含めた薬物療法を支援します。"
+  },
+  {
+    id: "pharmacy-003", cat: C.pharmacy,
+    q: ["薬局機能に関する次の記述のうち、正しいものの組み合わせはどれか。", "ア 地域連携薬局は、地域の医療機関等との連携が重視される。", "イ 専門医療機関連携薬局は、がん等の専門的薬学管理について専門医療機関と連携する。", "ウ かかりつけ薬局では、服薬情報の一元的把握は不要である。"],
+    choices: [
+      ch("ア・イ", true, "正しい組み合わせです。ウは誤りです。"),
+      ch("アのみ", false, "誤りです。イも正しい説明です。"),
+      ch("イのみ", false, "誤りです。アも正しい説明です。"),
+      ch("ア・ウ", false, "誤りです。ウが誤りです。"),
+      ch("ア・イ・ウ", false, "誤りです。ウが誤りです。")
+    ],
+    exp: "かかりつけ薬局では服薬情報の一元的・継続的把握が重要です。"
+  },
+
+  {
+    id: "device-001", cat: C.device,
+    q: ["医療機器のクラス分類と製造販売手続きの組み合わせとして、最も適切なものはどれか。"],
+    choices: [
+      ch("クラスⅠは届出、クラスⅡは認証、クラスⅢ・Ⅳは原則として承認である。", true, "正しい説明です。"),
+      ch("クラスⅠは承認、クラスⅡは届出、クラスⅢ・Ⅳは手続不要である。", false, "誤りです。クラスⅠは届出、クラスⅡは認証、クラスⅢ・Ⅳは原則承認です。"),
+      ch("クラスⅠからⅣまですべて登録販売者による認証で足りる。", false, "誤りです。登録販売者と医療機器の認証・承認手続きは異なります。"),
+      ch("クラスⅣはリスクが最も低いため、届出のみでよい。", false, "誤りです。クラスⅣはリスクが高い高度管理医療機器です。"),
+      ch("医療機器の分類は販売価格の高低によって決まる。", false, "誤りです。人体へのリスクに応じて決まります。")
+    ],
+    exp: "医療機器は人体へのリスクに応じてクラスⅠ〜Ⅳに分類されます。基本形は、クラスⅠ＝届出、クラスⅡ＝第三者認証、クラスⅢ・Ⅳ＝原則承認です。"
+  },
+  {
+    id: "device-002", cat: C.device,
+    q: ["クラスⅢ医療機器の製造販売手続きに関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("原則として承認が必要だが、認証基準のある一部のクラスⅢは第三者認証が可能である。", true, "正しい説明です。"),
+      ch("クラスⅢはすべて届出のみで製造販売できる。", false, "誤りです。クラスⅢは原則として承認が必要です。"),
+      ch("クラスⅢは例外なくすべてPMDA審査による承認が必要である。", false, "誤りです。認証基準のある一部は第三者認証が可能です。"),
+      ch("クラスⅢは必ず第三者認証の対象となり、承認審査の対象にはならない。", false, "誤りです。クラスⅢは原則として承認の対象です。"),
+      ch("クラスⅢは医療機器ではなく、一般用医薬品の分類である。", false, "誤りです。クラスⅢは医療機器のリスク分類です。")
+    ],
+    exp: "クラスⅢは原則として承認が必要ですが、認証基準がある一部のクラスⅢ医療機器は第三者認証が可能です。"
+  },
+  {
+    id: "device-003", cat: C.device,
+    q: ["医療機器の分類に関する次の記述のうち、正しいものの組み合わせはどれか。", "ア クラスⅠは一般医療機器であり、リスクが極めて低い。", "イ クラスⅣは生命の危険に直結するおそれがある高度管理医療機器である。", "ウ ペースメーカーは一般にクラスⅠに分類される。"],
+    choices: [
+      ch("ア・イ", true, "正しい組み合わせです。ウは誤りです。"),
+      ch("アのみ", false, "誤りです。イも正しい説明です。"),
+      ch("イのみ", false, "誤りです。アも正しい説明です。"),
+      ch("ア・ウ", false, "誤りです。ウが誤りです。ペースメーカーは一般にクラスⅣです。"),
+      ch("ア・イ・ウ", false, "誤りです。ウが誤りです。")
+    ],
+    exp: "医療機器のクラス分類は人体へのリスクに応じて整理されます。ペースメーカーはクラスⅣの代表例です。"
+  },
+
+  {
+    id: "price-001", cat: C.price,
+    q: ["新医薬品の薬価算定に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("類似薬がある新医薬品では、原則として類似薬効比較方式により薬価を算定する。", true, "正しい説明です。類似薬がある場合は類似薬効比較方式が基本です。"),
+      ch("類似薬がある新医薬品では、必ず原価計算方式だけで薬価を算定する。", false, "誤りです。原価計算方式は、類似薬がない場合に用いられる代表的な方式です。"),
+      ch("類似薬がない新医薬品では、必ず後発医薬品と同じく先発品薬価の5割で算定する。", false, "誤りです。後発医薬品の初収載時薬価と新医薬品の算定方式を混同しています。"),
+      ch("薬価算定では、内用薬・注射薬・外用薬といった投与形態は一切考慮されない。", false, "誤りです。薬価算定では投与形態の区分も関係します。"),
+      ch("医薬品の薬価は、承認された時点で自動的に公定価格なしで保険診療に使用される。", false, "誤りです。承認後、保険診療で使うには薬価収載・薬価算定の手続きが関係します。")
+    ],
+    exp: "薬機法上の承認と、保険診療で使用するための薬価収載・薬価算定は分けて整理します。類似薬がある新薬では類似薬効比較方式、類似薬がない場合は原価計算方式が基本的な整理です。"
+  },
+  {
+    id: "price-002", cat: C.price,
+    q: ["後発医薬品等の薬価算定に関する説明として、最も適切なものはどれか。"],
+    choices: [
+      ch("後発医薬品が初めて収載される場合、原則として先発品薬価の0.5を乗じた額とする。", true, "正しい説明です。後発医薬品の初収載時は、原則として先発品薬価の5割です。"),
+      ch("後発医薬品が初めて収載される場合、原則として先発品薬価と同額に算定される。", false, "誤りです。通常の後発医薬品は原則として先発品薬価の5割で算定されます。"),
+      ch("内用薬で後発医薬品の銘柄数が10を超える場合、先発品薬価の0.8を乗じた額とする。", false, "誤りです。内用薬で銘柄数が10を超える場合は、0.4を乗じる整理です。"),
+      ch("バイオ後続品は、原則として先発品薬価の0.3を乗じた額とする。", false, "誤りです。バイオ後続品は原則として先発品薬価の0.7を乗じた額です。"),
+      ch("後発医薬品の薬価算定では、先発品薬価は基準として用いられない。", false, "誤りです。後発医薬品の初収載時薬価は先発品薬価を基準に算定されます。")
+    ],
+    exp: "後発医薬品の初収載時薬価は原則として先発品薬価の0.5です。ただし、内用薬で銘柄数が10を超える場合は0.4、バイオ後続品は原則0.7という整理も重要です。"
+  },
+  {
+    id: "price-003", cat: C.price,
+    q: ["薬価収載・薬価算定に関する次の記述のうち、正しいものの組み合わせはどれか。", "ア 類似薬がある新医薬品では、類似薬効比較方式が用いられる。", "イ 類似薬がない新医薬品では、原価計算方式が用いられる。", "ウ 後発医薬品が初めて収載される場合、原則として先発品薬価の5割で算定される。"],
+    choices: [
+      ch("ア・イ・ウ", true, "正しい組み合わせです。3つとも基本整理として正しいです。"),
+      ch("ア・イ", false, "誤りです。ウも正しい説明です。"),
+      ch("ア・ウ", false, "誤りです。イも正しい説明です。"),
+      ch("イ・ウ", false, "誤りです。アも正しい説明です。"),
+      ch("アのみ", false, "誤りです。イ・ウも正しい説明です。")
+    ],
+    exp: "新薬の薬価算定では、類似薬があれば類似薬効比較方式、類似薬がなければ原価計算方式が基本です。後発医薬品の初収載時は原則として先発品薬価の5割です。"
+  }
+];
+
+const SEQ = [
+  C.otc, C.net, C.insert, C.surcharge, C.pharmacy, C.device,
+  C.price, C.otc, C.net, C.surcharge, C.device, C.price
+];
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function makeQuiz() {
+  const used = new Set();
+  return SEQ.map(cat => {
+    const fresh = POOL.filter(q => q.cat === cat && !used.has(q.id));
+    const fallback = POOL.filter(q => q.cat === cat);
+    const picked = shuffle(fresh.length ? fresh : fallback)[0];
+    used.add(picked.id);
+    return { ...picked, choices: shuffle(picked.choices) };
+  });
+}
+
+function validate() {
+  const errors = [];
+  const ids = new Set();
+  for (const q of POOL) {
+    if (ids.has(q.id)) errors.push("重複ID: " + q.id);
+    ids.add(q.id);
+    if (q.choices.length !== 5) errors.push(q.id + " の選択肢が5つではありません。");
+    if (q.choices.filter(c => c.correct).length !== 1) errors.push(q.id + " の正答数が1つではありません。");
+    if (!q.q.length) errors.push(q.id + " の問題文がありません。");
+  }
+  for (const cat of Object.values(C)) {
+    const count = POOL.filter(q => q.cat === cat).length;
+    if (count !== 3) errors.push(cat + " のプールが3問ではありません。現在 " + count + "問です。");
+  }
+  const quiz = makeQuiz();
+  if (quiz.length !== 12) errors.push("出題数が12問ではありません。");
+  return errors;
+}
+
+let quiz = makeQuiz();
+let idx = 0;
+let selected = null;
+let answered = false;
+let records = [];
+
+const root = document.getElementById("quiz");
+const progress = document.getElementById("progress");
+const right = document.getElementById("right");
+const wrong = document.getElementById("wrong");
+const rate = document.getElementById("rate");
+
+function updateStats() {
+  const r = records.filter(x => x.ok).length;
+  const w = records.length - r;
+  progress.textContent = records.length + " / " + quiz.length;
+  right.textContent = r;
+  wrong.textContent = w;
+  rate.textContent = records.length ? Math.round((r / records.length) * 100) + "%" : "0%";
+}
+
+function render() {
+  updateStats();
+  const errors = validate();
+  if (errors.length) {
+    root.innerHTML = '<div class="pill bad">検証エラー</div>' + errors.map(e => '<p>' + e + '</p>').join("");
+    return;
+  }
+  if (records.length === quiz.length) {
+    renderSummary();
+    return;
+  }
+
+  const q = quiz[idx];
+  const status = answered ? (selected.correct ? '<span class="pill good">正解</span>' : '<span class="pill bad">不正解</span>') : '';
+  const qText = q.q.join("\n");
+  let html = `
+    <div class="question-head">
+      <span class="pill gray">問${idx + 1}</span>
+      <span class="pill">${q.cat}</span>
+      ${status}
+    </div>
+    <div class="qtext">${escapeHtml(qText)}</div>
+    <div class="choices">
+  `;
+
+  q.choices.forEach((choice, i) => {
+    let cls = "choice";
+    if (!answered && selected === choice) cls += " selected";
+    if (answered && choice.correct) cls += " correct";
+    if (answered && selected === choice && !choice.correct) cls += " wrong";
+    if (answered && !choice.correct && selected !== choice) cls += " dim";
+    html += `<button class="${cls}" data-i="${i}" ${answered ? "disabled" : ""}><b>${String.fromCharCode(65+i)}.</b> ${escapeHtml(choice.text)}</button>`;
+  });
+
+  html += `</div><div class="actions">`;
+  if (!answered) {
+    html += `<button class="action" id="answerBtn" ${selected ? "" : "disabled"}>回答</button>`;
+  } else if (idx < quiz.length - 1) {
+    html += `<button class="action" id="nextBtn">次の問題へ</button>`;
+  } else {
+    html += `<button class="action" id="finishBtn">結果を見る</button>`;
+  }
+  html += `<button class="action secondary" id="restartBtn">最初からやり直す</button></div>`;
+
+  if (answered) {
+    html += `
+      <section class="explain">
+        <h3>解説</h3>
+        <p>${escapeHtml(q.exp)}</p>
+        <div class="feedback ${selected.correct ? "ok" : "ng"}">
+          <b>選択した回答へのコメント</b>
+          <p>${escapeHtml(selected.feedback)}</p>
+          ${selected.correct ? "" : "<p><b>正答：</b>" + escapeHtml(q.choices.find(x => x.correct).text) + "</p>"}
+        </div>
+      </section>
+    `;
+  }
+
+  root.innerHTML = html;
+  document.querySelectorAll(".choice").forEach(btn => {
+    btn.addEventListener("click", () => {
+      selected = q.choices[Number(btn.dataset.i)];
+      render();
+    });
+  });
+  const answerBtn = document.getElementById("answerBtn");
+  if (answerBtn) answerBtn.addEventListener("click", submit);
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.addEventListener("click", next);
+  const finishBtn = document.getElementById("finishBtn");
+  if (finishBtn) finishBtn.addEventListener("click", () => { records = records.slice(); render(); });
+  const restartBtn = document.getElementById("restartBtn");
+  if (restartBtn) restartBtn.addEventListener("click", restart);
+}
+
+function submit() {
+  if (!selected || answered) return;
+  const q = quiz[idx];
+  const correct = q.choices.find(x => x.correct);
+  records.push({
+    question: q.q.join("\n"),
+    cat: q.cat,
+    selected: selected.text,
+    correct: correct.text,
+    ok: selected.correct,
+    feedback: selected.feedback,
+    exp: q.exp
+  });
+  answered = true;
+  render();
+}
+
+function next() {
+  idx++;
+  selected = null;
+  answered = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  render();
+}
+
+function restart() {
+  quiz = makeQuiz();
+  idx = 0;
+  selected = null;
+  answered = false;
+  records = [];
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  render();
+}
+
+function renderSummary() {
+  updateStats();
+  const r = records.filter(x => x.ok).length;
+  const misses = records.filter(x => !x.ok);
+  let html = `
+    <div class="question-head"><span class="pill gray">結果まとめ</span></div>
+    <div class="qtext">正答数 ${r} / ${quiz.length}　正答率 ${Math.round((r / quiz.length) * 100)}%</div>
+  `;
+  if (!misses.length) {
+    html += `<div class="feedback ok"><b>全問正解です。</b><p>薬機法と薬価算定の重要ポイントはよく整理できています。</p></div>`;
+  } else {
+    html += `<p class="small">間違えた問題と理由です。</p>`;
+    misses.forEach((m, i) => {
+      html += `
+        <div class="summary-item">
+          <b>${i + 1}. ${escapeHtml(m.cat)}</b>
+          <p style="white-space:pre-line">${escapeHtml(m.question)}</p>
+          <p><span style="color:var(--bad)">あなたの選択：</span>${escapeHtml(m.selected)}</p>
+          <p><span style="color:var(--good)">正答：</span>${escapeHtml(m.correct)}</p>
+          <p>${escapeHtml(m.exp)}</p>
+          <div class="feedback ng"><b>不正解理由：</b>${escapeHtml(m.feedback)}</div>
+        </div>
+      `;
+    });
+  }
+  html += `<div class="actions"><button class="action" id="restartBtn">別の問題で再チャレンジ</button></div>`;
+  root.innerHTML = html;
+  document.getElementById("restartBtn").addEventListener("click", restart);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[s]));
+}
+
+render();
+</script>
+</body>
+</html>
