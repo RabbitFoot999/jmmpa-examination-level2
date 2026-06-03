@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第三者認証・第三者評価実践問題</title>
+  <style>
+    :root {
+      --bg: #1f2428;
+      --panel: #2b3137;
+      --panel2: #343b43;
+      --text: #f1f3f5;
+      --muted: #c2c8cf;
+      --line: #59636e;
+      --accent: #8fb7ff;
+      --good: #7bd88f;
+      --bad: #ff9b9b;
+      --warn: #ffd37a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .wrap {
+      width: min(920px, 94vw);
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2b3137, #23282d);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      line-height: 1.3;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: .98rem;
+    }
+
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.22);
+    }
+
+    .category {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .question {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      white-space: pre-line;
+    }
+
+    .choices {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .choice {
+      display: block;
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      border-radius: 13px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: border-color .15s, transform .08s, background .15s;
+    }
+
+    .choice:hover {
+      border-color: var(--accent);
+    }
+
+    .choice input {
+      margin-right: 9px;
+      transform: scale(1.1);
+    }
+
+    .choice.selected {
+      border-color: var(--accent);
+      background: #27364a;
+    }
+
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #102033;
+      background: var(--accent);
+      transition: filter .15s, transform .08s;
+    }
+
+    button:hover {
+      filter: brightness(1.08);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.secondary {
+      color: var(--text);
+      background: #4b5560;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .result {
+      display: none;
+      margin-top: 18px;
+      border-radius: 15px;
+      border: 1px solid var(--line);
+      background: #20262c;
+      padding: 16px;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .judge {
+      font-size: 1.12rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .judge.good {
+      color: var(--good);
+    }
+
+    .judge.bad {
+      color: var(--bad);
+    }
+
+    .answer {
+      color: var(--warn);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .explain {
+      color: var(--text);
+      white-space: pre-line;
+    }
+
+    .done {
+      display: none;
+      text-align: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px;
+    }
+
+    .done.show {
+      display: block;
+    }
+
+    .score {
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin: 10px 0;
+      color: var(--accent);
+    }
+
+    .small {
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    @media (max-width: 600px) {
+      .wrap {
+        padding-top: 14px;
+      }
+
+      header,
+      .card,
+      .done {
+        border-radius: 14px;
+        padding: 18px;
+      }
+
+      .question {
+        font-size: 1rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header id="top">
+      <h1>第三者認証・第三者評価実践問題</h1>
+      <p class="lead">
+        医療機関に関係するISO、JIS Q 15001、プライバシーマーク、病院機能評価、JCI、ISMSについて、
+        認証名と内容の対応、診療報酬との関係を確認します。5カテゴリから各1問、合計5問をランダム出題します。
+      </p>
+    </header>
+
+    <div class="status">
+      <div class="chip" id="progress">1 / 5</div>
+      <div class="chip" id="score">正解 0問</div>
+      <div class="chip">五者択一</div>
+    </div>
+
+    <main class="card" id="quizCard">
+      <div class="category" id="category"></div>
+      <div class="question" id="question"></div>
+      <div class="choices" id="choices"></div>
+
+      <div class="btns">
+        <button id="answerBtn" type="button">回答</button>
+        <button id="nextBtn" type="button" class="secondary" disabled>次の問題へ</button>
+      </div>
+
+      <div class="result" id="result">
+        <div class="judge" id="judge"></div>
+        <div class="answer" id="answerText"></div>
+        <div class="explain" id="explain"></div>
+      </div>
+    </main>
+
+    <section class="done" id="done">
+      <h2>結果</h2>
+      <div class="score" id="finalScore"></div>
+      <p id="finalComment"></p>
+      <button type="button" onclick="restartQuiz()">もう一度解く</button>
+    </section>
+
+    <footer>
+      <p>
+        補足：本問題は医療経営士2級対策用です。ISO等の認証取得そのものが直ちに診療報酬の算定要件になるとは限らないため、
+        「認証制度の目的」と「施設基準等との関係」を分けて確認してください。
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    const pools = [
+      {
+        category: "認証名と対象領域",
+        questions: [
+          {
+            text: "医療機関に関連する第三者認証・第三者評価について、組み合わせとして最も適切なものはどれか。",
+            choices: [
+              { text: "ISO9001 ― 品質マネジメントシステム", correct: true },
+              { text: "ISO14001 ― 個人情報保護マネジメントシステム", correct: false },
+              { text: "JIS Q 15001 ― 環境マネジメントシステム", correct: false },
+              { text: "プライバシーマーク ― 医療機関の国際的な診療機能評価", correct: false },
+              { text: "病院機能評価 ― 医療機器の個別安全性認証", correct: false }
+            ],
+            explanation: "ISO9001は品質マネジメントシステムに関する国際規格である。ISO14001は環境、JIS Q 15001とプライバシーマークは個人情報保護に関係する。病院機能評価は病院の組織的な医療提供機能を評価する仕組みであり、医療機器単体の認証ではない。"
+          },
+          {
+            text: "次のア〜エと制度・規格の組み合わせとして最も適切なものはどれか。\n\nア　品質マネジメントシステム\nイ　環境マネジメントシステム\nウ　個人情報保護マネジメントシステムの日本規格\nエ　個人情報保護体制を示すマーク制度",
+            choices: [
+              { text: "ア ISO9001　イ ISO14001　ウ JIS Q 15001　エ プライバシーマーク", correct: true },
+              { text: "ア ISO14001　イ ISO9001　ウ JIS Q 15001　エ プライバシーマーク", correct: false },
+              { text: "ア ISO9001　イ JIS Q 15001　ウ ISO14001　エ プライバシーマーク", correct: false },
+              { text: "ア プライバシーマーク　イ ISO14001　ウ JCI　エ JIS Q 15001", correct: false },
+              { text: "ア ISMS　イ ISO9001　ウ ISO14001　エ プライバシーマーク", correct: false }
+            ],
+            explanation: "ISO9001＝品質、ISO14001＝環境、JIS Q 15001＝個人情報保護マネジメントシステム、プライバシーマーク＝個人情報保護体制を示すマーク制度と整理する。ISO9001とISO14001の入れ替えが典型的な誤りである。"
+          },
+          {
+            text: "第三者認証・第三者評価の説明として、最も適切なものはどれか。",
+            choices: [
+              { text: "ISO9001は、サービスの品質保証や継続的改善の仕組みを対象とする。", correct: true },
+              { text: "ISO14001は、診療記録の保存期間を定める国内規格である。", correct: false },
+              { text: "JIS Q 15001は、救急搬送件数と手術件数を評価する病院機能評価である。", correct: false },
+              { text: "プライバシーマークは、環境負荷低減に取り組む事業者に付与される。", correct: false },
+              { text: "JCIは、医療材料の価格妥当性を評価する制度である。", correct: false }
+            ],
+            explanation: "ISO9001は品質マネジメントシステムに関する規格である。診療記録の保存期間は医師法等の法令・医療情報管理の論点であり、ISO14001の内容ではない。JCIは国際的な医療機関認証である。"
+          }
+        ]
+      },
+      {
+        category: "病院機能評価・JCI",
+        questions: [
+          {
+            text: "病院機能評価について、最も適切なものはどれか。",
+            choices: [
+              { text: "病院が組織的に医療を提供するための基本的活動が適切に実施されているかを評価する仕組みである。", correct: true },
+              { text: "病院の財務内容をもとに金融機関が融資格付けを行う制度である。", correct: false },
+              { text: "病院が独自に作成した評価項目を、院内委員会のみで確認する制度である。", correct: false },
+              { text: "主として医療機器の製造販売承認を行う制度である。", correct: false },
+              { text: "個人情報保護法に基づいて、全事業者へ一律に付与されるマーク制度である。", correct: false }
+            ],
+            explanation: "病院機能評価は、第三者が病院の基本的機能や組織的な医療提供体制を評価する仕組みである。財務格付け、医療機器の承認、個人情報保護のマーク制度とは区別する。"
+          },
+          {
+            text: "JCIに関する記述として、最も適切なものはどれか。",
+            choices: [
+              { text: "国際的な医療機関認証として、医療の質や患者安全などに関する評価を行う。", correct: true },
+              { text: "日本国内の個人情報保護マネジメントシステムを定めたJIS規格である。", correct: false },
+              { text: "環境負荷の低減を目的とするISO規格の一つである。", correct: false },
+              { text: "医療機関のDPC係数を自動的に決定する制度である。", correct: false },
+              { text: "医療法人の法人税率を判定するための第三者評価である。", correct: false }
+            ],
+            explanation: "JCIは国際的な医療機関認証として整理する。JIS Q 15001、ISO14001、DPC係数、法人税率の判定とは異なる。"
+          },
+          {
+            text: "病院機能評価とJCIの説明として、最も適切なものはどれか。",
+            choices: [
+              { text: "いずれも医療機関の機能や質・安全に関する第三者評価として整理できるが、日本の病院機能評価とJCIは同一制度ではない。", correct: true },
+              { text: "病院機能評価は環境、JCIは個人情報保護を対象とする制度である。", correct: false },
+              { text: "病院機能評価を受審すると、すべての診療報酬加算が自動的に算定可能となる。", correct: false },
+              { text: "JCIは日本国内でのみ通用する病院の財務格付け制度である。", correct: false },
+              { text: "病院機能評価は医療機関ではなく、保険薬局のみを対象とする制度である。", correct: false }
+            ],
+            explanation: "病院機能評価とJCIはいずれも医療機関の質や安全に関係する第三者評価として押さえる。ただし同一制度ではない。受審・認証が直ちにすべての診療報酬加算の算定を可能にするわけではない。"
+          }
+        ]
+      },
+      {
+        category: "個人情報保護・情報セキュリティ",
+        questions: [
+          {
+            text: "個人情報保護・情報セキュリティに関する記述として、最も適切なものはどれか。",
+            choices: [
+              { text: "ISMSは、情報の機密性・完全性・可用性を踏まえて情報セキュリティリスクを管理する仕組みである。", correct: true },
+              { text: "ISO14001は、電子カルテの真正性・見読性・保存性を認証する制度である。", correct: false },
+              { text: "プライバシーマークは、医療廃棄物の環境負荷を評価する制度である。", correct: false },
+              { text: "JIS Q 15001は、病院の救急医療機能を国際的に評価する制度である。", correct: false },
+              { text: "ISO9001は、個人情報保護体制を示す国内マーク制度である。", correct: false }
+            ],
+            explanation: "ISMSは情報セキュリティマネジメントシステムであり、機密性・完全性・可用性を踏まえたリスク管理の仕組みである。電子カルテ三原則は真正性・見読性・保存性であり、ISO14001の内容ではない。"
+          },
+          {
+            text: "プライバシーマークとJIS Q 15001について、最も適切なものはどれか。",
+            choices: [
+              { text: "いずれも個人情報保護に関係するが、JIS Q 15001は要求事項を定める規格、プライバシーマークは体制整備を示す認証制度として整理できる。", correct: true },
+              { text: "JIS Q 15001は環境マネジメント、プライバシーマークは品質マネジメントを対象とする。", correct: false },
+              { text: "プライバシーマークは病院の財務安全性を示す制度である。", correct: false },
+              { text: "JIS Q 15001は国際的な病院機能評価制度である。", correct: false },
+              { text: "プライバシーマークを取得すれば、診療録管理体制加算を自動的に算定できる。", correct: false }
+            ],
+            explanation: "JIS Q 15001とプライバシーマークはいずれも個人情報保護に関係する。JIS Q 15001は個人情報保護マネジメントシステムの要求事項、プライバシーマークは個人情報保護体制を整備している事業者に付与される制度として押さえる。"
+          },
+          {
+            text: "情報管理に関連する制度・概念の組み合わせとして、最も適切なものはどれか。",
+            choices: [
+              { text: "ISMS ― 情報セキュリティマネジメント", correct: true },
+              { text: "ISO9001 ― 環境マネジメント", correct: false },
+              { text: "ISO14001 ― 個人情報保護マネジメント", correct: false },
+              { text: "JCI ― 個人情報保護マーク", correct: false },
+              { text: "病院機能評価 ― ランサムウェアの定義を定める規格", correct: false }
+            ],
+            explanation: "ISMSは情報セキュリティマネジメントである。ISO9001は品質、ISO14001は環境、JCIは国際的な医療機関認証、病院機能評価は病院の機能評価である。"
+          }
+        ]
+      },
+      {
+        category: "診療報酬との関係",
+        questions: [
+          {
+            text: "第三者認証・第三者評価と診療報酬の関係について、最も適切なものはどれか。",
+            choices: [
+              { text: "第三者評価は、一部の施設基準や望ましい要件に関係することがあるが、ISO取得だけで直ちに診療報酬が算定できるとは限らない。", correct: true },
+              { text: "ISO9001を取得した医療機関は、すべての入院患者についてISO管理加算を算定できる。", correct: false },
+              { text: "プライバシーマークを取得した医療機関は、初診料に個人情報保護加算を上乗せできる。", correct: false },
+              { text: "ISO14001を取得すると、DPC対象病院の機能評価係数が自動的に満点となる。", correct: false },
+              { text: "JIS Q 15001を取得すれば、診療録管理体制加算のすべての施設基準を満たしたものと扱われる。", correct: false }
+            ],
+            explanation: "認証取得そのものと診療報酬算定は分けて考える。病院機能評価などの第三者評価が一部の施設基準等に関係することはあるが、ISO9001、ISO14001、プライバシーマーク等の取得だけで直ちに独立した加算が算定できるわけではない。"
+          },
+          {
+            text: "第三者評価に関連した診療報酬上の整理として、適切でないものはどれか。",
+            choices: [
+              { text: "ISO14001を取得していることは、環境管理体制に関する認証であり、通常は診療報酬上の直接的な算定項目として扱われない。", correct: false },
+              { text: "病院機能評価などの第三者評価は、医療の質や組織的な医療提供体制の評価として、一部の施設基準と関連づけて理解できる。", correct: false },
+              { text: "プライバシーマークは個人情報保護体制を評価する制度であり、診療報酬の直接加算として整理するものではない。", correct: false },
+              { text: "ISMSは情報セキュリティ体制の管理に関係し、電子カルテやサイバー対策の文脈で理解しやすい。", correct: false },
+              { text: "ISO9001を取得していれば、医療機関は入院料や外来診療料に一律の上乗せ点数を算定できる。", correct: true }
+            ],
+            explanation: "適切でないものを選ぶ問題である。ISO9001は品質マネジメントシステムの規格だが、取得により入院料や外来診療料へ一律に上乗せできるわけではない。"
+          },
+          {
+            text: "第三者認証と診療報酬に関する説明として、最も適切なものはどれか。",
+            choices: [
+              { text: "認証制度は医療機関の管理体制を示す材料になり得るが、診療報酬では個別の施設基準・算定要件を確認する必要がある。", correct: true },
+              { text: "認証を1つ取得すれば、すべての施設基準における人員配置要件が免除される。", correct: false },
+              { text: "病院機能評価を受けていれば、DPC対象病院の参加基準を個別に確認する必要はない。", correct: false },
+              { text: "プライバシーマークを取得した医療機関では、電子カルテ三原則の確認が不要となる。", correct: false },
+              { text: "JCI認証を取得すると、地域医療支援病院の承認要件を自動的に満たす。", correct: false }
+            ],
+            explanation: "第三者認証は管理体制や質改善の取り組みを示す材料となるが、診療報酬の算定や施設基準は個別に確認する必要がある。認証取得により人員配置、DPC参加基準、電子カルテ三原則、地域医療支援病院の承認要件が自動的に満たされるわけではない。"
+          }
+        ]
+      },
+      {
+        category: "実践的な取り違え",
+        questions: [
+          {
+            text: "次の記述のうち、適切なものの組み合わせはどれか。\n\nア　ISO9001は品質マネジメントシステムに関する国際規格である。\nイ　ISO14001は環境マネジメントシステムに関する国際規格である。\nウ　JIS Q 15001は個人情報保護マネジメントシステムに関する規格である。\nエ　病院機能評価は病院の財務格付けを主目的とする制度である。",
+            choices: [
+              { text: "ア・イ・ウ", correct: true },
+              { text: "ア・イ・エ", correct: false },
+              { text: "ア・ウ・エ", correct: false },
+              { text: "イ・ウ・エ", correct: false },
+              { text: "ア・イ・ウ・エ", correct: false }
+            ],
+            explanation: "ア・イ・ウが適切である。エは誤りで、病院機能評価は病院の組織的な医療提供機能を評価する仕組みであり、財務格付けを主目的とする制度ではない。"
+          },
+          {
+            text: "次の記述のうち、適切でないものの組み合わせはどれか。\n\nア　プライバシーマークは個人情報保護体制に関する制度である。\nイ　JCIは国際的な医療機関認証として整理できる。\nウ　ISO14001は品質マネジメントシステムに関する国際規格である。\nエ　ISO9001は環境マネジメントシステムに関する国際規格である。",
+            choices: [
+              { text: "ウ・エ", correct: true },
+              { text: "ア・イ", correct: false },
+              { text: "ア・ウ", correct: false },
+              { text: "イ・エ", correct: false },
+              { text: "ア・イ・ウ", correct: false }
+            ],
+            explanation: "適切でないものはウ・エである。ISO14001は環境、ISO9001は品質であり、両者を入れ替えた記述が誤りである。アとイは適切である。"
+          },
+          {
+            text: "次の記述のうち、最も適切なものはどれか。",
+            choices: [
+              { text: "ISO9001、ISO14001、JIS Q 15001、プライバシーマーク、病院機能評価は、それぞれ対象領域が異なるため、名称と目的を対応させて整理する必要がある。", correct: true },
+              { text: "ISO9001とISO14001は、いずれも個人情報保護体制を対象とする国内マーク制度である。", correct: false },
+              { text: "JIS Q 15001と病院機能評価は、いずれも医療機関の救急搬送実績を評価する制度である。", correct: false },
+              { text: "プライバシーマークとJCIは、いずれも環境マネジメントシステムを評価する制度である。", correct: false },
+              { text: "病院機能評価は、診療報酬請求の審査支払を行うための制度である。", correct: false }
+            ],
+            explanation: "第三者認証・第三者評価では、名称と目的の対応が問われやすい。ISO9001＝品質、ISO14001＝環境、JIS Q 15001・プライバシーマーク＝個人情報保護、JCI・病院機能評価＝医療機関の機能や質・安全の評価として整理する。"
+          }
+        ]
+      }
+    ];
+
+    let quiz = [];
+    let current = 0;
+    let correctCount = 0;
+    let answered = false;
+
+    const categoryEl = document.getElementById("category");
+    const questionEl = document.getElementById("question");
+    const choicesEl = document.getElementById("choices");
+    const resultEl = document.getElementById("result");
+    const judgeEl = document.getElementById("judge");
+    const answerTextEl = document.getElementById("answerText");
+    const explainEl = document.getElementById("explain");
+    const answerBtn = document.getElementById("answerBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressEl = document.getElementById("progress");
+    const scoreEl = document.getElementById("score");
+    const quizCard = document.getElementById("quizCard");
+    const doneEl = document.getElementById("done");
+    const finalScoreEl = document.getElementById("finalScore");
+    const finalCommentEl = document.getElementById("finalComment");
+
+    function shuffle(array) {
+      const arr = array.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildQuiz() {
+      quiz = pools.map(pool => {
+        const picked = pool.questions[Math.floor(Math.random() * pool.questions.length)];
+        return {
+          category: pool.category,
+          text: picked.text,
+          explanation: picked.explanation,
+          choices: shuffle(picked.choices)
+        };
+      });
+      current = 0;
+      correctCount = 0;
+      answered = false;
+    }
+
+    function renderQuestion() {
+      const q = quiz[current];
+      categoryEl.textContent = "カテゴリ：" + q.category;
+      questionEl.textContent = "第" + (current + 1) + "問　" + q.text;
+      choicesEl.innerHTML = "";
+      resultEl.classList.remove("show");
+      judgeEl.textContent = "";
+      answerTextEl.textContent = "";
+      explainEl.textContent = "";
+      answerBtn.disabled = false;
+      nextBtn.disabled = true;
+      answered = false;
+
+      q.choices.forEach((choice, index) => {
+        const label = document.createElement("label");
+        label.className = "choice";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "choice";
+        input.value = index;
+
+        input.addEventListener("change", () => {
+          document.querySelectorAll(".choice").forEach(el => el.classList.remove("selected"));
+          label.classList.add("selected");
+        });
+
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(choice.text));
+        choicesEl.appendChild(label);
+      });
+
+      progressEl.textContent = (current + 1) + " / " + quiz.length;
+      scoreEl.textContent = "正解 " + correctCount + "問";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function answerQuestion() {
+      if (answered) return;
+
+      const selected = document.querySelector("input[name='choice']:checked");
+      if (!selected) {
+        resultEl.classList.add("show");
+        judgeEl.className = "judge bad";
+        judgeEl.textContent = "選択肢を選んでください";
+        answerTextEl.textContent = "";
+        explainEl.textContent = "";
+        return;
+      }
+
+      answered = true;
+      const q = quiz[current];
+      const selectedChoice = q.choices[Number(selected.value)];
+      const correctChoice = q.choices.find(choice => choice.correct);
+
+      if (selectedChoice.correct) {
+        correctCount++;
+        judgeEl.className = "judge good";
+        judgeEl.textContent = "正解";
+      } else {
+        judgeEl.className = "judge bad";
+        judgeEl.textContent = "不正解";
+      }
+
+      answerTextEl.textContent = "正答： " + correctChoice.text;
+      explainEl.textContent = q.explanation;
+      resultEl.classList.add("show");
+      answerBtn.disabled = true;
+      nextBtn.disabled = false;
+      scoreEl.textContent = "正解 " + correctCount + "問";
+    }
+
+    function nextQuestion() {
+      if (current < quiz.length - 1) {
+        current++;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      quizCard.style.display = "none";
+      doneEl.classList.add("show");
+      progressEl.textContent = "終了";
+      scoreEl.textContent = "正解 " + correctCount + "問";
+      finalScoreEl.textContent = correctCount + " / " + quiz.length + "問 正解";
+
+      let comment = "";
+      if (correctCount === quiz.length) {
+        comment = "よく整理できています。次は診療報酬との関係を施設基準ベースで確認すると得点源になります。";
+      } else if (correctCount >= 3) {
+        comment = "基本は押さえられています。ISO9001・ISO14001・JIS Q 15001・Pマークの対応をもう一度確認しましょう。";
+      } else {
+        comment = "まずは ISO9001＝品質、ISO14001＝環境、JIS Q 15001・Pマーク＝個人情報保護、病院機能評価・JCI＝医療機関評価 の対応を固めましょう。";
+      }
+      finalCommentEl.textContent = comment;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function restartQuiz() {
+      doneEl.classList.remove("show");
+      quizCard.style.display = "block";
+      buildQuiz();
+      renderQuestion();
+    }
+
+    answerBtn.addEventListener("click", answerQuestion);
+    nextBtn.addEventListener("click", nextQuestion);
+
+    buildQuiz();
+    renderQuestion();
+  </script>
+</body>
+</html>
