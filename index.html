@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>医療経営士2級 実践問題インデックス</title>
+  <style>
+    :root{
+      --bg:#0e141b; --panel:#151f2b; --panel2:#1a2633; --text:#eef3f7; --muted:#aebbc8;
+      --line:#2b3a49; --accent:#86c7ba; --accent2:#d8bd78; --shadow:0 16px 45px rgba(0,0,0,.28); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;background:radial-gradient(circle at top left,rgba(134,199,186,.15),transparent 34rem),radial-gradient(circle at top right,rgba(216,189,120,.10),transparent 30rem),var(--bg);color:var(--text);line-height:1.75}
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(1080px,100%);margin:0 auto;padding:22px 16px 48px}
+    header{padding:22px 0 18px}
+    .hero{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(135deg,rgba(21,31,43,.96),rgba(17,25,34,.96));box-shadow:var(--shadow);padding:24px 18px}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--accent);font-size:.86rem;font-weight:700;letter-spacing:.06em}
+    .eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 18px var(--accent)}
+    h1{margin:10px 0 8px;font-size:clamp(1.55rem,5vw,2.5rem);line-height:1.22}
+    .lead{margin:0;color:var(--muted);font-size:.98rem}
+    .notice{margin-top:14px;padding:12px 14px;border:1px solid rgba(134,199,186,.30);border-radius:14px;background:rgba(134,199,186,.08);color:#e5f7f3;font-size:.94rem}
+    .toolbar{position:sticky;top:0;z-index:5;margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(14,20,27,.9);backdrop-filter:blur(12px)}
+    .controls{display:grid;grid-template-columns:1fr 210px;gap:10px}
+    label span{display:block;color:var(--muted);font-size:.78rem;margin:0 0 4px 2px}
+    input,select{width:100%;border:1px solid var(--line);border-radius:12px;background:#0a1118;color:var(--text);padding:13px 14px;font-size:16px;outline:none}
+    input:focus,select:focus{border-color:rgba(134,199,186,.85);box-shadow:0 0 0 3px rgba(134,199,186,.13)}
+    .metaRow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:.86rem}
+    .count{color:var(--accent2);font-weight:800}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .card{display:flex;flex-direction:column;min-height:182px;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(21,31,43,.86);box-shadow:0 10px 26px rgba(0,0,0,.16);transition:transform .18s ease,border-color .18s ease,background .18s ease}
+    .card:hover{transform:translateY(-2px);border-color:rgba(134,199,186,.55);background:rgba(28,41,54,.95)}
+    .tag{align-self:flex-start;color:var(--accent);border:1px solid rgba(134,199,186,.28);background:rgba(134,199,186,.08);border-radius:999px;padding:3px 9px;font-size:.75rem;font-weight:700}
+    .card h2{margin:12px 0 7px;font-size:1.04rem;line-height:1.42}
+    .card p{margin:0 0 16px;color:var(--muted);font-size:.86rem;flex:1}
+    .openBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 12px;border-radius:12px;background:rgba(134,199,186,.14);border:1px solid rgba(134,199,186,.35);color:#effffb;font-weight:800;font-size:.92rem}
+    .openBtn::after{content:"↗";opacity:.9}
+    .empty{display:none;margin-top:14px;padding:24px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--muted);text-align:center;background:rgba(21,31,43,.55)}
+    footer{color:var(--muted);font-size:.84rem;padding-top:28px;border-top:1px solid var(--line);margin-top:28px}
+    footer a{color:var(--accent);margin-right:14px}
+    code{background:#0a1118;border:1px solid var(--line);border-radius:6px;padding:1px 5px;color:var(--accent2)}
+    @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.wrap{padding:16px 11px 38px}.toolbar{position:static}.controls{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.card{min-height:auto}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <section class="hero">
+        <div class="eyebrow">医療経営士2級 対策用リンク集</div>
+        <h1>実践問題インデックス</h1>
+        <p class="lead">GitHub Pages上に保存した各テーマのHTML実践問題へアクセスできます。夜間のスマホ利用を想定した、暗めで落ち着いた目次ページです。</p>
+        <div class="notice">各問題は<strong>新しいタブ</strong>で開きます。解き終えたら問題タブを閉じると、このIndexページに戻れます。</div>
+      </section>
+    </header>
+
+    <section class="toolbar" aria-label="問題検索と絞り込み">
+      <div class="controls">
+        <label>
+          <span>検索</span>
+          <input id="search" type="search" placeholder="例：DPC、医療DX、地域医療構想、薬機法" autocomplete="off" />
+        </label>
+        <label>
+          <span>カテゴリ</span>
+          <select id="category"><option value="すべて">すべて</option></select>
+        </label>
+      </div>
+      <div class="metaRow">
+        <div><span id="count" class="count">0件</span> 表示中</div>
+        <div>全23件 / 最終更新：2026年6月</div>
+      </div>
+    </section>
+
+    <main class="grid" id="list" aria-live="polite"></main>
+    <div class="empty" id="empty">該当する問題が見つかりませんでした。検索語を短くするか、カテゴリを「すべて」に戻してください。</div>
+
+    <footer>
+      <div>問題リンクには <code>target=&quot;_blank&quot;</code> を設定しているため、Indexページを残したまま各問題を開けます。</div>
+      <div style="margin-top:10px">
+        <a href="https://github.com/RabbitFoot999/jmmpa-examination-level2" target="_blank" rel="noopener noreferrer">GitHubリポジトリ</a>
+        <a href="https://rabbitfoot999.github.io/jmmpa-examination-level2/" target="_blank" rel="noopener noreferrer">GitHub Pagesトップ</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const items = [
+      { title: '2026年度診療報酬改定・改定率 実践問題', category: '診療報酬改定', description: '改定率、賃上げ、物価対応などの重要論点を確認します。', href: '2026%E5%B9%B4%E5%BA%A6%E8%A8%BA%E7%99%82%E5%A0%B1%E9%85%AC%E6%94%B9%E5%AE%9A%E3%83%BB%E6%94%B9%E5%AE%9A%E7%8E%87%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '2026診療報酬改定・医師の働き方改革 実践問題', category: '診療報酬改定', description: '2026年度改定、医師の働き方改革、宿日直などを復習します。', href: '2026%E8%A8%BA%E7%99%82%E5%A0%B1%E9%85%AC%E6%94%B9%E5%AE%9A%E3%83%BB%E5%8C%BB%E5%B8%AB%E3%81%AE%E5%83%8D%E3%81%8D%E6%96%B9%E6%94%B9%E9%9D%A9%20%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: 'DPC・出来高払い 実践問題', category: 'DPC・入院医療', description: 'DPC、出来高払い、参加基準、係数などの基礎を確認します。', href: 'DPC%E3%83%BB%E5%87%BA%E6%9D%A5%E9%AB%98%E6%89%95%E3%81%84%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: 'LIFE関連加算 実践問題', category: '介護報酬', description: 'LIFE提出・フィードバック活用に関連する加算を確認します。', href: 'LIFE%E9%96%A2%E9%80%A3%E5%8A%A0%E7%AE%97%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: 'かかりつけ医機能関連診療報酬 実践問題', category: '外来・かかりつけ', description: '機能強化加算、地域包括診療料・加算、生活習慣病管理料などを確認します。', href: '%E3%81%8B%E3%81%8B%E3%82%8A%E3%81%A4%E3%81%91%E5%8C%BB%E6%A9%9F%E8%83%BD%E9%96%A2%E9%80%A3%E8%A8%BA%E7%99%82%E5%A0%B1%E9%85%AC%20%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '介護報酬制度・令和6年度介護報酬改定 実践問題', category: '介護報酬', description: '介護報酬制度、令和6年度改定、利用者負担などを確認します。', href: '%E4%BB%8B%E8%AD%B7%E5%A0%B1%E9%85%AC%E5%88%B6%E5%BA%A6%E3%83%BB%E4%BB%A4%E5%92%8C6%E5%B9%B4%E5%BA%A6%E4%BB%8B%E8%AD%B7%E5%A0%B1%E9%85%AC%E6%94%B9%E5%AE%9A%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '介護職員等処遇改善加算 実践問題', category: '介護報酬', description: '介護職員等処遇改善加算の体系と要件を確認します。', href: '%E4%BB%8B%E8%AD%B7%E8%81%B7%E5%93%A1%E7%AD%89%E5%87%A6%E9%81%87%E6%94%B9%E5%96%84%E5%8A%A0%E7%AE%97%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '保険外併用療養費 実践問題', category: '医療制度', description: '評価療養、患者申出療養、選定療養などを確認します。', href: '%E4%BF%9D%E9%99%BA%E5%A4%96%E4%BD%B5%E7%94%A8%E7%99%82%E9%A4%8A%E8%B2%BB%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '入退院時情報連携 実践問題', category: '医療・介護連携', description: '入院時情報連携、退院時連携、施設入所時の情報提供を確認します。', href: '%E5%85%A5%E9%80%80%E9%99%A2%E6%99%82%E6%83%85%E5%A0%B1%E9%80%A3%E6%90%BA%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '入院料算定要件 実践問題', category: 'DPC・入院医療', description: '急性期、地域包括、回復期、療養病棟の算定要件を確認します。', href: '%E5%85%A5%E9%99%A2%E6%96%99%E7%AE%97%E5%AE%9A%E8%A6%81%E4%BB%B6%20%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '医療DX 実践問題', category: '医療DX・情報', description: '医療DX、電子処方箋、オンライン資格確認などを確認します。', href: '%E5%8C%BB%E7%99%82DX%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '医療安全管理 実践問題', category: '医療安全', description: '医療安全管理体制、事故調査、院内感染対策などを確認します。', href: '%E5%8C%BB%E7%99%82%E5%AE%89%E5%85%A8%E7%AE%A1%E7%90%86%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '在宅・訪問に関する医療介護 実践問題', category: '在宅・訪問', description: '在宅医療、訪問看護、訪問薬剤管理指導などを確認します。', href: '%E5%9C%A8%E5%AE%85%E3%83%BB%E8%A8%AA%E5%95%8F%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E5%8C%BB%E7%99%82%E4%BB%8B%E8%AD%B7%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '地域医療支援病院・特定機能病院 実践問題', category: '医療提供体制', description: '地域医療支援病院と特定機能病院の承認要件等を確認します。', href: '%E5%9C%B0%E5%9F%9F%E5%8C%BB%E7%99%82%E6%94%AF%E6%8F%B4%E7%97%85%E9%99%A2%E3%83%BB%E7%89%B9%E5%AE%9A%E6%A9%9F%E8%83%BD%E7%97%85%E9%99%A2%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '病床ごとの特徴 実践問題', category: '病床・地域医療構想', description: '一般病床、療養病床、精神病床等の特徴を確認します。', href: '%E7%97%85%E5%BA%8A%E3%81%93%E3%82%99%E3%81%A8%E3%81%AE%E7%89%B9%E5%BE%B4%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '病床機能・地域医療構想 実践問題', category: '病床・地域医療構想', description: '高度急性期、急性期、回復期、慢性期と地域医療構想を確認します。', href: '%E7%97%85%E5%BA%8A%E6%A9%9F%E8%83%BD%E3%83%BB%E5%9C%B0%E5%9F%9F%E5%8C%BB%E7%99%82%E6%A7%8B%E6%83%B3%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '第三者認証・第三者評価 実践問題', category: '第三者評価', description: '病院機能評価、ISO、プライバシーマーク等を確認します。', href: '%E7%AC%AC%E4%B8%89%E8%80%85%E8%AA%8D%E8%A8%BC%E3%83%BB%E7%AC%AC%E4%B8%89%E8%80%85%E8%A9%95%E4%BE%A1%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '経営・分析理論 実践問題', category: '経営・分析', description: '経営戦略、財務分析、BSC、ECRS、非市場戦略などを確認します。', href: '%E7%B5%8C%E5%96%B6%E3%83%BB%E5%88%86%E6%9E%90%E7%90%86%E8%AB%96%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '薬機法重要ポイント 実践問題', category: '薬機法・医薬品', description: '薬機法、医療機器分類、承認、薬価収載・薬価算定などを確認します。', href: '%E8%96%AC%E6%A9%9F%E6%B3%95%E9%87%8D%E8%A6%81%E3%83%9B%E3%82%9A%E3%82%A4%E3%83%B3%E3%83%88%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '診療録管理体制加算 実践問題', category: '医療DX・情報', description: '診療録管理体制加算、電子的診療情報連携などを確認します。', href: '%E8%A8%BA%E7%99%82%E9%8C%B2%E7%AE%A1%E7%90%86%E4%BD%93%E5%88%B6%E5%8A%A0%E7%AE%97%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '通所リハビリテーション 実践問題', category: '介護報酬', description: '通所リハビリテーションとリハビリテーションマネジメントを確認します。', href: '%E9%80%9A%E6%89%80%E3%83%AA%E3%83%8F%E3%83%92%E3%82%99%E3%83%AA%E3%83%86%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '重症度・医療・看護必要度 実践問題', category: 'DPC・入院医療', description: '重症度、医療・看護必要度の評価項目や入院料との関係を確認します。', href: '%E9%87%8D%E7%97%87%E5%BA%A6%E3%83%BB%E5%8C%BB%E7%99%82%E3%83%BB%E7%9C%8B%E8%AD%B7%E5%BF%85%E8%A6%81%E5%BA%A6%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' },
+      { title: '高齢社会白書・2040年問題 実践問題', category: '人口・社会保障', description: '高齢社会白書、2040年問題、人口構造の変化を確認します。', href: '%E9%AB%98%E9%BD%A2%E7%A4%BE%E4%BC%9A%E7%99%BD%E6%9B%B8%E3%83%BB2040%E5%B9%B4%E5%95%8F%E9%A1%8C%E5%AE%9F%E8%B7%B5%E5%95%8F%E9%A1%8C.html' }
+    ];
+
+    const list = document.getElementById("list");
+    const count = document.getElementById("count");
+    const empty = document.getElementById("empty");
+    const search = document.getElementById("search");
+    const category = document.getElementById("category");
+
+    function escapeHtml(value){
+      return String(value).replace(/[&<>"]/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s]));
+    }
+
+    function normalizeText(text){
+      return String(text || "").toLowerCase().normalize("NFKC");
+    }
+
+    function setupCategories(){
+      const categories = ["すべて", ...Array.from(new Set(items.map(item => item.category))).sort((a,b)=>a.localeCompare(b,"ja"))];
+      category.innerHTML = categories.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join("");
+    }
+
+    function renderList(){
+      const keyword = normalizeText(search.value.trim());
+      const selected = category.value;
+      const filtered = items.filter(item => {
+        const inCategory = selected === "すべて" || item.category === selected;
+        const haystack = normalizeText(`${item.title} ${item.category} ${item.description}`);
+        return inCategory && (!keyword || haystack.includes(keyword));
+      });
+
+      list.innerHTML = filtered.map(item => `
+        <article class="card">
+          <span class="tag">${escapeHtml(item.category)}</span>
+          <h2>${escapeHtml(item.title)}</h2>
+          <p>${escapeHtml(item.description)}</p>
+          <a class="openBtn" href="${escapeHtml(item.href)}" target="_blank" rel="noopener noreferrer">新しいタブで開く</a>
+        </article>
+      `).join("");
+
+      count.textContent = `${filtered.length}件`;
+      empty.style.display = filtered.length ? "none" : "block";
+    }
+
+    search.addEventListener("input", renderList);
+    category.addEventListener("change", renderList);
+    setupCategories();
+    renderList();
+  </script>
+</body>
+</html>
