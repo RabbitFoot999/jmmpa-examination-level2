@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026年度診療報酬改定 改定率実践問題</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #111827;
+      --panel: #1e293b;
+      --panel2: #243044;
+      --text: #e5e7eb;
+      --muted: #a7b0c0;
+      --line: #334155;
+      --accent: #8fb3ff;
+      --accent2: #c4b5fd;
+      --good: #34d399;
+      --good-bg: rgba(52, 211, 153, 0.13);
+      --bad: #fb7185;
+      --bad-bg: rgba(251, 113, 133, 0.13);
+      --warn-bg: rgba(245, 158, 11, 0.12);
+      --warn-line: rgba(245, 158, 11, 0.25);
+      --shadow: 0 18px 45px rgba(0,0,0,.28);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(139,92,246,.16), transparent 34rem),
+        linear-gradient(180deg, #0b1020 0%, var(--bg) 48%, #0a0f1f 100%);
+      line-height: 1.7;
+    }
+    button { font: inherit; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 18px 14px 40px; }
+    .hero {
+      border: 1px solid rgba(148,163,184,.25);
+      background: linear-gradient(135deg, rgba(30,41,59,.92), rgba(15,23,42,.94));
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .label {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: #c7d2fe; font-size: 13px; font-weight: 800; letter-spacing: .06em;
+    }
+    h1 { margin: 7px 0 8px; font-size: clamp(24px, 6vw, 42px); line-height: 1.2; letter-spacing: -.03em; }
+    .lead { color: var(--muted); margin: 0; font-size: 15px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+    .stat { background: rgba(15,23,42,.65); border: 1px solid rgba(148,163,184,.18); border-radius: 16px; padding: 12px; }
+    .stat small { display: block; color: var(--muted); font-weight: 700; font-size: 12px; }
+    .stat b { display: block; font-size: 20px; margin-top: 2px; }
+
+    .progressOuter { margin: 16px 0; height: 13px; padding: 3px; border-radius: 999px; background: rgba(30,41,59,.95); border: 1px solid rgba(148,163,184,.20); }
+    .progressInner { height: 100%; border-radius: 999px; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .3s ease; }
+
+    .grid { display: grid; grid-template-columns: 1fr 330px; gap: 16px; align-items: start; }
+    .card, .side, .result {
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(30,41,59,.92);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .card { padding: 20px; }
+    .side { padding: 18px; position: sticky; top: 12px; }
+    .topline { display: flex; justify-content: space-between; gap: 10px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+    .pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+    .pill.primary { background: rgba(143,179,255,.15); color: #dbeafe; border: 1px solid rgba(143,179,255,.22); }
+    .pill.category { background: rgba(196,181,253,.12); color: #ede9fe; border: 1px solid rgba(196,181,253,.20); }
+    .question { font-size: clamp(18px, 4.6vw, 25px); font-weight: 900; line-height: 1.55; margin: 20px 0 16px; }
+    .options { display: grid; gap: 10px; }
+    .option {
+      width: 100%; text-align: left; color: var(--text);
+      background: rgba(15,23,42,.48);
+      border: 1px solid rgba(148,163,184,.22);
+      border-radius: 17px;
+      padding: 13px 13px;
+      display: flex; gap: 11px; align-items: flex-start;
+      cursor: pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .option:hover { transform: translateY(-1px); border-color: rgba(143,179,255,.55); background: rgba(30,41,59,.82); }
+    .option:disabled { cursor: default; transform: none; }
+    .option.selected { border-color: var(--accent); background: rgba(59,130,246,.16); }
+    .option.correct { border-color: rgba(52,211,153,.75); background: var(--good-bg); }
+    .option.wrong { border-color: rgba(251,113,133,.75); background: var(--bad-bg); }
+    .num {
+      flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+      display: grid; place-items: center; background: rgba(148,163,184,.15); color: #dbeafe; font-weight: 900;
+    }
+    .optionText { flex: 1; }
+    .mark { flex: 0 0 auto; font-weight: 900; font-size: 21px; }
+    .mark.ok { color: var(--good); }
+    .mark.ng { color: var(--bad); }
+    .actions { margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: 0; border-radius: 15px; padding: 12px 17px; font-weight: 900; cursor: pointer;
+      color: #08111f; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 8px 22px rgba(59,130,246,.18);
+    }
+    .btn.secondary { background: rgba(148,163,184,.14); color: var(--text); border: 1px solid rgba(148,163,184,.25); box-shadow: none; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .side h2 { font-size: 18px; margin: 0 0 10px; }
+    .explainBox { border-radius: 16px; padding: 13px; background: rgba(15,23,42,.50); border: 1px solid rgba(148,163,184,.20); color: #cbd5e1; font-size: 14px; }
+    .explainBox.good { background: var(--good-bg); border-color: rgba(52,211,153,.35); }
+    .explainBox.bad { background: var(--bad-bg); border-color: rgba(251,113,133,.35); }
+    .explainBox p { margin: 6px 0; }
+    .miniTitle { color: var(--muted); font-weight: 900; font-size: 12px; margin-top: 10px; }
+    .review { margin-top: 14px; padding: 12px; border-radius: 16px; background: rgba(15,23,42,.50); border: 1px solid rgba(148,163,184,.18); }
+    .review b { color: #dbeafe; }
+
+    .result { padding: 22px; }
+    .scoreBig { font-size: clamp(34px, 11vw, 64px); font-weight: 950; line-height: 1; margin: 12px 0; }
+    .note { margin-top: 18px; border-radius: 18px; border: 1px solid var(--warn-line); background: var(--warn-bg); padding: 14px; color: #fde68a; }
+    .history { display: grid; gap: 10px; margin-top: 18px; }
+    .historyItem { padding: 13px; border-radius: 16px; background: rgba(15,23,42,.50); border: 1px solid rgba(148,163,184,.18); }
+    .historyItem.good { border-color: rgba(52,211,153,.35); }
+    .historyItem.bad { border-color: rgba(251,113,133,.35); }
+    .hidden { display: none !important; }
+
+    @media (max-width: 860px) {
+      .wrap { padding: 12px 10px 28px; }
+      .hero { padding: 18px; border-radius: 22px; }
+      .stats { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .side { position: static; }
+      .card { padding: 16px; }
+      .topline { align-items: flex-start; flex-direction: column; }
+      .option { padding: 12px; }
+      .actions { justify-content: stretch; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="label">🌙 医療経営士2級対策</div>
+      <h1>2026年度診療報酬改定<br>改定率実践問題</h1>
+      <p class="lead">診療報酬本体、賃上げ、物価対応、食費・光熱水費、薬価等、過去改定率の推移を、実際の数値の取り違えに注意しながら確認します。</p>
+      <div class="stats">
+        <div class="stat"><small>出題形式</small><b>五者択一</b></div>
+        <div class="stat"><small>出題方法</small><b>カテゴリ別ランダム</b></div>
+        <div class="stat"><small>問題数</small><b><span id="totalLabel">11</span>問</b></div>
+      </div>
+    </header>
+
+    <div class="progressOuter"><div id="progress" class="progressInner"></div></div>
+
+    <section id="quizScreen" class="grid">
+      <main class="card" id="questionTop">
+        <div class="topline">
+          <span class="pill primary" id="countPill">問題 1 / 11</span>
+          <span class="pill category" id="categoryPill">カテゴリ</span>
+        </div>
+        <div class="question" id="questionText"></div>
+        <div class="options" id="options"></div>
+        <div class="actions">
+          <button class="btn" id="answerBtn" disabled>回答</button>
+          <button class="btn" id="nextBtn" style="display:none;">次の問題へ</button>
+        </div>
+      </main>
+
+      <aside class="side">
+        <h2>解説</h2>
+        <div id="explain" class="explainBox">選択肢を1つ選び、「回答」を押すと正誤判定と解説が表示されます。</div>
+        <div class="review">
+          <div class="miniTitle">現在の得点</div>
+          <b id="scoreLabel">0点</b>
+          <div class="miniTitle">進捗</div>
+          <b id="progressLabel">1 / 11</b>
+        </div>
+      </aside>
+    </section>
+
+    <section id="resultScreen" class="result hidden">
+      <div class="label">🏆 結果</div>
+      <div class="scoreBig" id="resultScore">0 / 11</div>
+      <p id="resultMessage" class="lead"></p>
+      <div class="note">
+        試験対策では、「本体はプラス、薬価等はマイナス」という大枠に加えて、2026年度は賃上げ・物価対応により本体改定率が大きい点を押さえると整理しやすいです。
+      </div>
+      <div class="actions" style="justify-content:flex-start;">
+        <button class="btn" id="restartBtn">問題を変えてもう一度解く</button>
+      </div>
+      <div class="history" id="history"></div>
+    </section>
+  </div>
+
+  <script>
+const questionPools = [
+  {
+    category: "診療報酬本体の改定率",
+    questions: [
+      {
+        id: "main-1",
+        question: "2026年度診療報酬改定における診療報酬本体の改定率として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "令和8・9年度の2年度平均で＋3.09％",
+            correct: true,
+            feedback: "正しい。診療報酬本体は令和8年度＋2.41％、令和9年度＋3.77％で、2年度平均では＋3.09％である。"
+          },
+          {
+            text: "令和8年度単年度で＋3.09％",
+            correct: false,
+            feedback: "＋3.09％は令和8年度単年度ではなく、令和8・9年度の2年度平均である。令和8年度単年度は＋2.41％である。"
+          },
+          {
+            text: "令和9年度単年度で＋3.09％",
+            correct: false,
+            feedback: "令和9年度単年度は＋3.77％である。＋3.09％は2年度平均の数値である。"
+          },
+          {
+            text: "令和8・9年度の2年度平均で＋2.41％",
+            correct: false,
+            feedback: "＋2.41％は令和8年度単年度の診療報酬本体改定率である。2年度平均は＋3.09％である。"
+          },
+          {
+            text: "令和8・9年度の2年度平均で＋3.77％",
+            correct: false,
+            feedback: "＋3.77％は令和9年度単年度の診療報酬本体改定率である。2年度平均は＋3.09％である。"
+          }
+        ]
+      },
+      {
+        id: "main-2",
+        question: "2026年度診療報酬改定における診療報酬本体と薬価等の関係として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "診療報酬本体は＋3.09％、薬価等は合計▲0.87％である",
+            correct: true,
+            feedback: "正しい。診療報酬本体は2年度平均で＋3.09％、薬価等は薬価▲0.86％、材料価格▲0.01％、合計▲0.87％である。"
+          },
+          {
+            text: "診療報酬本体は＋0.87％、薬価等は合計▲3.09％である",
+            correct: false,
+            feedback: "診療報酬本体と薬価等の数値が入れ替わっている。診療報酬本体は＋3.09％、薬価等合計は▲0.87％である。"
+          },
+          {
+            text: "診療報酬本体は＋0.88％、薬価等は合計▲1.00％である",
+            correct: false,
+            feedback: "これは2024年度改定に近い整理である。2026年度は診療報酬本体＋3.09％、薬価等合計▲0.87％である。"
+          },
+          {
+            text: "診療報酬本体は＋0.43％、薬価等は合計▲1.37％である",
+            correct: false,
+            feedback: "これは2022年度改定に近い数値である。2026年度改定では診療報酬本体＋3.09％、薬価等合計▲0.87％である。"
+          },
+          {
+            text: "診療報酬本体は＋0.55％、薬価等は合計▲1.01％である",
+            correct: false,
+            feedback: "これは2020年度改定に近い数値である。2026年度改定では診療報酬本体＋3.09％、薬価等合計▲0.87％である。"
+          }
+        ]
+      },
+      {
+        id: "main-3",
+        question: "2026年度診療報酬本体の改定率に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "2年度平均＋3.09％の中に、賃上げ分、物価対応分、食費・光熱水費分、経営環境悪化への緊急対応分などが含まれる",
+            correct: true,
+            feedback: "正しい。診療報酬本体＋3.09％は、賃上げ分＋1.70％、物価対応分＋0.76％、食費・光熱水費分＋0.09％、緊急対応分＋0.44％などを含む。"
+          },
+          {
+            text: "2年度平均＋3.09％は、薬価▲0.86％と材料価格▲0.01％を合算した数値である",
+            correct: false,
+            feedback: "薬価▲0.86％と材料価格▲0.01％の合計は▲0.87％である。＋3.09％は診療報酬本体の改定率である。"
+          },
+          {
+            text: "2年度平均＋3.09％は、医科＋0.28％、歯科＋0.31％、調剤＋0.08％を単純合計した数値である",
+            correct: false,
+            feedback: "各科改定率の単純合計ではない。＋3.09％は診療報酬本体全体の2年度平均である。"
+          },
+          {
+            text: "2年度平均＋3.09％は、令和8年度＋1.23％と令和9年度＋2.18％の平均である",
+            correct: false,
+            feedback: "令和8年度＋1.23％、令和9年度＋2.18％は賃上げ分の内訳である。診療報酬本体は令和8年度＋2.41％、令和9年度＋3.77％である。"
+          },
+          {
+            text: "2年度平均＋3.09％は、令和8年度＋0.55％と令和9年度＋0.97％の平均である",
+            correct: false,
+            feedback: "令和8年度＋0.55％、令和9年度＋0.97％は物価対応分の内訳である。診療報酬本体全体の年度別改定率ではない。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "年度別改定率と内訳",
+    questions: [
+      {
+        id: "year-1",
+        question: "2026年度診療報酬改定における診療報酬本体の年度別改定率として、正しい組合せを1つ選べ。",
+        options: [
+          {
+            text: "令和8年度＋2.41％、令和9年度＋3.77％、2年度平均＋3.09％",
+            correct: true,
+            feedback: "正しい。診療報酬本体は令和8年度＋2.41％、令和9年度＋3.77％、2年度平均＋3.09％である。"
+          },
+          {
+            text: "令和8年度＋3.77％、令和9年度＋2.41％、2年度平均＋3.09％",
+            correct: false,
+            feedback: "令和8年度と令和9年度の数値が逆である。令和8年度＋2.41％、令和9年度＋3.77％である。"
+          },
+          {
+            text: "令和8年度＋1.23％、令和9年度＋2.18％、2年度平均＋1.70％",
+            correct: false,
+            feedback: "これは賃上げ分の内訳であり、診療報酬本体全体の年度別改定率ではない。"
+          },
+          {
+            text: "令和8年度＋0.55％、令和9年度＋0.97％、2年度平均＋0.76％",
+            correct: false,
+            feedback: "これは物価対応分の内訳であり、診療報酬本体全体の年度別改定率ではない。"
+          },
+          {
+            text: "令和8年度＋0.41％、令和9年度＋0.82％、2年度平均＋0.62％",
+            correct: false,
+            feedback: "これは令和8年度以降の物価上昇への対応分である。診療報酬本体全体は令和8年度＋2.41％、令和9年度＋3.77％である。"
+          }
+        ]
+      },
+      {
+        id: "year-2",
+        question: "診療報酬本体＋3.09％の主な内訳として、正しい組合せを1つ選べ。",
+        options: [
+          {
+            text: "賃上げ分＋1.70％、物価対応分＋0.76％、食費・光熱水費分＋0.09％、効率化・適正化▲0.15％",
+            correct: true,
+            feedback: "正しい。診療報酬本体＋3.09％には、賃上げ分＋1.70％、物価対応分＋0.76％、食費・光熱水費分＋0.09％、効率化・適正化▲0.15％などが含まれる。"
+          },
+          {
+            text: "賃上げ分＋0.76％、物価対応分＋1.70％、食費・光熱水費分＋0.09％、効率化・適正化▲0.15％",
+            correct: false,
+            feedback: "賃上げ分と物価対応分の数値が逆である。賃上げ分は＋1.70％、物価対応分は＋0.76％である。"
+          },
+          {
+            text: "賃上げ分＋1.70％、物価対応分＋0.44％、食費・光熱水費分＋0.09％、効率化・適正化▲0.15％",
+            correct: false,
+            feedback: "＋0.44％は経営環境悪化への緊急対応分である。物価対応分は＋0.76％である。"
+          },
+          {
+            text: "賃上げ分＋1.70％、物価対応分＋0.76％、食費・光熱水費分＋0.44％、効率化・適正化▲0.15％",
+            correct: false,
+            feedback: "食費・光熱水費分は＋0.09％である。＋0.44％は経営環境悪化への緊急対応分である。"
+          },
+          {
+            text: "賃上げ分＋1.70％、物価対応分＋0.76％、食費・光熱水費分＋0.09％、効率化・適正化▲0.87％",
+            correct: false,
+            feedback: "▲0.87％は薬価等の合計改定率である。効率化・適正化は▲0.15％である。"
+          }
+        ]
+      },
+      {
+        id: "year-3",
+        question: "診療報酬本体＋3.09％の内訳に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "賃上げ分が最も大きく、物価対応分、経営環境悪化への緊急対応分が続く",
+            correct: true,
+            feedback: "正しい。賃上げ分＋1.70％が最も大きく、物価対応分＋0.76％、経営環境悪化への緊急対応分＋0.44％が続く。"
+          },
+          {
+            text: "物価対応分が最も大きく、賃上げ分は食費・光熱水費分と同じ水準である",
+            correct: false,
+            feedback: "最も大きいのは賃上げ分＋1.70％である。食費・光熱水費分は＋0.09％で、賃上げ分とは大きく異なる。"
+          },
+          {
+            text: "経営環境悪化への緊急対応分が最も大きく、病院への配分は＋0.76％である",
+            correct: false,
+            feedback: "緊急対応分は＋0.44％であり、最も大きい内訳ではない。施設類型別配分では病院＋0.40％である。"
+          },
+          {
+            text: "効率化・適正化はプラス要素として、診療報酬本体を＋0.15％押し上げている",
+            correct: false,
+            feedback: "効率化・適正化は▲0.15％であり、プラス要素ではなくマイナス要素である。"
+          },
+          {
+            text: "食費・光熱水費分は＋0.76％であり、物価対応分＋0.09％より大きい",
+            correct: false,
+            feedback: "食費・光熱水費分は＋0.09％、物価対応分は＋0.76％である。数値が逆である。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "賃上げ対応",
+    questions: [
+      {
+        id: "wage-1",
+        question: "2026年度診療報酬改定における賃上げ対応の説明として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "医療機関等の対象職員について令和8年度・令和9年度にそれぞれ3.2％のベースアップ実現を支援し、看護補助者・事務職員についてはそれぞれ5.7％を支援する",
+            correct: true,
+            feedback: "正しい。令和8年度・令和9年度にそれぞれ3.2％、看護補助者・事務職員はそれぞれ5.7％のベースアップ実現を支援する。"
+          },
+          {
+            text: "医療機関等の対象職員について令和8年度に2.5％、令和9年度に2.0％のベースアップを目指す",
+            correct: false,
+            feedback: "2.5％と2.0％は令和6年度・令和7年度の賃上げ目標である。令和8年度・令和9年度はそれぞれ3.2％である。"
+          },
+          {
+            text: "医療機関等の対象職員について令和8年度に3.2％、令和9年度に2.0％のベースアップを目指す",
+            correct: false,
+            feedback: "令和9年度も3.2％である。令和8年度・令和9年度ともに3.2％、看護補助者・事務職員は5.7％である。"
+          },
+          {
+            text: "看護補助者・事務職員については令和8年度に3.2％、令和9年度に5.7％のベースアップを目指す",
+            correct: false,
+            feedback: "看護補助者・事務職員は令和8年度・令和9年度ともに5.7％である。3.2％は対象職員全体の目標として示されている。"
+          },
+          {
+            text: "賃上げ分＋1.70％は、令和8年度に3.2％、令和9年度に5.7％を平均した数値である",
+            correct: false,
+            feedback: "＋1.70％は診療報酬本体改定率上の賃上げ分であり、3.2％や5.7％を単純平均した数値ではない。"
+          }
+        ]
+      },
+      {
+        id: "wage-2",
+        question: "2026年度診療報酬改定における賃上げ分の改定率として、正しい組合せを1つ選べ。",
+        options: [
+          {
+            text: "2年度平均＋1.70％、令和8年度＋1.23％、令和9年度＋2.18％",
+            correct: true,
+            feedback: "正しい。賃上げ分は2年度平均＋1.70％、令和8年度＋1.23％、令和9年度＋2.18％である。"
+          },
+          {
+            text: "2年度平均＋3.09％、令和8年度＋2.41％、令和9年度＋3.77％",
+            correct: false,
+            feedback: "これは診療報酬本体全体の改定率である。賃上げ分は2年度平均＋1.70％である。"
+          },
+          {
+            text: "2年度平均＋0.76％、令和8年度＋0.55％、令和9年度＋0.97％",
+            correct: false,
+            feedback: "これは物価対応分の改定率である。賃上げ分は2年度平均＋1.70％である。"
+          },
+          {
+            text: "2年度平均＋0.62％、令和8年度＋0.41％、令和9年度＋0.82％",
+            correct: false,
+            feedback: "これは令和8年度以降の物価上昇への対応分である。賃上げ分は2年度平均＋1.70％である。"
+          },
+          {
+            text: "2年度平均＋0.44％、病院＋0.40％、医科診療所＋0.02％",
+            correct: false,
+            feedback: "これは経営環境悪化への緊急対応分と施設類型別配分である。賃上げ分は2年度平均＋1.70％である。"
+          }
+        ]
+      },
+      {
+        id: "wage-3",
+        question: "ベースアップ評価料に関する2026年度改定の見直しとして、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "対象職員を拡大し、事務職員や40歳未満の医師・歯科医師・薬局薬剤師も対象に含める",
+            correct: true,
+            feedback: "正しい。2026年度改定ではベースアップ評価料の対象職員が拡大され、事務職員や40歳未満の医師・歯科医師・薬局薬剤師も対象となる。"
+          },
+          {
+            text: "対象職員を主として医療に従事する職員に戻し、事務職員は対象外とする",
+            correct: false,
+            feedback: "改定後は対象職員が拡大され、事務職員も対象に含まれる。"
+          },
+          {
+            text: "令和8年度以降はベースアップ評価料を廃止し、薬価改定で賃上げ原資を確保する",
+            correct: false,
+            feedback: "ベースアップ評価料は廃止ではなく見直し・拡充される。薬価改定で賃上げ原資を確保するという整理ではない。"
+          },
+          {
+            text: "令和8年度改定では、賃上げ対応を初診料に限定し、入院料では対応しない",
+            correct: false,
+            feedback: "入院料でも賃上げ対応が行われる。入院料の増点や入院ベースアップ評価料の見直しが含まれる。"
+          },
+          {
+            text: "看護補助者・事務職員の賃上げ目標は、令和6・7年度と同じく2年間で4.5％とする",
+            correct: false,
+            feedback: "令和6年度2.5％・令和7年度2.0％で計4.5％は前回改定の目標である。令和8・9年度は看護補助者・事務職員について各年度5.7％が示されている。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "物価対応",
+    questions: [
+      {
+        id: "price-1",
+        question: "2026年度診療報酬改定における物価対応分の改定率として、正しい組合せを1つ選べ。",
+        options: [
+          {
+            text: "2年度平均＋0.76％、令和8年度＋0.55％、令和9年度＋0.97％",
+            correct: true,
+            feedback: "正しい。物価対応分は2年度平均＋0.76％、令和8年度＋0.55％、令和9年度＋0.97％である。"
+          },
+          {
+            text: "2年度平均＋1.70％、令和8年度＋1.23％、令和9年度＋2.18％",
+            correct: false,
+            feedback: "これは賃上げ分の改定率である。物価対応分は2年度平均＋0.76％である。"
+          },
+          {
+            text: "2年度平均＋0.62％、令和8年度＋0.41％、令和9年度＋0.82％",
+            correct: false,
+            feedback: "これは物価対応分のうち、特に令和8年度以降の物価上昇への対応分である。物価対応分全体は2年度平均＋0.76％である。"
+          },
+          {
+            text: "2年度平均＋0.44％、病院＋0.40％、医科診療所＋0.02％",
+            correct: false,
+            feedback: "これは経営環境悪化への緊急対応分である。物価対応分は2年度平均＋0.76％である。"
+          },
+          {
+            text: "2年度平均＋0.09％、食費40円／食、光熱水費60円／日",
+            correct: false,
+            feedback: "これは食費・光熱水費分である。物価対応分は2年度平均＋0.76％である。"
+          }
+        ]
+      },
+      {
+        id: "price-2",
+        question: "物価対応分＋0.76％に関する説明として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "医療材料費、食材料費、光熱水費、委託費等の物件費高騰を踏まえた対応である",
+            correct: true,
+            feedback: "正しい。物価対応分は、人件費以外の医療材料費、食材料費、光熱水費、委託費等の高騰を踏まえた対応である。"
+          },
+          {
+            text: "医療従事者のベースアップ目標を直接示す改定率である",
+            correct: false,
+            feedback: "ベースアップに対応する中心は賃上げ分＋1.70％である。物価対応分は物件費高騰への対応である。"
+          },
+          {
+            text: "薬価・材料価格の市場実勢価格を反映したマイナス改定である",
+            correct: false,
+            feedback: "薬価・材料価格の改定は薬価等として別に示される。物価対応分＋0.76％は診療報酬本体の内訳である。"
+          },
+          {
+            text: "後発医薬品への置換えや長期処方・リフィル処方の取組強化による効率化である",
+            correct: false,
+            feedback: "これは効率化・適正化▲0.15％の内容である。物価対応分とは異なる。"
+          },
+          {
+            text: "入院時食費と光熱水費の基準額引上げ分として、診療報酬本体に＋0.09％計上されたものである",
+            correct: false,
+            feedback: "これは食費・光熱水費分＋0.09％の説明である。物価対応分は＋0.76％である。"
+          }
+        ]
+      },
+      {
+        id: "price-3",
+        question: "2026年度改定で新設される物価対応料に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "令和8年度及び令和9年度の物価上昇に段階的に対応するため、基本診療料・調剤基本料等の算定に併せて算定可能な加算として新設される",
+            correct: true,
+            feedback: "正しい。物価対応料は、令和8年度・令和9年度の物価上昇に段階的に対応するために新設される。"
+          },
+          {
+            text: "令和8年度の物価対応料は令和9年度の2倍となるよう設定される",
+            correct: false,
+            feedback: "令和9年度は令和8年度の2倍となる予定である。年度の関係が逆である。"
+          },
+          {
+            text: "物価対応料は入院料に限って設定され、外来・在宅・調剤・訪問看護では設定されない",
+            correct: false,
+            feedback: "外来・在宅物価対応料、歯科外来物価対応料、調剤物価対応料、訪問看護物価対応料も設定される。"
+          },
+          {
+            text: "物価対応料は、令和6年度改定のベースアップ評価料を廃止して置き換える評価である",
+            correct: false,
+            feedback: "物価対応料は物価上昇への対応であり、ベースアップ評価料の置換えではない。賃上げ対応は別に見直されている。"
+          },
+          {
+            text: "物価対応料は薬価改定の一部として令和8年4月から施行される",
+            correct: false,
+            feedback: "物価対応料は診療報酬本体側の評価であり、薬価改定とは別である。診療報酬本体は令和8年6月施行と整理されている。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "入院時食費",
+    questions: [
+      {
+        id: "meal-1",
+        question: "2026年度改定における入院時食費の基準額の見直しとして、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "令和7年4月以降も食材費等が上昇していることを踏まえ、1食当たり40円引き上げる",
+            correct: true,
+            feedback: "正しい。入院時食費の基準額は、令和7年4月以降の食材費等の上昇を踏まえ、1食当たり40円引き上げられる。"
+          },
+          {
+            text: "令和6年6月の30円引上げと令和7年4月の20円引上げを廃止し、改定前の水準に戻す",
+            correct: false,
+            feedback: "2026年度改定では廃止ではなく、さらに1食当たり40円引き上げられる。"
+          },
+          {
+            text: "光熱水費と同じく、1日当たり60円引き上げる",
+            correct: false,
+            feedback: "1日当たり60円は光熱水費の引上げである。食費は1食当たり40円である。"
+          },
+          {
+            text: "一般所得者の自己負担を1食510円から530円へ引き上げる",
+            correct: false,
+            feedback: "一般所得者の自己負担は510円から550円へ引き上げられる。530円ではない。"
+          },
+          {
+            text: "住民税非課税世帯の自己負担を1食240円から280円へ引き上げる",
+            correct: false,
+            feedback: "住民税非課税世帯は240円から270円である。280円ではない。"
+          }
+        ]
+      },
+      {
+        id: "meal-2",
+        question: "入院時食費の自己負担に関する組合せとして、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "一般所得者：510円から550円、住民税非課税世帯：240円から270円、一定基準に満たない70歳以上：110円から130円",
+            correct: true,
+            feedback: "正しい。一般所得者は＋40円、住民税非課税世帯は＋30円、一定基準に満たない70歳以上は＋20円である。"
+          },
+          {
+            text: "一般所得者：510円から550円、住民税非課税世帯：240円から280円、一定基準に満たない70歳以上：110円から130円",
+            correct: false,
+            feedback: "住民税非課税世帯は240円から270円である。280円ではない。"
+          },
+          {
+            text: "一般所得者：510円から570円、住民税非課税世帯：240円から270円、一定基準に満たない70歳以上：110円から130円",
+            correct: false,
+            feedback: "一般所得者は510円から550円である。570円ではない。"
+          },
+          {
+            text: "一般所得者：510円から550円、住民税非課税世帯：240円から270円、一定基準に満たない70歳以上：110円から150円",
+            correct: false,
+            feedback: "一定基準に満たない70歳以上は110円から130円である。150円ではない。"
+          },
+          {
+            text: "一般所得者：530円から570円、住民税非課税世帯：240円から270円、一定基準に満たない70歳以上：110円から130円",
+            correct: false,
+            feedback: "一般所得者の改定前は510円、改定後は550円である。530円から570円ではない。"
+          }
+        ]
+      },
+      {
+        id: "meal-3",
+        question: "入院時食費の総額と自己負担に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "総額は1食当たり690円から730円となり、一般所得者の自己負担は510円から550円となる",
+            correct: true,
+            feedback: "正しい。入院時食費の総額は690円から730円、一般所得者の自己負担は510円から550円となる。"
+          },
+          {
+            text: "総額は1日当たり690円から730円となり、一般所得者の自己負担は1日当たり550円となる",
+            correct: false,
+            feedback: "食費は1日当たりではなく1食当たりで示される。総額は1食当たり690円から730円である。"
+          },
+          {
+            text: "総額は1食当たり398円から458円となり、一般所得者の自己負担は370円から430円となる",
+            correct: false,
+            feedback: "これは光熱水費の総額・自己負担の数値である。食費の総額は690円から730円、一般所得者自己負担は510円から550円である。"
+          },
+          {
+            text: "総額は1食当たり690円から730円となり、住民税非課税世帯の自己負担は240円から280円となる",
+            correct: false,
+            feedback: "住民税非課税世帯は240円から270円である。280円ではない。"
+          },
+          {
+            text: "総額は1食当たり690円から750円となり、一般所得者の自己負担は510円から550円となる",
+            correct: false,
+            feedback: "総額は690円から730円である。750円ではない。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "入院時光熱水費",
+    questions: [
+      {
+        id: "utility-1",
+        question: "2026年度改定における入院時光熱水費の基準の見直しとして、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "療養病床に入院する65歳以上の者を対象に、1日当たり60円引き上げる",
+            correct: true,
+            feedback: "正しい。入院時光熱水費の基準は、療養病床に入院する65歳以上の者を対象に、1日当たり60円引き上げられる。"
+          },
+          {
+            text: "入院時食費と同じく、1食当たり40円引き上げる",
+            correct: false,
+            feedback: "1食当たり40円は入院時食費の引上げである。光熱水費は1日当たり60円である。"
+          },
+          {
+            text: "一般所得者の入院時食費と同じく、1食当たり550円とする",
+            correct: false,
+            feedback: "550円は一般所得者の入院時食費の自己負担である。光熱水費は1日当たり370円から430円となる。"
+          },
+          {
+            text: "令和6年6月から30円、令和7年4月から20円引き上げた後、令和8年度は据え置く",
+            correct: false,
+            feedback: "30円・20円の段階的引上げは入院時食費に関する記述である。光熱水費は令和8年度に1日当たり60円引き上げられる。"
+          },
+          {
+            text: "薬価等合計▲0.87％の一部として、令和8年4月から引き下げられる",
+            correct: false,
+            feedback: "光熱水費基準額は診療報酬本体側の食費・光熱水費分として扱われ、1日当たり60円引き上げられる。薬価等のマイナス改定とは別である。"
+          }
+        ]
+      },
+      {
+        id: "utility-2",
+        question: "入院時光熱水費の総額と自己負担に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "総額は1日当たり398円から458円、自己負担は1日当たり370円から430円となる",
+            correct: true,
+            feedback: "正しい。光熱水費は総額398円から458円、自己負担370円から430円となる。いずれも1日当たりである。"
+          },
+          {
+            text: "総額は1食当たり398円から458円、自己負担は1食当たり370円から430円となる",
+            correct: false,
+            feedback: "光熱水費は1食当たりではなく、1日当たりで示される。"
+          },
+          {
+            text: "総額は1日当たり690円から730円、自己負担は1日当たり510円から550円となる",
+            correct: false,
+            feedback: "これは入院時食費の数値であり、光熱水費ではない。"
+          },
+          {
+            text: "総額は1日当たり398円から458円、自己負担は1日当たり370円で据え置かれる",
+            correct: false,
+            feedback: "自己負担も原則として370円から430円へ引き上げられる。指定難病患者等については自己負担なしで据え置きとされる。"
+          },
+          {
+            text: "総額は1日当たり370円から430円、自己負担は1日当たり398円から458円となる",
+            correct: false,
+            feedback: "総額と自己負担が逆である。総額は398円から458円、自己負担は370円から430円である。"
+          }
+        ]
+      },
+      {
+        id: "utility-3",
+        question: "入院時の食費・光熱水費の見直しに関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "食費は1食当たり40円、光熱水費は1日当たり60円引き上げられる",
+            correct: true,
+            feedback: "正しい。食費は1食当たり、光熱水費は1日当たりで示される点が重要である。"
+          },
+          {
+            text: "食費は1日当たり40円、光熱水費は1食当たり60円引き上げられる",
+            correct: false,
+            feedback: "単位が逆である。食費は1食当たり40円、光熱水費は1日当たり60円である。"
+          },
+          {
+            text: "食費は1食当たり60円、光熱水費は1日当たり40円引き上げられる",
+            correct: false,
+            feedback: "金額が逆である。食費は1食当たり40円、光熱水費は1日当たり60円である。"
+          },
+          {
+            text: "食費・光熱水費分は診療報酬本体の＋0.76％として計上される",
+            correct: false,
+            feedback: "食費・光熱水費分は＋0.09％である。＋0.76％は物価対応分である。"
+          },
+          {
+            text: "光熱水費の自己負担は、指定難病患者等も含めて370円から430円へ引き上げられる",
+            correct: false,
+            feedback: "指定難病患者等については自己負担はなく、据え置きとされている。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "経営環境悪化への対応",
+    questions: [
+      {
+        id: "emergency-1",
+        question: "令和6年度改定以降の経営環境悪化を踏まえた緊急対応分として、正しいものを1つ選べ。",
+        options: [
+          {
+            text: "緊急対応分は＋0.44％であり、施設類型別では病院＋0.40％、医科診療所＋0.02％、歯科診療所＋0.01％、保険薬局＋0.01％である",
+            correct: true,
+            feedback: "正しい。経営環境悪化への緊急対応分は＋0.44％で、配分は病院＋0.40％、医科診療所＋0.02％、歯科診療所＋0.01％、保険薬局＋0.01％である。"
+          },
+          {
+            text: "緊急対応分は＋0.76％であり、施設類型別では病院＋0.49％、医科診療所＋0.10％である",
+            correct: false,
+            feedback: "これは物価対応分のうち、令和8年度以降の物価上昇への対応分の施設類型別配分に近い内容である。緊急対応分は＋0.44％である。"
+          },
+          {
+            text: "緊急対応分は＋0.14％であり、高度医療機能を担う病院への特例的対応分として設定される",
+            correct: false,
+            feedback: "＋0.14％は高度医療機能を担う病院への特例的対応分である。経営環境悪化への緊急対応分は＋0.44％である。"
+          },
+          {
+            text: "緊急対応分は▲0.15％であり、長期処方・リフィル処方の取組強化による効率化である",
+            correct: false,
+            feedback: "▲0.15％は効率化・適正化である。経営環境悪化への緊急対応分は＋0.44％である。"
+          },
+          {
+            text: "緊急対応分は＋0.09％であり、入院時の食費・光熱水費基準額の引上げに対応する",
+            correct: false,
+            feedback: "＋0.09％は食費・光熱水費分である。経営環境悪化への緊急対応分は＋0.44％である。"
+          }
+        ]
+      },
+      {
+        id: "emergency-2",
+        question: "経営環境悪化への緊急対応分の背景として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "令和6年度改定以降の物価高騰や人件費上昇等により、医療機関等の経営環境が悪化していることを踏まえた対応である",
+            correct: true,
+            feedback: "正しい。緊急対応分は、令和6年度改定以降の経営環境悪化を踏まえたものである。"
+          },
+          {
+            text: "令和8年度以降の物価上昇に段階的に対応するため、令和9年度に令和8年度の2倍となる物価対応料を新設する対応である",
+            correct: false,
+            feedback: "これは物価対応料の説明である。緊急対応分は令和6年度改定以降の経営環境悪化を踏まえた対応である。"
+          },
+          {
+            text: "後発医薬品への置換えの進展を踏まえ、処方や調剤に係る評価を適正化する対応である",
+            correct: false,
+            feedback: "これは効率化・適正化▲0.15％の内容である。緊急対応分とは異なる。"
+          },
+          {
+            text: "食材料費等の上昇を踏まえ、入院時食費を1食当たり40円引き上げる対応である",
+            correct: false,
+            feedback: "これは食費・光熱水費分のうち、入院時食費の見直しである。緊急対応分＋0.44％とは別である。"
+          },
+          {
+            text: "市場実勢価格を踏まえ、薬価と材料価格を改定する対応である",
+            correct: false,
+            feedback: "これは薬価等の改定に関する説明である。緊急対応分は診療報酬本体の内訳である。"
+          }
+        ]
+      },
+      {
+        id: "emergency-3",
+        question: "経営環境悪化への緊急対応分と物価対応分の違いに関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "緊急対応分は令和6年度改定以降の経営環境悪化への対応、物価対応分は令和8年度以降の物価上昇等への対応を含む",
+            correct: true,
+            feedback: "正しい。緊急対応分＋0.44％は令和6年度改定以降の経営環境悪化への対応であり、物価対応分＋0.76％は令和8年度以降の物価上昇への対応などを含む。"
+          },
+          {
+            text: "緊急対応分＋0.76％、物価対応分＋0.44％であり、いずれも施設類型別配分は同じである",
+            correct: false,
+            feedback: "数値が逆である。緊急対応分は＋0.44％、物価対応分は＋0.76％である。施設類型別配分も同一ではない。"
+          },
+          {
+            text: "緊急対応分は薬価改定、物価対応分は材料価格改定として示される",
+            correct: false,
+            feedback: "緊急対応分も物価対応分も診療報酬本体の内訳である。薬価・材料価格とは別に整理される。"
+          },
+          {
+            text: "緊急対応分は食費40円／食、物価対応分は光熱水費60円／日として患者負担に反映される",
+            correct: false,
+            feedback: "食費・光熱水費の引上げは食費・光熱水費分＋0.09％の内容であり、緊急対応分や物価対応分そのものではない。"
+          },
+          {
+            text: "緊急対応分は効率化・適正化によりマイナス、物価対応分は薬価改定によりマイナスとなる",
+            correct: false,
+            feedback: "緊急対応分は＋0.44％、物価対応分は＋0.76％である。効率化・適正化▲0.15％、薬価等▲0.87％とは別の項目である。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "効率化・適正化",
+    questions: [
+      {
+        id: "efficiency-1",
+        question: "2026年度診療報酬改定における効率化・適正化の改定率として、正しいものを1つ選べ。",
+        options: [
+          {
+            text: "▲0.15％",
+            correct: true,
+            feedback: "正しい。効率化・適正化は▲0.15％である。"
+          },
+          {
+            text: "▲0.87％",
+            correct: false,
+            feedback: "▲0.87％は薬価等の合計改定率である。効率化・適正化は▲0.15％である。"
+          },
+          {
+            text: "▲0.86％",
+            correct: false,
+            feedback: "▲0.86％は薬価の改定率である。効率化・適正化は▲0.15％である。"
+          },
+          {
+            text: "＋0.25％",
+            correct: false,
+            feedback: "＋0.25％は賃上げ分・物価対応分等以外の分である。効率化・適正化は▲0.15％である。"
+          },
+          {
+            text: "＋0.44％",
+            correct: false,
+            feedback: "＋0.44％は経営環境悪化への緊急対応分である。効率化・適正化は▲0.15％である。"
+          }
+        ]
+      },
+      {
+        id: "efficiency-2",
+        question: "効率化・適正化の内容として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "後発医薬品への置換えを踏まえた評価の適正化、在宅医療・訪問看護関係の評価の適正化、長期処方・リフィル処方の取組強化等",
+            correct: true,
+            feedback: "正しい。これらは効率化・適正化▲0.15％の主な内容である。"
+          },
+          {
+            text: "令和8・9年度にそれぞれ3.2％、看護補助者・事務職員は5.7％のベースアップを実現するための措置",
+            correct: false,
+            feedback: "これは賃上げ対応の説明である。効率化・適正化の内容ではない。"
+          },
+          {
+            text: "医療材料費、食材料費、光熱水費、委託費等の物件費高騰を踏まえた対応",
+            correct: false,
+            feedback: "これは物価対応分の説明である。効率化・適正化とは異なる。"
+          },
+          {
+            text: "入院時食費を1食40円、光熱水費を1日60円引き上げる対応",
+            correct: false,
+            feedback: "これは食費・光熱水費分＋0.09％の内容である。効率化・適正化とは異なる。"
+          },
+          {
+            text: "令和6年度改定以降の経営環境悪化を踏まえた病院・診療所・薬局への配分",
+            correct: false,
+            feedback: "これは経営環境悪化への緊急対応分＋0.44％の説明である。効率化・適正化ではない。"
+          }
+        ]
+      },
+      {
+        id: "efficiency-3",
+        question: "効率化・適正化と薬価等の改定に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "効率化・適正化▲0.15％は診療報酬本体の内訳であり、薬価等合計▲0.87％とは別に整理される",
+            correct: true,
+            feedback: "正しい。効率化・適正化は診療報酬本体＋3.09％の内訳であり、薬価等合計▲0.87％とは別である。"
+          },
+          {
+            text: "効率化・適正化▲0.15％と薬価▲0.86％を合算したものが、薬価等合計▲0.87％である",
+            correct: false,
+            feedback: "薬価等合計▲0.87％は薬価▲0.86％と材料価格▲0.01％の合計である。効率化・適正化▲0.15％は含まれない。"
+          },
+          {
+            text: "効率化・適正化は薬価改定の一部であり、令和8年4月に施行される",
+            correct: false,
+            feedback: "効率化・適正化は診療報酬本体の内訳である。薬価改定とは別で、診療報酬本体は令和8年6月施行と整理されている。"
+          },
+          {
+            text: "効率化・適正化は材料価格改定の一部であり、材料価格▲0.01％に含まれる",
+            correct: false,
+            feedback: "材料価格▲0.01％は薬価等の内訳である。効率化・適正化▲0.15％は診療報酬本体の内訳である。"
+          },
+          {
+            text: "効率化・適正化は診療報酬本体を押し上げるため、符号は＋0.15％である",
+            correct: false,
+            feedback: "符号が誤りである。効率化・適正化は▲0.15％であり、マイナス要素である。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "薬価・材料価格",
+    questions: [
+      {
+        id: "drug-1",
+        question: "2026年度診療報酬改定における薬価等の改定率について、正しい組合せを1つ選べ。",
+        options: [
+          {
+            text: "薬価▲0.86％、材料価格▲0.01％、薬価等合計▲0.87％",
+            correct: true,
+            feedback: "正しい。2026年度改定では、薬価▲0.86％、材料価格▲0.01％、薬価等合計▲0.87％である。"
+          },
+          {
+            text: "薬価▲0.87％、材料価格▲0.01％、薬価等合計▲0.88％",
+            correct: false,
+            feedback: "薬価は▲0.86％、薬価等合計は▲0.87％である。薬価と合計の数値を取り違えないようにする。"
+          },
+          {
+            text: "薬価▲0.86％、材料価格▲0.09％、薬価等合計▲0.95％",
+            correct: false,
+            feedback: "材料価格▲0.09％は2018年度改定の数値である。2026年度の材料価格は▲0.01％である。"
+          },
+          {
+            text: "薬価▲0.97％、材料価格▲0.02％、薬価等合計▲1.00％",
+            correct: false,
+            feedback: "これは2024年度改定に近い数値である。2026年度は薬価▲0.86％、材料価格▲0.01％、合計▲0.87％である。"
+          },
+          {
+            text: "薬価▲1.35％、材料価格▲0.02％、薬価等合計▲1.37％",
+            correct: false,
+            feedback: "これは2022年度改定の数値である。2026年度の薬価等合計は▲0.87％である。"
+          }
+        ]
+      },
+      {
+        id: "drug-2",
+        question: "薬価・材料価格の施行時期として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "薬価は令和8年4月施行、材料価格は令和8年6月施行",
+            correct: true,
+            feedback: "正しい。薬価は令和8年4月施行、材料価格は令和8年6月施行である。"
+          },
+          {
+            text: "薬価は令和8年6月施行、材料価格は令和8年4月施行",
+            correct: false,
+            feedback: "施行時期が逆である。薬価は令和8年4月、材料価格は令和8年6月施行である。"
+          },
+          {
+            text: "薬価・材料価格ともに令和8年4月施行",
+            correct: false,
+            feedback: "薬価は令和8年4月施行だが、材料価格は令和8年6月施行である。"
+          },
+          {
+            text: "薬価・材料価格ともに令和8年6月施行",
+            correct: false,
+            feedback: "材料価格は令和8年6月施行だが、薬価は令和8年4月施行である。"
+          },
+          {
+            text: "薬価は令和9年4月施行、材料価格は令和9年6月施行",
+            correct: false,
+            feedback: "2026年度改定では、薬価は令和8年4月、材料価格は令和8年6月施行である。令和9年ではない。"
+          }
+        ]
+      },
+      {
+        id: "drug-3",
+        question: "診療報酬本体と薬価等の改定率の関係として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "診療報酬本体は大幅プラスである一方、薬価等はマイナスであり、両者は別に整理される",
+            correct: true,
+            feedback: "正しい。診療報酬本体は＋3.09％、薬価等は合計▲0.87％であり、別に整理される。"
+          },
+          {
+            text: "薬価等合計▲0.87％は診療報酬本体＋3.09％の効率化・適正化に含まれる",
+            correct: false,
+            feedback: "薬価等合計▲0.87％は診療報酬本体とは別に示される。効率化・適正化は診療報酬本体の内訳として▲0.15％である。"
+          },
+          {
+            text: "診療報酬本体＋3.09％は、薬価▲0.86％と材料価格▲0.01％を差し引いた後の数値である",
+            correct: false,
+            feedback: "診療報酬本体＋3.09％は薬価等を差し引いた後の数値ではない。薬価等は別に▲0.87％と示される。"
+          },
+          {
+            text: "材料価格▲0.01％は診療報酬本体の物価対応分＋0.76％に含まれる",
+            correct: false,
+            feedback: "材料価格▲0.01％は薬価等の内訳である。物価対応分＋0.76％は診療報酬本体の内訳である。"
+          },
+          {
+            text: "薬価▲0.86％は調剤の各科改定率＋0.08％に含まれる",
+            correct: false,
+            feedback: "薬価改定率と調剤の各科改定率は別に整理される。調剤の各科改定率は＋0.08％である。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "各科改定率",
+    questions: [
+      {
+        id: "department-1",
+        question: "2026年度診療報酬改定における各科改定率として、正しい組合せを1つ選べ。",
+        options: [
+          {
+            text: "医科＋0.28％、歯科＋0.31％、調剤＋0.08％",
+            correct: true,
+            feedback: "正しい。2026年度の各科改定率は、医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          },
+          {
+            text: "医科＋0.31％、歯科＋0.28％、調剤＋0.08％",
+            correct: false,
+            feedback: "医科と歯科の数値が逆である。医科＋0.28％、歯科＋0.31％である。"
+          },
+          {
+            text: "医科＋0.28％、歯科＋0.08％、調剤＋0.31％",
+            correct: false,
+            feedback: "歯科と調剤の数値が逆である。歯科＋0.31％、調剤＋0.08％である。"
+          },
+          {
+            text: "医科＋0.52％、歯科＋0.57％、調剤＋0.16％",
+            correct: false,
+            feedback: "これは2024年度改定の各科改定率である。2026年度は医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          },
+          {
+            text: "医科＋0.26％、歯科＋0.29％、調剤＋0.08％",
+            correct: false,
+            feedback: "これは2022年度改定の各科改定率である。2026年度は医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          }
+        ]
+      },
+      {
+        id: "department-2",
+        question: "2026年度の各科改定率に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "歯科が医科をやや上回り、調剤は医科・歯科より低い",
+            correct: true,
+            feedback: "正しい。2026年度は医科＋0.28％、歯科＋0.31％、調剤＋0.08％であり、歯科が医科をやや上回り、調剤は低い。"
+          },
+          {
+            text: "医科が歯科を上回り、調剤は医科と同水準である",
+            correct: false,
+            feedback: "2026年度は歯科＋0.31％が医科＋0.28％をやや上回る。調剤は＋0.08％であり、医科と同水準ではない。"
+          },
+          {
+            text: "調剤が最も高く、歯科が最も低い",
+            correct: false,
+            feedback: "最も高いのは歯科＋0.31％、最も低いのは調剤＋0.08％である。"
+          },
+          {
+            text: "各科改定率はいずれも診療報酬本体＋3.09％と同率である",
+            correct: false,
+            feedback: "＋3.09％は診療報酬本体の2年度平均であり、各科改定率ではない。"
+          },
+          {
+            text: "各科改定率は薬価等合計▲0.87％を差し引いた後に示される",
+            correct: false,
+            feedback: "各科改定率と薬価等合計は別に示される。各科改定率は医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          }
+        ]
+      },
+      {
+        id: "department-3",
+        question: "2024年度改定と2026年度改定の各科改定率を比較した説明として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "2026年度は診療報酬本体全体の改定率が大きい一方、各科改定率は医科＋0.28％、歯科＋0.31％、調剤＋0.08％であり、2024年度の各科改定率より高いわけではない",
+            correct: true,
+            feedback: "正しい。2026年度は本体＋3.09％が大きいが、各科改定率は医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。2024年度の各科改定率は医科＋0.52％、歯科＋0.57％、調剤＋0.16％であった。"
+          },
+          {
+            text: "2026年度は診療報酬本体＋3.09％がそのまま各科改定率に反映され、医科・歯科・調剤がいずれも2024年度を大きく上回る",
+            correct: false,
+            feedback: "＋3.09％は各科改定率ではない。2026年度の各科改定率は、2024年度の医科＋0.52％、歯科＋0.57％、調剤＋0.16％より低い。"
+          },
+          {
+            text: "2026年度は医科＋0.52％、歯科＋0.57％、調剤＋0.16％であり、2024年度と同じ各科改定率である",
+            correct: false,
+            feedback: "医科＋0.52％、歯科＋0.57％、調剤＋0.16％は2024年度の各科改定率である。2026年度は医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          },
+          {
+            text: "2026年度は医科＋0.26％、歯科＋0.29％、調剤＋0.08％であり、2022年度と同じ各科改定率である",
+            correct: false,
+            feedback: "医科＋0.26％、歯科＋0.29％、調剤＋0.08％は2022年度の各科改定率である。2026年度は医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          },
+          {
+            text: "2026年度は調剤が医科・歯科を上回ったため、2024年度以前と異なる配分傾向となった",
+            correct: false,
+            feedback: "2026年度の調剤は＋0.08％であり、医科＋0.28％、歯科＋0.31％を下回る。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: "過去改定率の推移",
+    questions: [
+      {
+        id: "trend-1",
+        question: "2018年度から2026年度までの診療報酬改定率の推移に関する記述として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "2018年度から2024年度までは、診療報酬本体はプラスであったが、薬価等のマイナスにより全体ではマイナス改定が続いた",
+            correct: true,
+            feedback: "正しい。2018・2020・2022・2024年度はいずれも診療報酬本体はプラス改定であったが、薬価等のマイナスが本体プラスを上回り、全体ではマイナス改定となった。2026年度は本体＋3.09％が大きく、薬価等▲0.87％を差し引いてもプラス方向となる。"
+          },
+          {
+            text: "2018年度から2024年度までは、診療報酬本体のマイナスが薬価等のプラスを上回り、全体ではマイナス改定が続いた",
+            correct: false,
+            feedback: "診療報酬本体は2018年度から2024年度まで毎回プラス改定である。全体がマイナスとなった主因は、薬価等のマイナスである。"
+          },
+          {
+            text: "2018年度から2024年度までは、薬価はマイナスであったが材料価格はプラスであったため、全体では小幅なプラス改定が続いた",
+            correct: false,
+            feedback: "材料価格も小幅ながらマイナスである。2018年度から2024年度までは、診療報酬本体がプラスでも薬価等のマイナスにより全体ではマイナス改定となった。"
+          },
+          {
+            text: "2024年度までは診療報酬本体と薬価等が同じ方向に改定され、2026年度から本体プラス・薬価等マイナスに分かれた",
+            correct: false,
+            feedback: "2024年度以前から、診療報酬本体はプラス、薬価等はマイナスという構図が続いていた。2026年度の特徴は、その構図自体ではなく、本体プラス幅が非常に大きい点である。"
+          },
+          {
+            text: "2026年度は薬価等のマイナス幅が過去5回で最大となったため、本体＋3.09％であっても全体ではマイナス方向となった",
+            correct: false,
+            feedback: "2026年度の薬価等は▲0.87％であり、過去5回の中で最大のマイナスではない。診療報酬本体＋3.09％が大きいため、全体ではプラス方向となる。"
+          }
+        ]
+      },
+      {
+        id: "trend-2",
+        question: "過去5回の診療報酬改定における医科・歯科・調剤の各科改定率の傾向として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "歯科は医科をやや上回り、調剤は医科・歯科より低めに設定される傾向がみられる",
+            correct: true,
+            feedback: "正しい。過去5回では、歯科が医科をやや上回り、調剤は医科・歯科より低めに設定される傾向がある。2026年度も医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          },
+          {
+            text: "医科は歯科を一貫して上回り、調剤は医科とほぼ同水準で推移している",
+            correct: false,
+            feedback: "過去5回では、歯科が医科をやや上回る傾向がみられる。また、調剤は医科・歯科より低めであり、医科と同水準とはいえない。"
+          },
+          {
+            text: "調剤は薬価改定の影響を受けるため、各科改定率では医科・歯科を上回る傾向がある",
+            correct: false,
+            feedback: "調剤の各科改定率は、医科・歯科より低めに設定される傾向がある。薬価改定率と調剤の各科改定率は区別して整理する必要がある。"
+          },
+          {
+            text: "歯科は材料価格の改定率と連動するため、材料価格がマイナスの年度には歯科もマイナスとなる",
+            correct: false,
+            feedback: "歯科の各科改定率と材料価格の改定率は別に示される。材料価格がマイナスでも、歯科の各科改定率はプラスとなっている。"
+          },
+          {
+            text: "2026年度は診療報酬本体＋3.09％がそのまま医科・歯科・調剤に同率配分された",
+            correct: false,
+            feedback: "＋3.09％は診療報酬本体の2年度平均であり、各科改定率ではない。2026年度の各科改定率は医科＋0.28％、歯科＋0.31％、調剤＋0.08％である。"
+          }
+        ]
+      },
+      {
+        id: "trend-3",
+        question: "2026年度診療報酬改定を過去5回の改定率の推移の中で位置づけた説明として、最も適切なものを1つ選べ。",
+        options: [
+          {
+            text: "診療報酬本体のプラス幅が過去5回の中で突出して大きく、賃上げ・物価対応等を背景に全体でもプラス方向となる点が特徴である",
+            correct: true,
+            feedback: "正しい。2026年度は診療報酬本体が＋3.09％と大きく、薬価等▲0.87％を差し引いても全体ではプラス方向となる。2018～2024年度の全体マイナス傾向との違いが重要である。"
+          },
+          {
+            text: "診療報酬本体は2024年度より小さいが、薬価・材料価格がプラスに転じたため全体ではプラス方向となる",
+            correct: false,
+            feedback: "2026年度の診療報酬本体＋3.09％は2024年度の＋0.88％より大きい。また、薬価・材料価格は2026年度もマイナスである。"
+          },
+          {
+            text: "薬価等のマイナス幅が2018年度より大きくなったため、2026年度は過去5回で最も大きな全体マイナスとなる",
+            correct: false,
+            feedback: "2018年度の薬価等のマイナス幅は大きく、2026年度の薬価等は▲0.87％である。2026年度は本体プラス幅が大きいため、全体ではプラス方向となる。"
+          },
+          {
+            text: "2026年度は医科・歯科・調剤の各科改定率がいずれも2024年度を上回ったことが最大の特徴である",
+            correct: false,
+            feedback: "2026年度の各科改定率は医科＋0.28％、歯科＋0.31％、調剤＋0.08％であり、2024年度より高いわけではない。特徴は診療報酬本体全体の大幅プラスである。"
+          },
+          {
+            text: "2026年度は材料価格のプラス改定が薬価のマイナスを補い、全体のプラス改定につながった",
+            correct: false,
+            feedback: "2026年度の材料価格は▲0.01％であり、プラス改定ではない。全体がプラス方向となるのは、診療報酬本体＋3.09％が大きいためである。"
+          }
+        ]
+      }
+    ]
+  }
+];
+
+
+    function shuffleArray(array) {
+      const copied = array.slice();
+      for (let i = copied.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = copied[i];
+        copied[i] = copied[j];
+        copied[j] = tmp;
+      }
+      return copied;
+    }
+
+    function buildQuiz() {
+      const picked = questionPools.map(function(pool) {
+        const q = shuffleArray(pool.questions)[0];
+        const opts = shuffleArray(q.options).map(function(o) { return Object.assign({}, o); });
+        return Object.assign({}, q, { category: pool.category, options: opts });
+      });
+      return shuffleArray(picked);
+    }
+
+    let quizSet = [];
+    let currentIndex = 0;
+    let selected = null;
+    let answered = false;
+    let score = 0;
+    let history = [];
+
+    const el = {
+      quizScreen: document.getElementById('quizScreen'),
+      resultScreen: document.getElementById('resultScreen'),
+      totalLabel: document.getElementById('totalLabel'),
+      progress: document.getElementById('progress'),
+      countPill: document.getElementById('countPill'),
+      categoryPill: document.getElementById('categoryPill'),
+      questionText: document.getElementById('questionText'),
+      options: document.getElementById('options'),
+      answerBtn: document.getElementById('answerBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      explain: document.getElementById('explain'),
+      scoreLabel: document.getElementById('scoreLabel'),
+      progressLabel: document.getElementById('progressLabel'),
+      resultScore: document.getElementById('resultScore'),
+      resultMessage: document.getElementById('resultMessage'),
+      restartBtn: document.getElementById('restartBtn'),
+      history: document.getElementById('history'),
+      questionTop: document.getElementById('questionTop')
+    };
+
+    function startQuiz() {
+      quizSet = buildQuiz();
+      currentIndex = 0;
+      selected = null;
+      answered = false;
+      score = 0;
+      history = [];
+      el.totalLabel.textContent = quizSet.length;
+      el.quizScreen.classList.remove('hidden');
+      el.resultScreen.classList.add('hidden');
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderQuestion() {
+      const q = quizSet[currentIndex];
+      selected = null;
+      answered = false;
+      el.countPill.textContent = '問題 ' + (currentIndex + 1) + ' / ' + quizSet.length;
+      el.categoryPill.textContent = q.category;
+      el.questionText.textContent = q.question;
+      el.options.innerHTML = '';
+      el.answerBtn.disabled = true;
+      el.answerBtn.style.display = '';
+      el.nextBtn.style.display = 'none';
+      el.explain.className = 'explainBox';
+      el.explain.textContent = '選択肢を1つ選び、「回答」を押すと正誤判定と解説が表示されます。';
+      el.scoreLabel.textContent = score + '点';
+      el.progressLabel.textContent = (currentIndex + 1) + ' / ' + quizSet.length;
+      el.progress.style.width = (((currentIndex + 1) / quizSet.length) * 100) + '%';
+
+      q.options.forEach(function(option, index) {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.type = 'button';
+        btn.innerHTML = '<span class="num">' + (index + 1) + '</span><span class="optionText"></span><span class="mark"></span>';
+        btn.querySelector('.optionText').textContent = option.text;
+        btn.addEventListener('click', function() {
+          if (answered) return;
+          selected = index;
+          Array.from(el.options.children).forEach(function(child) { child.classList.remove('selected'); });
+          btn.classList.add('selected');
+          el.answerBtn.disabled = false;
+        });
+        el.options.appendChild(btn);
+      });
+    }
+
+    function submitAnswer() {
+      if (selected === null || answered) return;
+      const q = quizSet[currentIndex];
+      const selectedOption = q.options[selected];
+      const correctIndex = q.options.findIndex(function(o) { return o.correct; });
+      const correctOption = q.options[correctIndex];
+      answered = true;
+      if (selectedOption.correct) score++;
+
+      Array.from(el.options.children).forEach(function(btn, index) {
+        btn.disabled = true;
+        const option = q.options[index];
+        const mark = btn.querySelector('.mark');
+        if (option.correct) {
+          btn.classList.add('correct');
+          mark.textContent = '○';
+          mark.classList.add('ok');
+        } else if (index === selected) {
+          btn.classList.add('wrong');
+          mark.textContent = '×';
+          mark.classList.add('ng');
+        }
+      });
+
+      el.explain.className = 'explainBox ' + (selectedOption.correct ? 'good' : 'bad');
+      el.explain.innerHTML =
+        '<p><b>' + (selectedOption.correct ? '正解です！' : '不正解です') + '</b></p>' +
+        '<p class="miniTitle">選択した回答</p>' +
+        '<p></p>' +
+        (!selectedOption.correct ? '<p class="miniTitle">正答</p><p></p>' : '') +
+        '<p class="miniTitle">解説</p><p></p>';
+      const ps = el.explain.querySelectorAll('p');
+      ps[2].textContent = selectedOption.text;
+      if (selectedOption.correct) {
+        ps[4].textContent = selectedOption.feedback;
+      } else {
+        ps[4].textContent = correctOption.text;
+        ps[6].textContent = selectedOption.feedback;
+      }
+
+      history.push({
+        category: q.category,
+        question: q.question,
+        selected: selectedOption.text,
+        correct: correctOption.text,
+        ok: selectedOption.correct,
+        feedback: selectedOption.feedback
+      });
+
+      el.scoreLabel.textContent = score + '点';
+      el.answerBtn.style.display = 'none';
+      el.nextBtn.style.display = '';
+      el.nextBtn.textContent = currentIndex === quizSet.length - 1 ? '結果を見る' : '次の問題へ';
+    }
+
+    function nextQuestion() {
+      if (currentIndex === quizSet.length - 1) {
+        showResult();
+        return;
+      }
+      currentIndex++;
+      renderQuestion();
+      document.getElementById('questionTop').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showResult() {
+      el.quizScreen.classList.add('hidden');
+      el.resultScreen.classList.remove('hidden');
+      el.progress.style.width = '100%';
+      el.resultScore.textContent = score + ' / ' + quizSet.length;
+      const rate = Math.round((score / quizSet.length) * 100);
+      el.resultMessage.textContent = '正答率 ' + rate + '％。カテゴリ別の取り違えを確認して、もう一度ランダム出題で復習できます。';
+      el.history.innerHTML = '';
+      history.forEach(function(item, idx) {
+        const div = document.createElement('div');
+        div.className = 'historyItem ' + (item.ok ? 'good' : 'bad');
+        div.innerHTML = '<b>問' + (idx + 1) + '：' + item.category + '</b><br>' +
+          '<span></span><br>' +
+          '<small>' + (item.ok ? '○ 正解' : '× 不正解') + '</small>';
+        div.querySelector('span').textContent = item.question;
+        el.history.appendChild(div);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    el.answerBtn.addEventListener('click', submitAnswer);
+    el.nextBtn.addEventListener('click', nextQuestion);
+    el.restartBtn.addEventListener('click', startQuiz);
+    startQuiz();
+  </script>
+</body>
+</html>
