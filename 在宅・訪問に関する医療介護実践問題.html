@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>在宅・訪問に関する医療介護実践問題</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #182235;
+      --panel2: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --line: #334155;
+      --accent: #38bdf8;
+      --accent2: #a78bfa;
+      --ok: #34d399;
+      --bad: #fb7185;
+      --warn: #fbbf24;
+      --btn: #1f2937;
+      --btn2: #273449;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", Meiryo, sans-serif;
+      background: radial-gradient(circle at top left, rgba(56,189,248,.16), transparent 34rem), var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 18px 14px 44px; }
+    header {
+      background: linear-gradient(135deg, rgba(24,34,53,.96), rgba(17,24,39,.96));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(56,189,248,.35);
+      background: rgba(56,189,248,.08);
+      color: #bae6fd;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    h1 { margin: 0; font-size: clamp(24px, 6vw, 38px); line-height: 1.25; letter-spacing: .02em; }
+    .lead { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+    .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .meta div { border: 1px solid var(--line); border-radius: 14px; padding: 10px; background: rgba(15,23,42,.55); }
+    .meta strong { display: block; font-size: 18px; color: #f8fafc; }
+    .meta span { color: var(--muted); font-size: 12px; }
+    main { margin-top: 16px; }
+    .card {
+      background: rgba(24,34,53,.96);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 16px 44px rgba(0,0,0,.23);
+    }
+    .question-head { padding: 18px; border-bottom: 1px solid var(--line); background: rgba(17,24,39,.72); }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; border-radius: 999px; background: rgba(148,163,184,.12); border: 1px solid rgba(148,163,184,.2); padding: 4px 10px; color: #cbd5e1; font-size: 12px; }
+    .result-chip { font-weight: 700; }
+    .result-ok { color: var(--ok); border-color: rgba(52,211,153,.4); background: rgba(52,211,153,.09); }
+    .result-bad { color: var(--bad); border-color: rgba(251,113,133,.4); background: rgba(251,113,133,.09); }
+    .qtext { margin: 14px 0 0; font-size: 18px; font-weight: 760; line-height: 1.75; }
+    .choices { padding: 16px; display: grid; gap: 10px; }
+    .choice {
+      width: 100%; text-align: left; color: var(--text);
+      background: rgba(15,23,42,.72);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px 13px;
+      cursor: pointer;
+      font-size: 15px;
+      line-height: 1.7;
+      display: flex; gap: 10px; align-items: flex-start;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+    }
+    .choice:active { transform: scale(.995); }
+    .choice:hover { border-color: rgba(56,189,248,.5); background: rgba(30,41,59,.92); }
+    .choice.selected { border-color: rgba(56,189,248,.9); background: rgba(14,116,144,.20); }
+    .choice.correct { border-color: rgba(52,211,153,.8); background: rgba(6,78,59,.35); }
+    .choice.wrong { border-color: rgba(251,113,133,.8); background: rgba(127,29,29,.32); }
+    .num {
+      flex: 0 0 28px; height: 28px; display: grid; place-items: center;
+      border-radius: 999px; background: rgba(148,163,184,.12); color: #cbd5e1; font-weight: 700;
+    }
+    .mark { margin-left: auto; font-weight: 800; }
+    .controls { display: flex; gap: 10px; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid var(--line); background: rgba(17,24,39,.7); }
+    .navBtns { display: flex; gap: 8px; }
+    button.action {
+      appearance: none; border: 1px solid rgba(148,163,184,.25); border-radius: 14px;
+      background: var(--btn); color: var(--text); font-weight: 700;
+      padding: 11px 14px; min-height: 44px; cursor: pointer;
+    }
+    button.action.primary { background: linear-gradient(135deg, #0ea5e9, #7c3aed); border: none; color: white; min-width: 112px; }
+    button.action:disabled { opacity: .45; cursor: not-allowed; }
+    .explain { padding: 16px 18px; border-top: 1px solid var(--line); background: rgba(15,23,42,.55); }
+    .explain h3 { margin: 0 0 8px; font-size: 16px; }
+    .explain p { margin: 0; color: #d1d5db; }
+    .wrongReason { margin-top: 12px; padding: 12px; border: 1px solid rgba(251,113,133,.25); border-radius: 14px; background: rgba(127,29,29,.18); }
+    .progress { margin-top: 16px; display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+    .dot { height: 8px; border-radius: 999px; background: rgba(148,163,184,.25); }
+    .dot.done { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    footer { margin-top: 16px; background: rgba(24,34,53,.92); border: 1px solid var(--line); border-radius: 20px; padding: 16px; display: flex; gap: 12px; justify-content: space-between; align-items: center; }
+    .small { color: var(--muted); font-size: 13px; }
+    @media (max-width: 640px) {
+      .wrap { padding: 12px 10px 36px; }
+      header { padding: 18px 14px; border-radius: 18px; }
+      .meta { grid-template-columns: 1fr; }
+      .qtext { font-size: 16px; }
+      .choice { font-size: 14px; padding: 12px; }
+      .controls { flex-direction: column; align-items: stretch; }
+      .navBtns { display: grid; grid-template-columns: 1fr 1fr; }
+      button.action.primary { width: 100%; }
+      footer { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">医療経営士2級 専門分野</div>
+      <h1>在宅・訪問に関する医療介護実践問題</h1>
+      <p class="lead">訪問診療、往診、在宅時医学総合管理料、訪問看護、訪問リハビリテーション、在宅患者訪問薬剤管理指導料、居宅療養管理指導、2026年度診療報酬改定の在宅・訪問系論点を確認します。各カテゴリ3問のプールから1問ずつ、合計10問をランダム出題します。</p>
+      <div class="meta">
+        <div><strong id="scoreBox">0 / 0</strong><span>正答数 / 回答済み</span></div>
+        <div><strong>10問</strong><span>毎回ランダム出題</span></div>
+        <div><strong>5択</strong><span>選択後に回答ボタン</span></div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </header>
+
+    <main class="card" id="quizCard">
+      <div class="question-head">
+        <div class="row">
+          <span class="chip" id="qMeta">問1 / 10</span>
+          <span class="chip result-chip" id="resultChip" style="display:none"></span>
+        </div>
+        <div class="qtext" id="questionText"></div>
+      </div>
+      <div class="choices" id="choices"></div>
+      <div class="controls">
+        <button class="action primary" id="answerBtn">回答</button>
+        <div class="navBtns">
+          <button class="action" id="prevBtn">前へ</button>
+          <button class="action" id="nextBtn">次へ</button>
+        </div>
+      </div>
+      <div class="explain" id="explain" style="display:none"></div>
+    </main>
+
+    <footer>
+      <div>
+        <strong id="footerScore">結果：0 / 0</strong>
+        <div class="small" id="footerMsg">1問ずつ回答し、解説を確認しながら進めてください。</div>
+      </div>
+      <button class="action" id="resetBtn">再チャレンジ</button>
+    </footer>
+  </div>
+
+  <script id="questionData" type="application/json">[{"id": "visit_oushin", "label": "訪問診療・往診", "pool": [{"id": "visit_oushin_1", "question": "在宅患者訪問診療料と往診料の違いとして、最も適切なものはどれか。", "choices": ["訪問診療は計画的・定期的な訪問を評価し、往診は患者等の求めに応じた臨時の診療を評価する。", "訪問診療は急変時の臨時対応を評価し、往診は診療計画に基づく定期訪問を評価する。", "訪問診療料と往診料はいずれも、訪問看護ステーションが看護師の訪問時に算定する。", "往診料は介護報酬であり、訪問診療料は診療報酬である。", "訪問診療は通院可能な患者に対する利便提供を主目的として算定する。"], "answer": 0, "explanation": "訪問診療は、通院困難な在宅患者に対して診療計画に基づき計画的・定期的に行う診療です。往診は、患者や家族等の求めに応じて臨時に患家へ赴く診療です。", "wrong": ["正解です。訪問診療は計画的、往診は臨時対応です。", "訪問診療と往診の説明が逆です。", "訪問診療料・往診料はいずれも医師の診療に関する診療報酬です。", "往診料も診療報酬です。介護報酬ではありません。", "訪問診療は通院困難な患者が前提であり、単なる利便提供を目的に算定するものではありません。"]}, {"id": "visit_oushin_2", "question": "在宅患者訪問診療料の算定に関する説明として、最も適切なものはどれか。", "choices": ["原則として同一患者につき1日1回、週3回まで算定できる。", "患者の希望があれば、同一患者に1日何回でも算定できる。", "急変時の臨時対応だけを評価する点数である。", "入院中の患者に対して定期的に病室で診療した場合に算定する。", "訪問看護指示書に基づき看護師が訪問した場合に算定する。"], "answer": 0, "explanation": "在宅患者訪問診療料は、計画的な訪問診療を評価する診療報酬で、原則として同一患者につき1日1回、週3回までです。急変時の臨時対応は往診料の考え方です。", "wrong": ["正解です。訪問診療料は原則として1日1回、週3回までです。", "訪問診療料には回数の原則があります。患者の希望だけで1日何回でも算定できるものではありません。", "急変時の臨時対応を評価するのは往診料です。", "訪問診療料は在宅で療養する通院困難な患者への訪問診療を評価します。", "看護師の訪問看護を評価するものではなく、医師の訪問診療を評価します。"]}, {"id": "visit_oushin_3", "question": "次の記述のうち、適切なものの組み合わせはどれか。 A 訪問診療は計画的・定期的な診療である。 B 往診は患者等の求めに応じた臨時の診療である。 C 訪問診療料は原則として同一患者につき1日1回、週3回までである。 D 往診料は通院可能な患者への利便提供を主目的として算定する。", "choices": ["A・B・C", "A・B・D", "A・C・D", "B・C・D", "A・B・C・D"], "answer": 0, "explanation": "A・B・Cが適切です。Dは誤りです。往診は患者等の求めに応じた臨時の診療であり、通院可能な患者への利便提供を主目的とするものではありません。", "wrong": ["正解です。Dのみ誤りです。", "Dが誤りです。往診は利便提供目的ではありません。", "Bを外している点と、Dを含めている点が誤りです。", "Aを外している点と、Dを含めている点が誤りです。", "Dが誤りです。A・B・Cまでが適切です。"]}]}, {"id": "zaikan", "label": "在医総管・施設総管", "pool": [{"id": "zaikan_1", "question": "在宅時医学総合管理料の説明として、最も適切なものはどれか。", "choices": ["通院困難な在宅患者に対し、計画的・継続的な医学管理を行うことを月単位で評価する診療報酬である。", "医師が患家を訪問した1回ごとの診療行為だけを評価する点数である。", "訪問看護ステーションが、看護師の訪問看護を行った場合に算定する点数である。", "介護保険の居宅療養管理指導と同じ介護報酬である。", "訪問診療料を算定する患者には、在宅時医学総合管理料を併せて考えることはない。"], "answer": 0, "explanation": "在医総管は、在宅患者への計画的・継続的な医学管理を月単位で評価する診療報酬です。訪問そのものを評価する訪問診療料とは役割が異なります。", "wrong": ["正解です。在医総管は月単位の医学管理を評価します。", "1回ごとの訪問行為は訪問診療料の考え方です。", "訪問看護を評価するものではありません。", "在医総管は診療報酬です。居宅療養管理指導は介護報酬です。", "訪問診療料と在医総管は評価対象が異なるため、関係を整理して併せて考えます。"]}, {"id": "zaikan_2", "question": "訪問診療料と在宅時医学総合管理料の関係として、最も適切なものはどれか。", "choices": ["訪問診療料は訪問診療の実施を評価し、在医総管は計画的・継続的な医学管理を評価する。", "訪問診療料は月単位の管理、在医総管は1回ごとの訪問行為を評価する。", "両者はいずれも訪問看護ステーションが算定する。", "両者はいずれも介護報酬として請求される。", "両者は同じ内容を評価するため、在宅医療では区別しない。"], "answer": 0, "explanation": "訪問診療料は医師が実際に訪問して診療した行為の評価、在医総管は在宅患者を計画的・継続的に医学管理する評価です。", "wrong": ["正解です。訪問診療料は行為、在医総管は管理の評価です。", "説明が逆です。", "訪問看護ステーションが算定する評価ではありません。", "いずれも診療報酬です。", "評価対象が異なるため、区別して整理します。"]}, {"id": "zaikan_3", "question": "施設入居時等医学総合管理料に関する説明として、最も適切なものはどれか。", "choices": ["有料老人ホームやサービス付き高齢者向け住宅等の入居者への医学管理で関係する。", "入院中の患者に対する退院支援を評価する入院料である。", "介護老人保健施設の入所料として介護報酬で算定される。", "訪問看護ステーションが同一建物の利用者へ訪問した場合に算定する。", "在宅時医学総合管理料とは異なり、訪問診療との関係を考えない点数である。"], "answer": 0, "explanation": "施設入居時等医学総合管理料は、有料老人ホーム、サービス付き高齢者向け住宅等の入居者に対する医学管理で関係します。在医総管との対象の違いを押さえます。", "wrong": ["正解です。施設等の入居者に対する医学管理で関係します。", "退院支援を評価する入院料ではありません。", "施設総管は診療報酬であり、老健の入所料ではありません。", "訪問看護ステーションが算定する訪問看護の評価ではありません。", "施設総管も訪問診療を前提とする医学管理の評価として理解します。"]}]}, {"id": "insurance_mix", "label": "診療報酬・介護報酬の区別", "pool": [{"id": "insurance_mix_1", "question": "医師が行う居宅療養管理指導について、最も適切なものはどれか。", "choices": ["介護報酬により請求される介護保険サービスである。", "診療報酬により請求される医療保険サービスである。", "訪問診療料と同一の診療報酬である。", "訪問看護ステーションのみが算定できる。", "医師が行う場合は医療保険、薬剤師が行う場合は介護保険である。"], "answer": 0, "explanation": "居宅療養管理指導は介護保険サービスであり、医師が行う場合も介護報酬により請求されます。医師が訪問するから医療保険、と考えないことが重要です。", "wrong": ["正解です。居宅療養管理指導は介護報酬です。", "医師が行う場合でも居宅療養管理指導は介護報酬です。", "訪問診療料とは別の制度です。", "医師、歯科医師、薬剤師、管理栄養士等が関係します。", "職種だけで医療保険・介護保険が決まるわけではありません。"]}, {"id": "insurance_mix_2", "question": "診療報酬と介護報酬の区別として、最も適切なものはどれか。", "choices": ["訪問診療料と往診料は診療報酬、居宅療養管理指導は介護報酬である。", "訪問診療料、往診料、居宅療養管理指導はいずれも診療報酬である。", "在宅時医学総合管理料と施設入居時等医学総合管理料はいずれも介護報酬である。", "訪問看護は、要介護認定者であれば常に医療保険で請求される。", "訪問リハビリテーションは、すべて診療報酬として請求される。"], "answer": 0, "explanation": "訪問診療料・往診料・在医総管・施設総管は診療報酬です。一方、居宅療養管理指導は介護報酬です。", "wrong": ["正解です。", "居宅療養管理指導は介護報酬です。", "在医総管・施設総管は診療報酬です。", "訪問看護は医療保険・介護保険の両方があります。", "訪問リハビリテーションには介護保険サービスとしての整理があります。"]}, {"id": "insurance_mix_3", "question": "次の記述のうち、適切なものの組み合わせはどれか。 A 訪問診療料は診療報酬である。 B 往診料は診療報酬である。 C 医師が行う居宅療養管理指導は介護報酬である。 D 在宅時医学総合管理料は介護報酬である。", "choices": ["A・B", "A・C", "A・B・C", "B・C・D", "A・B・C・D"], "answer": 2, "explanation": "A・B・Cが適切です。Dは誤りで、在宅時医学総合管理料は診療報酬です。", "wrong": ["Cも適切です。医師が行う居宅療養管理指導は介護報酬です。", "Bも適切です。往診料は診療報酬です。", "正解です。Dのみ誤りです。", "Aを外している点と、Dを含めている点が誤りです。", "Dが誤りです。在医総管は診療報酬です。"]}]}, {"id": "nursing_rehab", "label": "訪問看護・訪問リハ", "pool": [{"id": "nursing_rehab_1", "question": "訪問看護ステーションから理学療法士・作業療法士が訪問してリハビリを行う場合の整理として、最も適切なものはどれか。", "choices": ["訪問看護として扱われる。", "職種がリハビリ職であれば、どの事業所からでも訪問リハビリテーションとして扱われる。", "医師の指示とは無関係に自費サービスとしてのみ扱われる。", "介護保険でも医療保険でも評価されない。", "短期入所療養介護として扱われる。"], "answer": 0, "explanation": "訪問看護ステーションからPT・OT等が訪問してリハビリを行う場合は、訪問看護として扱われます。病院や介護老人保健施設等から行う訪問リハビリテーションと区別します。", "wrong": ["正解です。訪問看護ステーションからのPT・OT訪問は訪問看護として整理します。", "訪問元により整理が変わります。訪問看護ステーションからなら訪問看護です。", "医師の指示書等との関係が重要です。", "制度上評価される場合があります。", "短期入所療養介護は医療系施設等へのショートステイです。"]}, {"id": "nursing_rehab_2", "question": "通所介護・通所リハビリテーションの説明として、最も適切なものはどれか。", "choices": ["通所介護はデイサービス、通所リハビリテーションはデイケアである。", "通所介護はデイケア、通所リハビリテーションはデイサービスである。", "通所介護も通所リハビリテーションも、診療報酬で請求される。", "通所リハビリテーションは、訪問看護ステーションの看護師が居宅で行う。", "通所介護は、介護老人保健施設への短期入所を意味する。"], "answer": 0, "explanation": "通所介護はデイサービス、通所リハビリテーションはデイケアです。名称が似ているため、介護サービスの問題で混同しやすい論点です。", "wrong": ["正解です。", "デイサービスとデイケアが逆です。", "いずれも介護保険サービスとして整理します。", "通所リハは通所サービスであり、訪問看護とは異なります。", "介護老人保健施設への短期入所は短期入所療養介護です。"]}, {"id": "nursing_rehab_3", "question": "訪問看護に関する説明として、最も適切なものはどれか。", "choices": ["訪問看護の日数・回数等は、主治医の訪問看護指示書や利用者の状態等を踏まえて検討される。", "訪問看護は、医師の訪問診療料として算定される。", "訪問看護は介護保険に限られ、医療保険での評価はない。", "訪問看護では、薬剤師が患家を訪問して服薬管理を行う。", "訪問看護は通所リハビリテーションと同じサービスである。"], "answer": 0, "explanation": "訪問看護は、主治医の訪問看護指示書に基づき、利用者・家族の状況等を踏まえて実施されます。医療保険・介護保険の両方に関係します。", "wrong": ["正解です。", "訪問診療料は医師の訪問診療を評価する点数です。", "訪問看護には医療保険・介護保険の両方があります。", "薬剤師の訪問は訪問薬剤管理指導等として整理します。", "訪問看護と通所リハビリテーションは異なるサービスです。"]}]}, {"id": "pharmacy", "label": "在宅患者訪問薬剤管理指導料", "pool": [{"id": "pharmacy_1", "question": "在宅患者訪問薬剤管理指導料の説明として、最も適切なものはどれか。", "choices": ["薬局薬剤師が在宅患者を訪問し、薬学的管理・服薬指導等を行った場合の調剤報酬上の評価である。", "医師が在宅患者を訪問して診療した場合の診療報酬である。", "訪問看護ステーションが看護師の訪問時に算定する訪問看護療養費である。", "介護老人保健施設の入所者全員に対して算定する入所料である。", "薬剤の配達そのものだけを評価する点数である。"], "answer": 0, "explanation": "在宅患者訪問薬剤管理指導料は、薬剤師が患家等を訪問して薬学的管理、服薬指導、残薬確認、副作用確認、多職種連携などを行うことを評価する調剤報酬です。", "wrong": ["正解です。薬剤師の在宅訪問による薬学的管理を評価します。", "医師の訪問診療は在宅患者訪問診療料等で評価されます。", "訪問看護を評価するものではありません。", "老健の入所料ではありません。", "単なる薬剤配送ではなく、薬学的管理・服薬指導を評価します。"]}, {"id": "pharmacy_2", "question": "薬剤師が在宅患者へ訪問して指導する場合の医療保険・介護保険の整理として、最も適切なものはどれか。", "choices": ["医療保険では在宅患者訪問薬剤管理指導料、介護保険では居宅療養管理指導が関係する。", "医療保険でも介護保険でも、薬剤師の訪問はすべて訪問診療料として請求する。", "要介護認定者であっても、薬剤師の訪問は常に医療保険で請求する。", "薬剤師の訪問指導は、訪問看護療養費として請求する。", "居宅療養管理指導は医師に限られるため、薬剤師は関係しない。"], "answer": 0, "explanation": "薬剤師の在宅訪問は、医療保険側では在宅患者訪問薬剤管理指導料、介護保険側では居宅療養管理指導が関係します。医療保険と介護保険の整理が試験で問われやすいです。", "wrong": ["正解です。医療保険と介護保険の対比で押さえます。", "訪問診療料は医師の訪問診療の評価です。", "要介護認定者では介護保険の居宅療養管理指導が関係する場面があります。", "訪問看護療養費は看護師等による訪問看護の評価です。", "居宅療養管理指導には薬剤師も関係します。"]}, {"id": "pharmacy_3", "question": "2026年度診療報酬改定における在宅患者訪問薬剤管理指導料の見直しとして、適切なものの組み合わせはどれか。 A 算定間隔が中6日以上から週1回に見直された。 B 医師と薬剤師の同時訪問が評価された。 C 複数名で訪問した場合の評価が新設された。 D 在宅患者訪問薬剤管理指導料は廃止された。", "choices": ["A・B", "A・C", "A・B・C", "B・C・D", "A・B・C・D"], "answer": 2, "explanation": "A・B・Cが適切です。2026年度改定では、算定間隔の見直し、医師と薬剤師の同時訪問の評価、複数名訪問の評価が示されています。Dの廃止は誤りです。", "wrong": ["Cも適切です。複数名訪問の評価も新設されています。", "Bも適切です。医師と薬剤師の同時訪問が評価されています。", "正解です。Dのみ誤りです。", "Aを外している点と、Dを含めている点が誤りです。", "Dが誤りです。在宅患者訪問薬剤管理指導料は廃止されていません。"]}]}, {"id": "transport_facility", "label": "交通費・施設入所者", "pool": [{"id": "transport_facility_1", "question": "訪問診療に要した交通費の取扱いとして、最も適切なものはどれか。", "choices": ["患家の負担として、患者に請求できる。", "訪問診療料に包括されるため、患者から徴収できない。", "保険者へ診療報酬として請求する。", "介護保険の給付対象として国保連へ請求する。", "在宅時医学総合管理料を算定していない場合に限り、患者から徴収できる。"], "answer": 0, "explanation": "訪問診療に要した交通費は、患家の負担として患者に請求できます。保険診療の一部負担金とは別の実費負担として整理します。", "wrong": ["正解です。交通費は患家負担です。", "交通費は訪問診療料に包括されるものではなく、患家負担です。", "保険者へ診療報酬として請求するものではありません。", "介護保険給付として請求するものではありません。", "在医総管の有無ではなく、交通費は患家負担として整理します。"]}, {"id": "transport_facility_2", "question": "介護老人保健施設の入所者に対する訪問診療について、最も適切なものはどれか。", "choices": ["老健には医師の配置義務があるため、入所者は原則として訪問診療の主たる対象とは整理されない。", "老健入所者は、すべて在宅患者訪問診療料の対象である。", "老健では医師の配置が禁止されているため、訪問診療が必須である。", "老健入所者に対する医療は、すべて患者の全額自己負担となる。", "老健入所者に対する医療は、必ず施設入居時等医学総合管理料で算定する。"], "answer": 0, "explanation": "介護老人保健施設には医師の配置義務があるため、入所者は原則として訪問診療の主たる対象とは整理されません。高齢者施設の種別ごとの違いに注意します。", "wrong": ["正解です。老健には医師配置があるため、原則として訪問診療の主たる対象ではありません。", "すべて対象という整理ではありません。", "老健には医師の配置義務があります。", "すべて全額自己負担という整理ではありません。", "必ず施設総管を算定するという整理ではありません。"]}, {"id": "transport_facility_3", "question": "グループホーム入居者への訪問診療について、最も適切なものはどれか。", "choices": ["通院困難な入居者は、訪問診療の対象になり得る。", "グループホーム入居者は、医療保険の訪問診療の対象にはならない。", "グループホームには医師の常勤配置義務があるため、訪問診療は不要である。", "グループホーム入居者への診療は、必ず介護報酬の居宅療養管理指導だけで請求する。", "グループホーム入居者への計画的訪問は、すべて往診料として算定する。"], "answer": 0, "explanation": "グループホーム入居者であっても、通院困難な状態であれば訪問診療の対象になり得ます。老健のような医師配置義務を前提とする施設とは区別します。", "wrong": ["正解です。通院困難であれば訪問診療の対象になり得ます。", "対象になり得ます。『ならない』とは整理しません。", "グループホームは老健のような医師配置義務を前提に整理しません。", "訪問診療料等の診療報酬が関係する場合があります。", "計画的な訪問なら訪問診療であり、すべて往診ではありません。"]}]}, {"id": "r8_home", "label": "2026年度改定：在宅医療体制", "pool": [{"id": "r8_home_1", "question": "2026年度診療報酬改定における在宅医療提供体制の見直しとして、最も適切なものはどれか。", "choices": ["在宅緩和ケア充実診療所・病院加算は、在宅医療充実体制加算へ名称・内容が見直された。", "在宅医療の評価は全面的に廃止され、介護報酬へ一本化された。", "地域における24時間の在宅医療提供体制を支える取組は、評価対象から除外された。", "在宅時医学総合管理料は、2026年度改定で外来管理加算に統合された。", "在宅医療に関する評価は、同一建物居住者であれば常に最も高い点数となった。"], "answer": 0, "explanation": "2026年度改定では、在宅医療において積極的役割を担う医療機関をさらに評価する観点から、在宅緩和ケア充実診療所・病院加算が在宅医療充実体制加算に見直されました。", "wrong": ["正解です。在宅医療充実体制加算への見直しが重要です。", "在宅医療の評価が全面廃止されたわけではありません。", "地域で24時間の在宅医療提供体制を支える取組は重視されています。", "在医総管が外来管理加算に統合されたわけではありません。", "同一建物居住者については適正化・きめ細かな評価が関係します。"]}, {"id": "r8_home_2", "question": "2026年度診療報酬改定における在医総管等の月2回訪問診療区分の見直しとして、最も適切なものはどれか。", "choices": ["月2回以上の訪問診療を行う患者数に占める一定の重症度等の患者割合が要件に加えられた。", "月2回訪問診療区分は、患者の状態にかかわらず一律に高い評価とされた。", "月2回訪問診療区分は、すべて月1回訪問診療区分へ統合された。", "月2回訪問診療区分は、介護保険の居宅療養管理指導へ移行した。", "月2回訪問診療区分の要件から患者の医療・介護の状態に関する観点が除外された。"], "answer": 0, "explanation": "2026年度改定では、患者の医療・介護の状態を踏まえた適切な訪問診療を推進する観点から、重症度の高い患者等の割合を要件に加える見直しが行われました。", "wrong": ["正解です。月2回訪問診療区分には重症度等の患者割合が関係します。", "患者の状態にかかわらず一律に高評価とする見直しではありません。", "すべて月1回区分へ統合されたわけではありません。", "在医総管等は診療報酬です。介護報酬へ移行したわけではありません。", "むしろ患者の医療・介護の状態を踏まえる方向です。"]}, {"id": "r8_home_3", "question": "2026年度診療報酬改定における在宅療養指導管理材料加算の見直しとして、最も適切なものはどれか。", "choices": ["すべての在宅療養指導管理材料加算について、算定要件を3月に3回に統一する見直しが示された。", "在宅療養指導管理材料加算は廃止され、患者の全額自己負担となった。", "算定要件は1年に1回に統一された。", "訪問看護ステーションだけが算定する介護報酬に変更された。", "入院基本料に包括され、在宅医療では評価されなくなった。"], "answer": 0, "explanation": "2026年度改定では、患者ごとの適切な医療提供を推進する観点から、すべての在宅療養指導管理材料加算について算定要件を3月に3回に統一する見直しが示されています。", "wrong": ["正解です。算定要件を3月に3回へ統一する見直しです。", "全廃や全額自己負担化ではありません。", "1年に1回ではありません。", "介護報酬へ変更されたわけではありません。", "入院基本料への包括ではなく、在宅医療の材料加算の見直しです。"]}]}, {"id": "r8_nursing_online", "label": "2026年度改定：訪問看護・オンライン診療", "pool": [{"id": "r8_nursing_online_1", "question": "2026年度診療報酬改定における訪問看護の見直しとして、最も適切なものはどれか。", "choices": ["同一建物に居住する利用者の人数等に応じた、きめ細かな評価への見直しが示された。", "訪問看護療養費はすべて廃止され、介護報酬に一本化された。", "精神科訪問看護の地域連携に関する評価は廃止された。", "訪問看護は、主治医の指示書と無関係に実施するものとされた。", "訪問看護は、薬剤師の在宅訪問と同一の点数に統合された。"], "answer": 0, "explanation": "2026年度改定では、訪問看護について、同一建物居住者の人数等に応じたきめ細かな評価への見直しが示されました。また、地域と連携した精神科訪問看護体制も評価されています。", "wrong": ["正解です。同一建物居住者の人数等に応じた評価が重要です。", "訪問看護療養費がすべて廃止されたわけではありません。", "地域と連携した精神科訪問看護体制は評価されています。", "訪問看護は主治医の指示書との関係が重要です。", "薬剤師の在宅訪問とは別の評価です。"]}, {"id": "r8_nursing_online_2", "question": "D to P with Nに関する説明として、最も適切なものはどれか。", "choices": ["医師がオンライン診療を行い、看護師等が患者の居宅で診療の補助を行う形である。", "医師が患者宅を訪問し、看護師がオンラインで診療補助を行う形である。", "薬剤師がオンラインで診断を行い、医師が薬局で補助する形である。", "患者が看護師へオンラインで診断を依頼する制度である。", "歯科訪問診療に限定されたオンライン服薬指導の制度である。"], "answer": 0, "explanation": "D to P with Nは、医師がオンライン診療を行い、看護師等が患者の居宅で診療の補助を行う形です。2026年度改定では訪問看護の同時実施や別途訪問時の評価が示されています。", "wrong": ["正解です。医師はオンライン、看護師等は患者居宅で補助します。", "医師と看護師の位置づけが逆です。", "薬剤師が診断する制度ではありません。", "看護師が診断する制度ではありません。", "歯科訪問診療限定の制度ではありません。"]}, {"id": "r8_nursing_online_3", "question": "訪問看護遠隔診療補助料の理解として、最も適切なものはどれか。", "choices": ["医師のオンライン診療時に、看護師等が居宅を訪問して診療を補助する場合の評価である。", "訪問看護ステーションが薬剤を調剤した場合の評価である。", "患者がオンラインで介護保険の要介護認定を受ける場合の評価である。", "看護師が単独で診断・処方を行う場合の評価である。", "訪問診療料と往診料を統合した新たな入院料である。"], "answer": 0, "explanation": "訪問看護遠隔診療補助料は、医師がオンライン診療を行う際、看護師等が患者の居宅を訪問して診療の補助を行う場面を評価するものです。", "wrong": ["正解です。オンライン診療と居宅での看護師等の補助がポイントです。", "調剤の評価ではありません。", "要介護認定の評価ではありません。", "看護師が単独で診断・処方を行うものではありません。", "入院料ではありません。"]}]}, {"id": "r8_policy", "label": "2026年度改定：全体方針・適正化", "pool": [{"id": "r8_policy_1", "question": "2026年度診療報酬改定の基本的方向性として、最も適切なものはどれか。", "choices": ["2040年頃を見据えた地域包括ケアシステムの推進の中で、質の高い在宅医療・訪問看護の確保が掲げられた。", "在宅医療・訪問看護は基本方針から除外された。", "地域包括ケアシステムの推進は介護報酬だけで扱われ、診療報酬改定では扱われなかった。", "在宅療養患者の後方支援機能は、評価の対象外とされた。", "かかりつけ医機能やかかりつけ薬剤師機能の評価は、2026年度改定で廃止された。"], "answer": 0, "explanation": "2026年度改定では、2040年頃を見据えた医療機関の機能分化・連携、地域包括ケアシステムの推進の中で、質の高い在宅医療・訪問看護の確保が方向性として示されています。", "wrong": ["正解です。在宅医療・訪問看護は地域包括ケアシステムと結びつく重要項目です。", "在宅医療・訪問看護は基本方針に含まれています。", "地域包括ケアシステムは診療報酬改定でも重要な方向性です。", "在宅療養患者や介護保険施設等入所者の後方支援機能も評価の方向性に含まれます。", "かかりつけ医機能・かかりつけ薬剤師機能の評価は方向性に含まれます。"]}, {"id": "r8_policy_2", "question": "2026年度診療報酬改定における在宅医療・訪問看護関係の評価について、最も適切なものはどれか。", "choices": ["在宅医療・訪問看護は推進される一方で、実態を踏まえた評価の適正化も示されている。", "在宅医療・訪問看護関係の評価は、効率化・適正化の対象には含まれていない。", "訪問看護はすべて出来高評価から除外された。", "在宅医療は推進のみであり、適正化の観点は示されていない。", "同一建物居住者への訪問は、人数にかかわらず常に同一評価とされた。"], "answer": 0, "explanation": "2026年度改定では、在宅医療・訪問看護は推進される一方で、実態を踏まえた評価の適正化も示されています。同一建物居住者等への評価見直しもこの流れで理解します。", "wrong": ["正解です。推進と適正化の両面で整理します。", "効率化・適正化の対象にも含まれています。", "すべて出来高評価から除外されたわけではありません。", "適正化の観点も示されています。", "同一建物居住者については人数等に応じた見直しが関係します。"]}, {"id": "r8_policy_3", "question": "2026年度診療報酬改定における外来・在宅ベースアップ評価料の見直しとして、最も適切なものはどれか。", "choices": ["外来医療又は在宅医療を実施している医療機関における職員の賃上げ対応として、評価が見直された。", "在宅医療を実施する医療機関は、ベースアップ評価料の対象から除外された。", "ベースアップ評価料は、患者の自己負担をなくすための制度である。", "外来・在宅ベースアップ評価料は、介護報酬の処遇改善加算へ統合された。", "訪問診療時の評価区分は、2026年度改定で廃止された。"], "answer": 0, "explanation": "2026年度改定では、外来医療又は在宅医療を実施している医療機関における賃上げ対応として、外来・在宅ベースアップ評価料の水準等が見直されました。", "wrong": ["正解です。在宅医療を実施する医療機関も賃上げ対応の評価が関係します。", "在宅医療を実施する医療機関も対象です。", "職員の賃金改善を図る評価であり、患者自己負担をなくす制度ではありません。", "介護報酬の処遇改善加算へ統合されたわけではありません。", "訪問診療時の評価区分は見直し後も示されています。"]}]}, {"id": "home_care_enhancement", "label": "在宅医療充実体制加算", "pool": [{"id": "home_care_enhancement_1", "question": "2026年度診療報酬改定で新設された在宅医療充実体制加算の位置づけとして、最も適切なものはどれか。", "choices": ["従来の在宅緩和ケア充実診療所・病院加算を見直し、在宅医療に積極的役割を担う医療機関を評価する加算である。", "訪問看護ステーションが同一建物の利用者に訪問看護を行った場合だけに算定する加算である。", "在宅患者訪問薬剤管理指導料を廃止して、薬剤師の訪問を医師の診療報酬に統合した加算である。", "介護保険施設の入所料に上乗せする介護報酬上の加算である。", "外来患者の生活習慣病管理を評価するための外来加算である。"], "answer": 0, "explanation": "在宅医療充実体制加算は、在宅緩和ケア充実診療所・病院加算を見直し、地域で重症在宅患者、看取り、緩和ケア等を積極的に担う医療機関を評価するものです。", "wrong": ["正解です。従来の在宅緩和ケア充実診療所・病院加算の見直しとして理解します。", "訪問看護ステーションの訪問看護だけを評価する加算ではありません。", "薬剤師の訪問を医師の診療報酬に統合したものではありません。", "介護報酬ではなく、診療報酬上の在宅医療に関する評価です。", "外来患者の生活習慣病管理を評価する加算ではありません。"]}, {"id": "home_care_enhancement_2", "question": "在宅医療充実体制加算で評価される医療機関像として、最も適切なものはどれか。", "choices": ["地域で重症在宅患者、緊急往診、看取り、小児在宅、緩和ケアなどを一定程度担う医療機関である。", "外来診療だけを行い、在宅患者への訪問診療を行わない医療機関である。", "訪問看護指示書の交付だけを行い、24時間連絡体制や往診体制を持たない医療機関である。", "薬剤配送だけを行う薬局である。", "老健入所者への施設サービス費を算定する介護保険施設である。"], "answer": 0, "explanation": "在宅医療充実体制加算は、単に訪問診療を行うだけでなく、地域で重症在宅患者、緊急往診、看取り、緩和ケア等を担う体制と実績を評価するものとして整理します。", "wrong": ["正解です。在宅医療を積極的に担う医療機関像を押さえます。", "外来診療だけでなく、在宅医療の体制と実績が関係します。", "24時間連絡体制や往診体制など、在宅医療提供体制が重要です。", "薬剤配送だけを評価するものではありません。", "介護保険施設の施設サービス費ではありません。"]}, {"id": "home_care_enhancement_3", "question": "在宅医療充実体制加算に関する理解として、最も適切なものはどれか。", "choices": ["在宅時医学総合管理料や施設入居時等医学総合管理料など、在宅医療関連の評価とあわせて理解する。", "訪問診療料と往診料の区別を廃止するための加算である。", "在宅医療ではなく、急性期一般入院料の評価を高めるための入院加算である。", "薬剤師の訪問指導を介護報酬へ全面移行するための加算である。", "同一建物居住者であれば、患者状態にかかわらず一律に最も高い評価となる。"], "answer": 0, "explanation": "在宅医療充実体制加算は、在医総管、施設総管、往診、看取り等の在宅医療関連評価と結びつけて理解します。訪問診療と往診の区別をなくすものではありません。", "wrong": ["正解です。在宅医療関連評価との関係で押さえます。", "訪問診療と往診の区別を廃止するものではありません。", "急性期入院料の加算ではなく、在宅医療に関する評価です。", "薬剤師の訪問指導を介護報酬へ全面移行するものではありません。", "同一建物居住者については、むしろ人数や実態に応じた評価・適正化の観点が重要です。"]}]}]</script>
+  <script>
+    "use strict";
+
+    const categories = JSON.parse(document.getElementById("questionData").textContent);
+    let quiz = [];
+    let current = 0;
+    let selected = Object.create(null);
+    let submitted = Object.create(null);
+
+    function assertPool() {
+      console.assert(Array.isArray(categories) && categories.length === 10, "10カテゴリであること");
+      categories.forEach(function(cat) {
+        console.assert(cat.pool.length === 3, cat.id + " は3問プールであること");
+        cat.pool.forEach(function(q) {
+          console.assert(q.choices.length === 5, q.id + " は5択であること");
+          console.assert(q.wrong.length === 5, q.id + " は誤答解説が5つあること");
+          console.assert(Number.isInteger(q.answer) && q.answer >= 0 && q.answer < 5, q.id + " の正答番号が有効であること");
+        });
+      });
+    }
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function buildQuiz() {
+      return categories.map(function(cat) {
+        const q = shuffle(cat.pool)[0];
+        const choices = shuffle(q.choices.map(function(text, originalIndex) {
+          return { text: text, originalIndex: originalIndex };
+        }));
+        return Object.assign({}, q, { category: cat.label, displayChoices: choices });
+      });
+    }
+
+    function score() {
+      let answered = Object.keys(submitted).length;
+      let correct = 0;
+      quiz.forEach(function(q) {
+        if (submitted[q.id] && selected[q.id] === q.answer) correct++;
+      });
+      return { answered: answered, correct: correct };
+    }
+
+    function renderProgress() {
+      const box = document.getElementById("progress");
+      box.innerHTML = "";
+      quiz.forEach(function(q) {
+        const d = document.createElement("div");
+        d.className = "dot" + (submitted[q.id] ? " done" : "");
+        box.appendChild(d);
+      });
+    }
+
+    function render() {
+      const q = quiz[current];
+      const isSubmitted = !!submitted[q.id];
+      const picked = selected[q.id];
+      const isCorrect = isSubmitted && picked === q.answer;
+      const sc = score();
+
+      document.getElementById("scoreBox").textContent = sc.correct + " / " + sc.answered;
+      document.getElementById("footerScore").textContent = "結果：" + sc.correct + " / " + sc.answered;
+      document.getElementById("footerMsg").textContent = sc.answered < 10 ? "1問ずつ回答し、解説を確認しながら進めてください。" : (sc.correct >= 8 ? "よく定着しています。再チャレンジで別問題に入れ替わります。" : "解説を確認してから再チャレンジしましょう。");
+      document.getElementById("qMeta").textContent = "問" + (current + 1) + " / 10　" + q.category;
+      document.getElementById("questionText").textContent = q.question;
+
+      const chip = document.getElementById("resultChip");
+      if (isSubmitted) {
+        chip.style.display = "inline-flex";
+        chip.textContent = isCorrect ? "正解" : "不正解";
+        chip.className = "chip result-chip " + (isCorrect ? "result-ok" : "result-bad");
+      } else {
+        chip.style.display = "none";
+      }
+
+      const choicesBox = document.getElementById("choices");
+      choicesBox.innerHTML = "";
+      q.displayChoices.forEach(function(choice, idx) {
+        const btn = document.createElement("button");
+        const isPicked = picked === choice.originalIndex;
+        const isAnswer = q.answer === choice.originalIndex;
+        let cls = "choice";
+        if (!isSubmitted && isPicked) cls += " selected";
+        if (isSubmitted && isAnswer) cls += " correct";
+        if (isSubmitted && isPicked && !isAnswer) cls += " wrong";
+        btn.className = cls;
+        btn.type = "button";
+        btn.disabled = isSubmitted;
+        btn.onclick = function() {
+          selected[q.id] = choice.originalIndex;
+          render();
+        };
+
+        const num = document.createElement("span");
+        num.className = "num";
+        num.textContent = String(idx + 1);
+        const txt = document.createElement("span");
+        txt.textContent = choice.text;
+        btn.appendChild(num);
+        btn.appendChild(txt);
+        if (isSubmitted && isAnswer) {
+          const mark = document.createElement("span"); mark.className = "mark"; mark.textContent = "○"; btn.appendChild(mark);
+        }
+        if (isSubmitted && isPicked && !isAnswer) {
+          const mark = document.createElement("span"); mark.className = "mark"; mark.textContent = "×"; btn.appendChild(mark);
+        }
+        choicesBox.appendChild(btn);
+      });
+
+      const explain = document.getElementById("explain");
+      if (isSubmitted) {
+        const wrongBlock = !isCorrect ? '<div class="wrongReason"><strong>選んだ回答が誤りである理由</strong><p>' + escapeHtml(q.wrong[picked]) + '</p></div>' : '';
+        explain.innerHTML = '<h3>解説</h3><p>' + escapeHtml(q.explanation) + '</p>' + wrongBlock;
+        explain.style.display = "block";
+      } else {
+        explain.style.display = "none";
+        explain.innerHTML = "";
+      }
+
+      document.getElementById("answerBtn").disabled = picked === undefined || isSubmitted;
+      document.getElementById("prevBtn").disabled = current === 0;
+      document.getElementById("nextBtn").disabled = current === quiz.length - 1;
+      renderProgress();
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function(ch) {
+        return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch] || ch;
+      });
+    }
+
+    function init() {
+      assertPool();
+      quiz = buildQuiz();
+      current = 0;
+      selected = Object.create(null);
+      submitted = Object.create(null);
+      console.assert(quiz.length === 10, "1回の出題は10問であること");
+      console.assert(quiz.every(function(q) { return q.displayChoices.length === 5; }), "表示選択肢は5つであること");
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("answerBtn").onclick = function() {
+      const q = quiz[current];
+      if (selected[q.id] === undefined) return;
+      submitted[q.id] = true;
+      render();
+    };
+    document.getElementById("prevBtn").onclick = function() { current = Math.max(0, current - 1); render(); document.getElementById("quizCard").scrollIntoView({ behavior: "smooth", block: "start" }); };
+    document.getElementById("nextBtn").onclick = function() { current = Math.min(quiz.length - 1, current + 1); render(); document.getElementById("quizCard").scrollIntoView({ behavior: "smooth", block: "start" }); };
+    document.getElementById("resetBtn").onclick = init;
+
+    init();
+  </script>
+</body>
+</html>

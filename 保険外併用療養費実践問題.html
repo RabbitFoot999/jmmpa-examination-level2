@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>保険外併用療養費実践問題</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg2: #101827;
+      --card: #172131;
+      --card2: #1f2a3d;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --line: #334155;
+      --primary: #60a5fa;
+      --primary2: #1d4ed8;
+      --primary-soft: #102a49;
+      --ok: #4ade80;
+      --ok-bg: #12291f;
+      --ng: #f87171;
+      --ng-bg: #32191f;
+      --warn: #fbbf24;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.14), transparent 35%),
+        linear-gradient(180deg, #070b16 0%, var(--bg) 260px, #080d18 100%);
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    .wrap {
+      width: min(960px, 100%);
+      margin: 0 auto;
+      padding: 20px 14px 42px;
+    }
+
+    header {
+      background: rgba(23, 33, 49, 0.94);
+      border: 1px solid rgba(96, 165, 250, 0.16);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 6vw, 38px);
+      line-height: 1.25;
+      letter-spacing: 0.02em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      border-radius: 999px;
+      background: #111c2f;
+      border: 1px solid var(--line);
+      color: #cbd5e1;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(23, 33, 49, 0.96);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .status {
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .status small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 850;
+      border-radius: 999px;
+      min-height: 44px;
+      padding: 10px 16px;
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active { transform: translateY(1px); }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+
+    .primary {
+      background: #2563eb;
+      color: #eff6ff;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+    }
+
+    .primary:hover:not(:disabled) { background: #1d4ed8; }
+
+    .secondary {
+      background: #253246;
+      border: 1px solid #40516a;
+      color: #f8fafc;
+    }
+
+    .secondary:hover:not(:disabled) { background: #334155; }
+
+    .card {
+      background: rgba(23, 33, 49, 0.98);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .q-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .badge, .category {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .badge {
+      background: var(--primary-soft);
+      color: #bfdbfe;
+      border: 1px solid rgba(96, 165, 250, 0.25);
+    }
+
+    .category {
+      background: #263449;
+      color: #d1d5db;
+      border: 1px solid var(--line);
+    }
+
+    .q-text {
+      margin: 0 0 16px;
+      font-size: clamp(17px, 4.5vw, 21px);
+      font-weight: 900;
+      line-height: 1.65;
+    }
+
+    .choices {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .choice {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: #111827;
+      color: var(--text);
+      border-radius: 15px;
+      padding: 13px 14px;
+      font-weight: 750;
+      box-shadow: none;
+      line-height: 1.65;
+    }
+
+    .choice:hover:not(:disabled) {
+      border-color: rgba(96, 165, 250, 0.65);
+      background: #172338;
+    }
+
+    .choice.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: #dbeafe;
+    }
+
+    .choice.correct {
+      border-color: rgba(74, 222, 128, .55);
+      background: var(--ok-bg);
+      color: #bbf7d0;
+    }
+
+    .choice.wrong {
+      border-color: rgba(248, 113, 113, .55);
+      background: var(--ng-bg);
+      color: #fecaca;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .result {
+      display: none;
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #111a2a;
+    }
+
+    .result.show { display: block; }
+    .result.ok { border-color: rgba(74, 222, 128, .45); background: var(--ok-bg); }
+    .result.ng { border-color: rgba(248, 113, 113, .4); background: var(--ng-bg); }
+
+    .result-title {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .result.ok .result-title { color: var(--ok); }
+    .result.ng .result-title { color: var(--ng); }
+
+    .explain {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .explain b { color: #f8fafc; }
+
+    .finish {
+      display: none;
+      background: #111a2a;
+      border: 1px solid rgba(96, 165, 250, .2);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .finish.show { display: block; }
+    .finish h2 { margin: 0 0 8px; font-size: 24px; }
+    .finish p { margin: 0 0 16px; color: var(--muted); }
+
+    .note {
+      margin: 14px 2px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 640px) {
+      .wrap { padding: 14px 10px 34px; }
+      header { padding: 18px; border-radius: 20px; }
+      .toolbar { top: 6px; padding: 10px 12px; }
+      .card { padding: 15px; }
+      .q-top { flex-direction: column; align-items: flex-start; }
+      .actions { justify-content: stretch; }
+      .actions button { width: 100%; }
+      .secondary { padding-left: 12px; padding-right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>保険外併用療養費実践問題</h1>
+      <p class="lead">評価療養・患者申出療養・選定療養の区分、費用負担、患者申出療養の流れ、紹介状なし受診、令和8年度改定における夜間休日調剤の選定療養化を確認する問題です。</p>
+      <div class="chips" aria-label="学習範囲">
+        <span class="chip">1問ずつ表示</span>
+        <span class="chip">五者択一</span>
+        <span class="chip">各カテゴリ3問プール</span>
+        <span class="chip">誤答理由つき</span>
+        <span class="chip">夜間スマホ向け</span>
+      </div>
+    </header>
+
+    <div class="toolbar" id="topBar">
+      <div class="status" id="status">第1問 / 5<small id="score">0問正解</small></div>
+      <button class="secondary" type="button" id="restartTop">やり直す</button>
+    </div>
+
+    <main id="quiz" aria-live="polite"></main>
+
+    <section class="finish" id="finish" aria-live="polite">
+      <h2 id="finishTitle">結果</h2>
+      <p id="finishText"></p>
+      <button class="secondary" type="button" id="restartBottom">別の問題で再チャレンジ</button>
+    </section>
+
+    <p class="note">GitHub Pages用の単体HTMLです。外部ライブラリは使用していません。</p>
+  </div>
+
+  <script>
+    const categories = [
+      {
+        name: "基本分類",
+        questions: [
+          {
+            q: "保険外併用療養費制度の区分として、正しい組み合わせはどれか。",
+            choices: [
+              { text: "評価療養、患者申出療養、選定療養", correct: true, reason: "保険外併用療養費は、評価療養・患者申出療養・選定療養の3区分で整理される。患者申出療養は評価療養とは別区分である。" },
+              { text: "評価療養、自由診療、選定療養", correct: false, reason: "自由診療は保険外併用療養費の制度上の区分名ではない。患者申出療養を含める必要がある。" },
+              { text: "先進医療、治験、差額ベッド", correct: false, reason: "先進医療、治験、差額ベッドは具体例であり、制度上の3区分ではない。" },
+              { text: "患者申出療養、特定療養費、選定療養", correct: false, reason: "特定療養費は現在の保険外併用療養費の3区分名ではない。評価療養が欠けている。" },
+              { text: "評価療養、包括療養、選定療養", correct: false, reason: "包括療養という区分はない。患者申出療養を別区分として含める。" }
+            ]
+          },
+          {
+            q: "保険外併用療養費制度の説明として、最も適切なものはどれか。",
+            choices: [
+              { text: "一定の保険外療養について、保険診療と共通する部分は保険給付の対象とし、保険外部分は原則として患者負担とする仕組みである。", correct: true, reason: "保険外併用療養費は、認められた保険外療養について、保険診療部分と保険外部分を分けて取り扱う制度である。" },
+              { text: "保険外の治療を受ける場合、保険診療部分も含めて常に全額自己負担とする仕組みである。", correct: false, reason: "保険外併用療養費として認められる場合、保険診療と共通する部分は保険給付の対象になる。" },
+              { text: "未承認薬を使用する場合、薬剤費を含めて全額が保険給付の対象となる仕組みである。", correct: false, reason: "未承認薬など保険外部分は原則自己負担である。保険外部分まで保険給付されるわけではない。" },
+              { text: "患者が希望する保険外診療であれば、個別の制度手続を経ずに保険診療と併用できる仕組みである。", correct: false, reason: "対象は国が認めた療養に限られ、無制限な混合診療の解禁ではない。" },
+              { text: "選定療養だけを対象とし、評価療養や患者申出療養は対象外とする仕組みである。", correct: false, reason: "評価療養、患者申出療養、選定療養の3区分が対象となる。" }
+            ]
+          },
+          {
+            q: "ア〜ウと制度区分の組み合わせとして、最も適切なものはどれか。ア：先進医療、イ：患者の申出を起点とする未承認薬等の使用、ウ：特別の療養環境",
+            choices: [
+              { text: "ア 評価療養、イ 患者申出療養、ウ 選定療養", correct: true, reason: "先進医療は評価療養、患者の申出を起点とする未承認薬等の使用は患者申出療養、特別の療養環境はいわゆる差額ベッドで選定療養である。" },
+              { text: "ア 選定療養、イ 評価療養、ウ 患者申出療養", correct: false, reason: "先進医療は評価療養であり、患者申出療養を評価療養に含める整理は不適切である。" },
+              { text: "ア 患者申出療養、イ 選定療養、ウ 評価療養", correct: false, reason: "3つの対応がいずれも不適切である。" },
+              { text: "ア 評価療養、イ 選定療養、ウ 患者申出療養", correct: false, reason: "患者の申出を起点とする未承認薬等の使用は患者申出療養、特別の療養環境は選定療養である。" },
+              { text: "ア 選定療養、イ 患者申出療養、ウ 評価療養", correct: false, reason: "患者申出療養の対応は正しいが、先進医療は評価療養、特別の療養環境は選定療養である。" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "評価療養",
+        questions: [
+          {
+            q: "評価療養に含まれるものとして、最も適切なものはどれか。",
+            choices: [
+              { text: "保険適用前の承認医療機器の使用", correct: true, reason: "保険適用前の承認医療機器の使用は、将来の保険適用を前提に評価されるため評価療養に含まれる。" },
+              { text: "大病院の紹介状なし初診", correct: false, reason: "大病院の紹介状なし初診は選定療養である。" },
+              { text: "特別の療養環境", correct: false, reason: "特別の療養環境、いわゆる差額ベッドは選定療養である。" },
+              { text: "予約診療", correct: false, reason: "予約診療は患者の選択により特別料金を支払う選定療養である。" },
+              { text: "180日を超える入院", correct: false, reason: "180日を超える入院は選定療養である。" }
+            ]
+          },
+          {
+            q: "評価療養に関する記述として、最も適切なものはどれか。",
+            choices: [
+              { text: "将来の保険導入を前提として、安全性・有効性等を評価する療養である。", correct: true, reason: "評価療養は、将来の保険導入に向けて評価を行う療養である。先進医療や治験に係る診療などが含まれる。" },
+              { text: "患者が療養環境や受診方法を選択し、特別料金を支払う療養である。", correct: false, reason: "これは選定療養の説明である。評価療養は将来の保険導入を前提とする。" },
+              { text: "患者の申出を起点とし、未承認薬等を使用する制度であり、評価療養の一部として整理される。", correct: false, reason: "患者申出療養は評価療養の一部ではなく、保険外併用療養費の別区分である。" },
+              { text: "保険外部分の費用も含め、通常の保険診療と同じ自己負担割合で算定される。", correct: false, reason: "保険外部分は原則自己負担であり、通常の保険給付の対象ではない。" },
+              { text: "将来の保険導入を予定しない患者選択型サービスを中心とする療養である。", correct: false, reason: "これは選定療養の説明である。" }
+            ]
+          },
+          {
+            q: "次のうち、評価療養に含まれるものの組み合わせとして、最も適切なものはどれか。",
+            choices: [
+              { text: "先進医療、医薬品の治験、医療機器の治験", correct: true, reason: "先進医療、医薬品の治験、医療機器の治験はいずれも評価療養に含まれる。" },
+              { text: "差額ベッド、予約診療、時間外診療", correct: false, reason: "これらはいずれも選定療養である。" },
+              { text: "大病院の初診、大病院の再診、180日を超える入院", correct: false, reason: "これらはいずれも選定療養である。" },
+              { text: "金属床総義歯、歯科の金合金等、予約診療", correct: false, reason: "これらは選定療養として整理される。" },
+              { text: "患者申出療養、差額ベッド、先進医療", correct: false, reason: "先進医療は評価療養だが、患者申出療養は別区分、差額ベッドは選定療養である。" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "患者申出療養",
+        questions: [
+          {
+            q: "患者申出療養の説明として、最も適切なものはどれか。",
+            choices: [
+              { text: "患者の申出を起点として、安全性・有効性等を確認し、保険外併用療養として実施する制度である。", correct: true, reason: "患者申出療養は、患者の申出を起点に、一定の確認を経て保険外併用療養として実施する制度である。" },
+              { text: "医療機関の申請を起点として、先進的医療を実施する評価療養の代表例である。", correct: false, reason: "医療機関起点は先進医療の説明に近い。患者申出療養は患者の申出が起点である。" },
+              { text: "患者が希望する未承認薬について、薬剤費を含めて保険給付の対象にする制度である。", correct: false, reason: "未承認薬など保険外部分は原則自己負担である。" },
+              { text: "将来の保険導入を前提としない、患者選択型サービスの総称である。", correct: false, reason: "これは選定療養の説明である。" },
+              { text: "特別の療養環境に係る差額分を保険給付の対象にする制度である。", correct: false, reason: "特別の療養環境は選定療養であり、差額分は通常、保険給付の対象ではない。" }
+            ]
+          },
+          {
+            q: "患者申出療養について、誤っているものはどれか。",
+            choices: [
+              { text: "保険外診療と保険診療の併用を、個別の確認を経ずに広く認める制度である。", correct: true, reason: "これが誤り。患者申出療養は、一定の手続きと安全性・有効性等の確認を前提とする制度であり、無制限な混合診療の解禁ではない。" },
+              { text: "保険外併用療養費制度の中に位置付けられる。", correct: false, reason: "これは正しい。患者申出療養は保険外併用療養費制度の一類型である。" },
+              { text: "患者の申出を起点とする。", correct: false, reason: "これは正しい。患者申出療養は患者の申出が起点である。" },
+              { text: "安全性・有効性等の確認が行われる。", correct: false, reason: "これは正しい。患者の希望だけで無条件に実施できる制度ではない。" },
+              { text: "未承認薬の費用など保険適用されていない部分は、原則自己負担である。", correct: false, reason: "これは正しい。保険外部分は原則自己負担である。" }
+            ]
+          },
+          {
+            q: "患者申出療養について、国における審査期間の目安として最も適切なものはどれか。",
+            choices: [
+              { text: "原則6週間", correct: true, reason: "患者申出療養は、患者の申出を起点として迅速に審査する制度であり、国における審査期間の目安は原則6週間である。" },
+              { text: "原則2週間", correct: false, reason: "2週間ではない。患者申出療養では原則6週間が目安となる。" },
+              { text: "原則3か月", correct: false, reason: "3か月ではない。6週間との入れ替えに注意する。" },
+              { text: "原則6か月", correct: false, reason: "6か月ではない。患者申出療養は迅速性も制度のポイントである。" },
+              { text: "原則1年", correct: false, reason: "1年ではない。審査期間の目安としては長すぎる。" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "選定療養",
+        questions: [
+          {
+            q: "選定療養の説明として、最も適切なものはどれか。",
+            choices: [
+              { text: "将来の保険導入を前提とせず、患者の選択により特別料金を支払って保険診療と併用する療養である。", correct: true, reason: "選定療養は、患者の選択により特別料金を支払う療養であり、差額ベッドや大病院の紹介状なし初診などが代表例である。" },
+              { text: "将来の保険導入を前提として、安全性・有効性を評価する療養である。", correct: false, reason: "これは評価療養の説明である。" },
+              { text: "患者の申出を起点として、未承認薬等を使用する制度である。", correct: false, reason: "これは患者申出療養の説明である。" },
+              { text: "医薬品・医療機器の治験に係る診療を中心とする療養である。", correct: false, reason: "治験に係る診療は評価療養である。" },
+              { text: "国における審査期間を原則6週間として実施される療養である。", correct: false, reason: "原則6週間の審査期間は患者申出療養の論点である。" }
+            ]
+          },
+          {
+            q: "選定療養に含まれないものはどれか。",
+            choices: [
+              { text: "医薬品の治験に係る診療", correct: true, reason: "医薬品の治験に係る診療は評価療養であり、選定療養ではない。" },
+              { text: "時間外診療", correct: false, reason: "時間外診療は選定療養に含まれる。" },
+              { text: "特別の療養環境", correct: false, reason: "特別の療養環境、いわゆる差額ベッドは選定療養に含まれる。" },
+              { text: "制限回数を超える医療行為", correct: false, reason: "制限回数を超える医療行為は選定療養に含まれる。" },
+              { text: "金属床総義歯", correct: false, reason: "金属床総義歯は選定療養に含まれる。" }
+            ]
+          },
+          {
+            q: "大病院の紹介状なし初診に関する説明として、最も適切なものはどれか。",
+            choices: [
+              { text: "選定療養に該当し、外来機能分化を進める観点から、一定の大病院で特別料金の徴収対象となる。", correct: true, reason: "大病院の紹介状なし初診は選定療養の代表例であり、外来機能分化の文脈でも問われやすい。" },
+              { text: "評価療養に該当し、将来の保険収載を目指す医療技術として扱われる。", correct: false, reason: "紹介状なし初診は評価療養ではなく選定療養である。" },
+              { text: "患者申出療養に該当し、患者が未承認薬の使用を申し出る場合に扱われる。", correct: false, reason: "紹介状なし初診は患者申出療養ではない。" },
+              { text: "保険外併用療養費には含まれず、病院が任意に設定する自由診療である。", correct: false, reason: "紹介状なし初診は保険外併用療養費のうち選定療養に含まれる。" },
+              { text: "治験に係る診療として扱われ、医薬品や医療機器の評価を目的とする。", correct: false, reason: "治験に係る診療は評価療養であり、紹介状なし初診とは別である。" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "改定論点",
+        questions: [
+          {
+            q: "令和8年度診療報酬改定における、夜間休日における調剤の選定療養化について最も適切なものはどれか。",
+            choices: [
+              { text: "保険薬局の開店時間外における調剤等について、選定療養として特別の料金を徴収できる仕組みが設けられた。", correct: true, reason: "令和8年度改定では、夜間休日における調剤の選定療養化が示された。薬局の開店時間外の調剤等について、選定療養として特別料金を徴収できる仕組みである。" },
+              { text: "夜間休日に薬局で調剤を受けた場合、開店時間内かどうかにかかわらず、一律に特別料金の徴収対象となる。", correct: false, reason: "一律に対象となるわけではない。薬局の表示する開店時間外の対応がポイントである。" },
+              { text: "24時間対応体制を評価する診療報酬が設けられたため、夜間休日の調剤は選定療養の対象外となった。", correct: false, reason: "24時間対応体制の評価と、夜間休日調剤の選定療養化は別論点であり、両立する。" },
+              { text: "夜間休日の調剤は評価療養として整理され、将来の保険収載を目指す医療技術とされた。", correct: false, reason: "夜間休日における調剤の選定療養化であり、評価療養ではない。" },
+              { text: "夜間休日の調剤に係る追加料金は、患者申出療養として患者からの申出があった場合に限り扱われる。", correct: false, reason: "患者申出療養ではなく選定療養の論点である。" }
+            ]
+          },
+          {
+            q: "大病院の紹介状なし初診等に係る選定療養費の基準額について、最も適切なものはどれか。",
+            choices: [
+              { text: "令和4年10月から、紹介状なし初診の基準額は医科7,000円以上、歯科5,000円以上に引き上げられた。", correct: true, reason: "大病院の紹介状なし初診等に係る定額負担は令和4年10月から引き上げられ、紹介状なし初診は医科7,000円以上、歯科5,000円以上である。" },
+              { text: "令和6年度診療報酬改定で、医科初診が5,000円以上から7,000円以上に引き上げられた。", correct: false, reason: "医科初診7,000円以上への引き上げは令和4年10月からであり、令和6年度改定ではない。" },
+              { text: "令和8年度診療報酬改定で、医科初診が7,000円以上から10,000円以上に引き上げられた。", correct: false, reason: "令和8年度改定では、紹介状なし受診等の患者定額負担の基準額自体が10,000円以上に引き上げられたわけではない。" },
+              { text: "紹介状なし初診に係る選定療養費は、患者申出療養の一部として徴収される。", correct: false, reason: "紹介状なし初診は選定療養であり、患者申出療養ではない。" },
+              { text: "紹介状なし初診に係る選定療養費は、令和8年度改定で廃止された。", correct: false, reason: "廃止されていない。外来機能分化の観点から引き続き重要な論点である。" }
+            ]
+          },
+          {
+            q: "大病院において、他の医療機関への紹介後も再診を希望する場合の選定療養費について、基準額の組み合わせとして最も適切なものはどれか。",
+            choices: [
+              { text: "医科3,000円以上、歯科1,900円以上", correct: true, reason: "逆紹介後の再診等に係る定額負担は、医科3,000円以上、歯科1,900円以上である。紹介状なし初診の医科7,000円以上、歯科5,000円以上と混同しない。" },
+              { text: "医科1,000円以上、歯科500円以上", correct: false, reason: "この金額ではない。再診の基準額は医科3,000円以上、歯科1,900円以上である。" },
+              { text: "医科2,000円以上、歯科1,000円以上", correct: false, reason: "この金額ではない。令和4年10月以降の再診の基準額は医科3,000円以上、歯科1,900円以上である。" },
+              { text: "医科5,000円以上、歯科3,000円以上", correct: false, reason: "この金額は逆紹介後の再診等の基準額ではない。" },
+              { text: "医科7,000円以上、歯科5,000円以上", correct: false, reason: "これは紹介状なし初診の基準額であり、逆紹介後の再診等の基準額ではない。" }
+            ]
+          }
+        ]
+      }
+    ];
+
+    let quizSet = [];
+    let currentIndex = 0;
+    let selectedIndex = null;
+    let answered = false;
+    let correctCount = 0;
+
+    function shuffle(array) {
+      const copied = array.slice();
+      for (let i = copied.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = copied[i];
+        copied[i] = copied[j];
+        copied[j] = tmp;
+      }
+      return copied;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function startQuiz() {
+      quizSet = categories.map(category => {
+        const picked = shuffle(category.questions)[0];
+        return {
+          category: category.name,
+          q: picked.q,
+          choices: shuffle(picked.choices)
+        };
+      });
+      currentIndex = 0;
+      selectedIndex = null;
+      answered = false;
+      correctCount = 0;
+      document.getElementById('finish').classList.remove('show');
+      document.getElementById('quiz').classList.remove('hidden');
+      renderQuestion();
+      jumpToQuiz();
+    }
+
+    function renderQuestion() {
+      const item = quizSet[currentIndex];
+      selectedIndex = null;
+      answered = false;
+      updateStatus();
+
+      const choicesHtml = item.choices.map((choice, index) => {
+        return '<button type="button" class="choice" id="choice' + index + '" data-index="' + index + '">' +
+          (index + 1) + '. ' + escapeHtml(choice.text) +
+          '</button>';
+      }).join('');
+
+      document.getElementById('quiz').innerHTML =
+        '<section class="card" id="questionCard">' +
+          '<div class="q-top">' +
+            '<span class="badge">第' + (currentIndex + 1) + '問</span>' +
+            '<span class="category">' + escapeHtml(item.category) + '</span>' +
+          '</div>' +
+          '<p class="q-text">' + escapeHtml(item.q) + '</p>' +
+          '<div class="choices">' + choicesHtml + '</div>' +
+          '<div class="actions">' +
+            '<button class="primary" id="answerBtn" type="button" disabled>回答</button>' +
+            '<button class="secondary hidden" id="nextBtn" type="button">' + (currentIndex === quizSet.length - 1 ? '結果を見る' : '次の問題へ') + '</button>' +
+          '</div>' +
+          '<div class="result" id="resultBox">' +
+            '<p class="result-title" id="resultTitle"></p>' +
+            '<p class="explain" id="explainText"></p>' +
+          '</div>' +
+        '</section>';
+
+      item.choices.forEach((_, index) => {
+        document.getElementById('choice' + index).addEventListener('click', () => selectChoice(index));
+      });
+      document.getElementById('answerBtn').addEventListener('click', submitAnswer);
+      document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+    }
+
+    function updateStatus() {
+      document.getElementById('status').innerHTML = '第' + (currentIndex + 1) + '問 / ' + quizSet.length + '<small id="score">' + correctCount + '問正解</small>';
+    }
+
+    function selectChoice(index) {
+      if (answered) return;
+      selectedIndex = index;
+      document.querySelectorAll('.choice').forEach(button => button.classList.remove('selected'));
+      document.getElementById('choice' + index).classList.add('selected');
+      document.getElementById('answerBtn').disabled = false;
+    }
+
+    function submitAnswer() {
+      if (selectedIndex === null || answered) return;
+      answered = true;
+      const item = quizSet[currentIndex];
+      const selected = item.choices[selectedIndex];
+      const correct = item.choices.find(choice => choice.correct);
+      const isCorrect = selected.correct;
+
+      if (isCorrect) correctCount++;
+
+      item.choices.forEach((choice, index) => {
+        const button = document.getElementById('choice' + index);
+        button.disabled = true;
+        button.classList.remove('selected');
+        if (choice.correct) button.classList.add('correct');
+        if (index === selectedIndex && !choice.correct) button.classList.add('wrong');
+      });
+
+      const resultBox = document.getElementById('resultBox');
+      resultBox.className = 'result show ' + (isCorrect ? 'ok' : 'ng');
+      document.getElementById('resultTitle').textContent = isCorrect ? '正解です' : '不正解です';
+      document.getElementById('explainText').innerHTML = isCorrect
+        ? '<b>解説：</b>' + escapeHtml(correct.reason)
+        : '<b>選んだ選択肢が誤りである理由：</b>' + escapeHtml(selected.reason) + '<br><b>正答：</b>' + escapeHtml(correct.text) + '<br><b>解説：</b>' + escapeHtml(correct.reason);
+
+      document.getElementById('answerBtn').classList.add('hidden');
+      document.getElementById('nextBtn').classList.remove('hidden');
+      updateStatus();
+    }
+
+    function nextQuestion() {
+      if (currentIndex < quizSet.length - 1) {
+        currentIndex++;
+        renderQuestion();
+        jumpToQuiz();
+      } else {
+        showFinish();
+      }
+    }
+
+    function showFinish() {
+      document.getElementById('quiz').classList.add('hidden');
+      document.getElementById('status').innerHTML = '終了 / ' + quizSet.length + '問<small id="score">' + correctCount + '問正解</small>';
+
+      const rate = correctCount / quizSet.length;
+      document.getElementById('finishTitle').textContent = '結果：' + correctCount + ' / ' + quizSet.length + ' 正解';
+      document.getElementById('finishText').textContent = rate === 1
+        ? '満点です。評価療養・患者申出療養・選定療養の区分と改定論点まで整理できています。'
+        : rate >= 0.6
+          ? 'よい仕上がりです。間違えたカテゴリを中心に、具体例と制度区分の対応を確認しましょう。'
+          : 'まずは「評価療養＝将来保険導入を評価」「患者申出療養＝患者申出が起点」「選定療養＝患者の選択」を整理しましょう。';
+      document.getElementById('finish').classList.add('show');
+      document.getElementById('finish').scrollIntoView({ block: 'start' });
+    }
+
+    function jumpToQuiz() {
+      const quiz = document.getElementById('quiz');
+      if (!quiz) return;
+      quiz.scrollIntoView({ block: 'start' });
+    }
+
+    document.getElementById('restartTop').addEventListener('click', startQuiz);
+    document.getElementById('restartBottom').addEventListener('click', startQuiz);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startQuiz);
+    } else {
+      startQuiz();
+    }
+  </script>
+</body>
+</html>

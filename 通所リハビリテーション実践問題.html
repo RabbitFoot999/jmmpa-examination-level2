@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>通所リハビリテーション実践問題</title>
+  <style>
+    :root{
+      --bg:#10151d;
+      --panel:#17202b;
+      --panel2:#1d2937;
+      --text:#eef3f8;
+      --muted:#a9b6c6;
+      --line:#2c3a4b;
+      --accent:#8fb8ff;
+      --accent2:#b7d0ff;
+      --good:#8ee3b0;
+      --bad:#ff9d9d;
+      --warn:#ffd58a;
+      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(88,132,199,.18), transparent 32rem),
+        radial-gradient(circle at 100% 20%, rgba(108,93,170,.13), transparent 28rem),
+        var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+      line-height:1.75;
+      letter-spacing:.02em;
+    }
+    .wrap{width:min(940px,100%); margin:0 auto; padding:24px 14px 88px}
+    header{
+      padding:22px 18px 18px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(29,41,55,.94), rgba(23,32,43,.94));
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    h1{font-size:clamp(1.45rem,5.6vw,2.2rem); line-height:1.3; margin:0 0 10px}
+    .lead{color:var(--muted); margin:0; font-size:.98rem}
+    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+    .chip{border:1px solid var(--line); background:#121a24; color:var(--accent2); padding:5px 10px; border-radius:999px; font-size:.82rem}
+    main{margin-top:16px}
+    .card{
+      border:1px solid var(--line);
+      background:rgba(23,32,43,.96);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .status{display:flex; justify-content:space-between; gap:10px; align-items:center; color:var(--muted); font-size:.92rem; margin-bottom:12px}
+    .bar{height:9px; background:#0d131b; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin:8px 0 16px}
+    .bar > div{height:100%; width:0; background:linear-gradient(90deg, #6f9de8, #a9c6ff); transition:width .25s ease}
+    .category{color:var(--accent2); font-weight:700; font-size:.92rem; margin-bottom:8px}
+    .qtext{font-size:1.08rem; font-weight:700; margin:0 0 14px; line-height:1.65}
+    .options{display:grid; gap:10px; margin:16px 0}
+    label.option{
+      display:block;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, #1b2633, #151e29);
+      border-radius:14px;
+      padding:13px 13px 13px 46px;
+      position:relative;
+      min-height:54px;
+      cursor:pointer;
+      touch-action:manipulation;
+    }
+    label.option:has(input:checked){border-color:#7ca8ef; box-shadow:0 0 0 2px rgba(124,168,239,.18) inset; background:#1e2d40}
+    label.option.correct{border-color:rgba(142,227,176,.85); background:rgba(51,104,77,.35)}
+    label.option.wrong{border-color:rgba(255,157,157,.85); background:rgba(116,57,57,.38)}
+    input[type="radio"]{position:absolute; left:15px; top:18px; width:20px; height:20px; accent-color:#8fb8ff}
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    button{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#243247;
+      color:var(--text);
+      border-radius:14px;
+      padding:12px 16px;
+      min-height:48px;
+      font-weight:700;
+      cursor:pointer;
+      touch-action:manipulation;
+    }
+    button.primary{background:linear-gradient(180deg, #4c78bd, #3a5f9a); border-color:#6e98d7}
+    button.ghost{background:#121a24}
+    button:disabled{opacity:.45; cursor:not-allowed}
+    .result{margin-top:14px; padding:14px; border-radius:14px; border:1px solid var(--line); background:#101821; display:none}
+    .result.good{border-color:rgba(142,227,176,.6)}
+    .result.bad{border-color:rgba(255,157,157,.6)}
+    .result h2{font-size:1.05rem; margin:0 0 8px}
+    .result.good h2{color:var(--good)}
+    .result.bad h2{color:var(--bad)}
+    .explain{color:#d8e1ed; margin:.5rem 0 0; white-space:pre-wrap}
+    .note{color:var(--muted); font-size:.88rem; margin-top:10px}
+    .summary{display:none; margin-top:16px}
+    .score{font-size:1.4rem; font-weight:800; margin:8px 0 14px}
+    .review{display:grid; gap:10px; margin-top:14px}
+    details{border:1px solid var(--line); border-radius:14px; background:#121a24; padding:10px 12px}
+    summary{cursor:pointer; font-weight:700}
+    .footer-note{margin-top:14px; color:var(--muted); font-size:.84rem}
+    @media (max-width:520px){
+      .wrap{padding:12px 10px 72px}
+      header,.card{border-radius:16px; padding:14px}
+      .status{font-size:.86rem}
+      .qtext{font-size:1.02rem}
+      label.option{padding:12px 12px 12px 42px; font-size:.95rem}
+      input[type="radio"]{left:13px}
+      button{width:100%}
+      .btns{gap:8px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="top">
+    <header>
+      <h1>通所リハビリテーション実践問題</h1>
+      <p class="lead">通所リハビリテーション、退院時連携、リハビリテーションマネジメント加算、LIFE、口腔・栄養との一体的取組を確認します。各カテゴリ3問のプールから毎回1問ずつ、合計5問をランダム出題します。</p>
+      <div class="chips">
+        <span class="chip">五者択一</span><span class="chip">1問ずつ表示</span><span class="chip">選択肢もランダム</span><span class="chip">夜間スマホ対応</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card" id="quiz">
+        <div class="status"><span id="count"></span><span id="scoreNow"></span></div>
+        <div class="bar"><div id="bar"></div></div>
+        <div class="category" id="category"></div>
+        <p class="qtext" id="qtext"></p>
+        <div class="options" id="options"></div>
+        <div class="btns">
+          <button class="primary" id="answerBtn">回答</button>
+          <button id="nextBtn" disabled>次の問題へ</button>
+        </div>
+        <div class="result" id="result"></div>
+        <p class="note">選択後に「回答」を押すと判定と解説が表示されます。次の問題では問題文の冒頭へ自動で戻ります。</p>
+      </section>
+
+      <section class="card summary" id="summary">
+        <h2>結果</h2>
+        <div class="score" id="finalScore"></div>
+        <div id="advice"></div>
+        <div class="review" id="review"></div>
+        <div class="btns"><button class="primary" id="retryBtn">もう一度解く</button></div>
+        <p class="footer-note">注：制度改定により細部の要件が変わることがあります。試験直前は最新の通知・告示も確認してください。</p>
+      </section>
+    </main>
+  </div>
+<script>
+const pools = [
+  {
+    category:'サービスの位置づけ',
+    items:[
+      {
+        q:'通所リハビリテーションの説明として、最も適切なものはどれか。',
+        choices:[
+          '要介護者等が医療機関や介護老人保健施設等に通い、医師の管理のもとでリハビリテーションを受ける介護保険サービスである。',
+          '要介護者が入浴、食事、レクリエーションを中心に利用するサービスで、医師の指示に基づくリハビリは通常想定されない。',
+          '理学療法士等が利用者宅を訪問して実施するサービスで、訪問看護ステーションが実施する場合も通所リハとして算定される。',
+          '介護保険施設に短期間入所して、医学的管理のもとで看護やリハビリを受けるサービスである。',
+          '在宅療養中の患者に対し、医師が居宅を訪問して療養上の管理や指導を行うサービスである。'
+        ],
+        answer:0,
+        explain:'通所リハビリテーションは、デイケアとも呼ばれ、利用者が医療機関・老健等に通って、医師の管理のもとでリハビリを受ける介護保険サービスです。選択肢2は通所介護、3は訪問リハ・訪問看護、4は短期入所療養介護、5は居宅療養管理指導に近い説明です。'
+      },
+      {
+        q:'「通所介護」と「通所リハビリテーション」の整理として、最も適切なものはどれか。',
+        choices:[
+          '通所介護はデイサービス、通所リハビリテーションはデイケアと整理される。',
+          '通所介護はデイケア、通所リハビリテーションはデイサービスと整理される。',
+          '通所介護と通所リハビリテーションはいずれも医療保険で算定される外来リハビリである。',
+          '通所介護は医療機関で実施され、通所リハビリテーションは特別養護老人ホームで実施される。',
+          '通所リハビリテーションは施設サービス、通所介護は居宅サービスに分類される。'
+        ],
+        answer:0,
+        explain:'試験対策上は、通所介護＝デイサービス、通所リハビリテーション＝デイケアという区別が基本です。通所リハは居宅サービスの一つであり、医療機関・老健・介護医療院等で実施されます。'
+      },
+      {
+        q:'介護保険の居宅サービスに関する記述として、適切なものの組み合わせはどれか。\nア 通所リハビリテーションは、居宅サービスに含まれる。\nイ 短期入所療養介護は、医療系施設等への短期入所を内容とする。\nウ 通所介護は、一般にデイケアと呼ばれる。\nエ 訪問看護ステーションの理学療法士等による訪問は、介護報酬上は訪問看護として扱われる場合がある。',
+        choices:['ア・イ・エ','ア・イ・ウ','ア・ウ・エ','イ・ウ・エ','ア・イ・ウ・エ'],
+        answer:0,
+        explain:'ア、イ、エが適切です。ウは、通所介護＝デイサービスであり、デイケアは通所リハビリテーションを指します。訪問看護ステーションからのリハ職訪問は、訪問リハビリテーションではなく訪問看護として扱われる点も区別が必要です。'
+      }
+    ]
+  },
+  {
+    category:'2024年度介護報酬改定と施行時期',
+    items:[
+      {
+        q:'2024年度介護報酬改定における通所リハビリテーション等の医療系サービスの施行時期として、最も適切なものはどれか。',
+        choices:[
+          '診療報酬改定と同じく、2024年6月1日施行である。',
+          '他の介護サービスと同じく、2024年4月1日施行である。',
+          '介護保険施設サービスと同じく、2024年8月1日施行である。',
+          '医療保険のリハビリテーション料と同じく、2024年10月1日施行である。',
+          '介護予防サービスについては2024年4月1日、要介護者向けサービスは2024年6月1日施行である。'
+        ],
+        answer:0,
+        explain:'通所リハビリテーション、訪問看護、訪問リハビリテーション、居宅療養管理指導などの医療系サービスは、診療報酬改定と同じ2024年6月1日施行と整理します。他の介護サービスと一律に4月1日としない点が重要です。'
+      },
+      {
+        q:'通所リハビリテーションの2024年度改定に関する記述として、適切なものはどれか。',
+        choices:[
+          '退院時共同指導加算は、退院前カンファレンスへの参加等を通じて退院後の連続的なリハビリにつなげる趣旨で新設された。',
+          '退院時共同指導加算は、入院中の疾患別リハビリテーション料を介護保険で請求するための加算である。',
+          '退院時共同指導加算は、居宅介護支援事業所が退院時にケアプランを作成した場合に算定する加算である。',
+          '退院時共同指導加算は、通所介護の生活相談員が病院から診療情報提供書を受け取った場合に評価される。',
+          '退院時共同指導加算は、退院後3か月を超えてから初回利用した利用者にも標準的に算定する。'
+        ],
+        answer:0,
+        explain:'退院時共同指導加算は、退院前カンファレンス等に通所リハ・訪問リハの理学療法士等が参加し、退院後のリハビリへ円滑につなげることを評価する趣旨です。入院中リハの請求やケアマネの退院支援そのものを評価する加算ではありません。'
+      },
+      {
+        q:'2024年度改定で通所リハビリテーションに関連して評価・見直しされた内容として、適切なものの組み合わせはどれか。\nア 退院時共同指導加算の新設\nイ リハビリテーションマネジメント加算におけるリハビリ・口腔・栄養の一体的推進の評価\nウ 通所リハビリテーションを医療保険の外来リハビリへ統合\nエ 医療機関のリハビリテーション計画書の受け取りに関する連携強化',
+        choices:['ア・イ・エ','ア・イ・ウ','ア・ウ・エ','イ・ウ・エ','ア・イ・ウ・エ'],
+        answer:0,
+        explain:'ア、イ、エが適切です。通所リハビリテーションは介護保険サービスであり、医療保険の外来リハビリへ統合されたわけではありません。2024年度改定では退院時連携、リハ・口腔・栄養の一体的取組、医療機関との情報連携が重要です。'
+      }
+    ]
+  },
+  {
+    category:'医療機関との情報連携',
+    items:[
+      {
+        q:'通所リハビリテーション・訪問リハビリテーションにおける医療機関との連携に関する記述として、最も適切なものはどれか。',
+        choices:[
+          '入院中に医療機関で作成されたリハビリテーション計画書を受け取ることが求められる。',
+          '医療機関のリハビリテーション計画書は、利用者の同意があっても介護保険事業所では受け取れない。',
+          '退院後に通所リハを開始する場合、医療機関との情報連携は居宅介護支援事業所を経由する場合に限られる。',
+          '通所リハでは医師の管理を要しないため、退院前カンファレンスへの参加は評価対象外である。',
+          '訪問リハビリテーションでは計画書連携が求められるが、通所リハビリテーションでは対象外である。'
+        ],
+        answer:0,
+        explain:'通所リハ・訪問リハでは、入院中の医療機関のリハビリテーション計画書を受け取ることが求められる方向で整理されています。退院前後の情報連携により、リハビリの内容を切れ目なく引き継ぐことが狙いです。'
+      },
+      {
+        q:'退院後の通所リハビリテーション利用に関する情報連携の説明として、適切なものはどれか。',
+        choices:[
+          '退院前から病院側のリハビリ内容や生活機能の情報を共有することで、退院後のリハビリ計画に反映しやすくなる。',
+          '退院後に介護保険サービスを開始する場合、入院中のリハビリ実施状況は介護報酬上の評価に影響しないため共有しない。',
+          '退院時共同指導は、病院の医師が介護認定を行うための手続である。',
+          '通所リハ事業所が退院前カンファレンスに参加した場合、リハビリテーションマネジメント加算の算定はできなくなる。',
+          '退院直後の連携では、ADLや生活環境よりも医療機関名の確認が主な目的となる。'
+        ],
+        answer:0,
+        explain:'退院前から病院のリハ内容、ADL、生活機能、退院後の課題を共有することで、通所リハでの計画作成・見直しに活かせます。退院時共同指導は介護認定の手続ではなく、連続的で質の高いリハビリにつなげる評価です。'
+      },
+      {
+        q:'退院時共同指導加算とリハビリテーション計画書の受け取りに関する説明として、適切なものの組み合わせはどれか。\nア 退院前カンファレンス等への関与を通じ、退院後のリハビリの連続性を高める。\nイ 入院中の計画書を受け取ることで、介護保険サービス側の計画作成に活用できる。\nウ 通所リハでは医療機関の情報を受け取ると、医師の関与が不要になる。\nエ 訪問リハビリテーションにも医療機関との連携強化は関係する。',
+        choices:['ア・イ・エ','ア・イ・ウ','ア・ウ・エ','イ・ウ・エ','ア・イ・ウ・エ'],
+        answer:0,
+        explain:'ア、イ、エが適切です。医療機関から情報を受け取ることは、通所リハ側の医師関与を不要にするものではありません。むしろ、医師やリハ職を含む多職種が情報を踏まえ、計画的にリハを進めることが重要です。'
+      }
+    ]
+  },
+  {
+    category:'リハビリテーション会議とマネジメント',
+    items:[
+      {
+        q:'リハビリテーションマネジメント加算が評価している内容として、最も適切なものはどれか。',
+        choices:[
+          '利用者の状態評価、リハビリ計画の作成、説明・同意、実施、会議、見直し、多職種連携を一体的に行うこと。',
+          '利用者の送迎距離に応じて、通所リハビリテーションの基本報酬を補正すること。',
+          '個別リハビリを実施せず、集団体操を中心にした場合の効率化を評価すること。',
+          '医師の関与を省略し、理学療法士等の判断でリハビリを開始できる体制を評価すること。',
+          '要介護度が改善した利用者に対して、通所介護へ移行することを義務づけること。'
+        ],
+        answer:0,
+        explain:'リハビリテーションマネジメント加算は、単なるリハビリ実施量ではなく、評価、計画、説明・同意、会議、見直し、多職種連携などのマネジメントを評価する加算です。医師の関与をなくす趣旨ではありません。'
+      },
+      {
+        q:'リハビリテーション会議における医師の参加に関する説明として、適切なものはどれか。',
+        choices:[
+          '医師の参加は重要だが、制度上はICT等の活用が認められる場面があり、常に対面参加に限定されるわけではない。',
+          '医師はリハビリテーション会議に参加できず、理学療法士等とケアマネジャーで開催する。',
+          '医師がリハビリテーション会議に参加した場合、利用者・家族への説明は不要となる。',
+          'リハビリテーション会議は、要介護5の利用者に限って開催される。',
+          '医師の参加は対面で行う必要があり、オンライン参加は制度上評価されない。'
+        ],
+        answer:0,
+        explain:'リハビリテーション会議では医師の関与が重要ですが、医師の参加は対面に限られるわけではなく、ICT等の活用が認められる場面があります。利用者・家族への説明や同意、計画の見直しも引き続き重要です。'
+      },
+      {
+        q:'通所リハビリテーションにおけるリハビリテーションマネジメントの流れとして、適切なものの組み合わせはどれか。\nア 利用者の心身機能、活動、参加、生活環境等を評価する。\nイ リハビリテーション計画を作成し、利用者・家族に説明する。\nウ 計画作成後は、原則としてサービス終了まで見直しを行わない。\nエ 多職種やケアマネジャー等と情報共有し、必要に応じて計画を見直す。',
+        choices:['ア・イ・エ','ア・イ・ウ','ア・ウ・エ','イ・ウ・エ','ア・イ・ウ・エ'],
+        answer:0,
+        explain:'ア、イ、エが適切です。リハビリテーションマネジメントでは、計画を作成して終わりではなく、リハビリ会議や多職種連携を通じて評価・見直しを行うことが重要です。'
+      }
+    ]
+  },
+  {
+    category:'LIFE・口腔・栄養との一体的取組',
+    items:[
+      {
+        q:'2024年度介護報酬改定におけるリハビリテーションマネジメント加算の見直しとして、最も適切なものはどれか。',
+        choices:[
+          'リハビリテーション・口腔・栄養の一体的な推進が評価される方向となった。',
+          'リハビリテーションマネジメント加算は廃止され、個別機能訓練加算に統合された。',
+          'LIFEへのデータ提出を行う場合、リハビリテーション計画の作成は不要となった。',
+          '口腔や栄養に関する情報は通所リハの評価対象から外された。',
+          'リハビリテーション専門職による評価より、送迎体制の充実が主な評価項目となった。'
+        ],
+        answer:0,
+        explain:'2024年度改定では、リハビリテーション・口腔・栄養を一体的に進める視点が強調されています。LIFE活用は計画作成や評価を不要にするものではなく、PDCAサイクルを回すための情報活用と理解します。'
+      },
+      {
+        q:'LIFEを活用する加算に関する説明として、適切なものはどれか。',
+        choices:[
+          'データ提出やフィードバックを通じ、利用者状態の評価とサービス内容の見直しに活用する仕組みである。',
+          'LIFEは医療保険のDPCデータ提出に限られ、介護保険サービスでは使用されない。',
+          'LIFEを活用する場合、利用者ごとの評価ではなく事業所単位の平均値のみを用いて計画を作成する。',
+          'LIFE関連加算では、評価やデータ提出は初回利用時に実施すれば足りる。',
+          '通所リハビリテーションでLIFEを活用すると、リハビリテーション会議の実施は制度上認められない。'
+        ],
+        answer:0,
+        explain:'LIFEは、介護サービスの科学的介護を進めるため、データ提出とフィードバックを通じて評価・計画見直しに活用する仕組みです。利用者ごとの状態把握やPDCAに活かす点が重要です。'
+      },
+      {
+        q:'リハビリテーション・口腔・栄養の一体的取組に関する記述として、適切なものの組み合わせはどれか。\nア 低栄養や口腔機能の問題は、ADLやリハビリ効果に影響しうる。\nイ 通所リハでは、リハビリ専門職だけでなく、必要に応じて管理栄養士や歯科関係職種等との連携が重要となる。\nウ LIFEの活用は、計画作成や評価を省略するための仕組みである。\nエ 2024年度改定では、リハビリテーションマネジメント加算において一体的推進が評価された。',
+        choices:['ア・イ・エ','ア・イ・ウ','ア・ウ・エ','イ・ウ・エ','ア・イ・ウ・エ'],
+        answer:0,
+        explain:'ア、イ、エが適切です。低栄養や口腔機能低下は活動量やADLに影響しうるため、リハビリ単独ではなく、口腔・栄養を含めた支援が重視されます。LIFEは評価や見直しを省略する仕組みではありません。'
+      }
+    ]
+  }
+];
+
+let quiz = [];
+let current = 0;
+let score = 0;
+let answered = false;
+let history = [];
+
+const $ = (id)=>document.getElementById(id);
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function buildQuiz(){
+  const cats = shuffle(pools);
+  quiz = cats.map(cat=>{
+    const item = cat.items[Math.floor(Math.random()*cat.items.length)];
+    const choiceObjs = item.choices.map((text,idx)=>({text, correct:idx===item.answer}));
+    return {category:cat.category, q:item.q, choices:shuffle(choiceObjs), explain:item.explain};
+  });
+  current=0; score=0; answered=false; history=[];
+  $('quiz').style.display='block'; $('summary').style.display='none';
+  render();
+}
+function render(){
+  const item=quiz[current];
+  $('count').textContent=`第 ${current+1} 問 / ${quiz.length} 問`;
+  $('scoreNow').textContent=`現在 ${score} 点`;
+  $('bar').style.width=`${(current/quiz.length)*100}%`;
+  $('category').textContent=item.category;
+  $('qtext').textContent=item.q;
+  const opts=$('options'); opts.innerHTML='';
+  item.choices.forEach((c,i)=>{
+    const lab=document.createElement('label'); lab.className='option';
+    const input=document.createElement('input'); input.type='radio'; input.name='choice'; input.value=i;
+    const span=document.createElement('span'); span.textContent=c.text;
+    lab.appendChild(input); lab.appendChild(span); opts.appendChild(lab);
+  });
+  $('result').style.display='none'; $('result').className='result'; $('result').innerHTML='';
+  $('answerBtn').disabled=false; $('nextBtn').disabled=true; answered=false;
+  $('nextBtn').textContent = current === quiz.length-1 ? '結果を見る' : '次の問題へ';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function answer(){
+  if(answered) return;
+  const selected=document.querySelector('input[name="choice"]:checked');
+  if(!selected){
+    $('result').style.display='block'; $('result').innerHTML='<h2 style="color:var(--warn)">選択してください</h2><p class="explain">選択肢を1つ選んでから「回答」を押してください。</p>';
+    return;
+  }
+  answered=true;
+  const idx=Number(selected.value);
+  const item=quiz[current];
+  const ok=item.choices[idx].correct;
+  if(ok) score++;
+  document.querySelectorAll('label.option').forEach((lab,i)=>{
+    if(item.choices[i].correct) lab.classList.add('correct');
+    if(i===idx && !ok) lab.classList.add('wrong');
+    lab.querySelector('input').disabled=true;
+  });
+  const correctText=item.choices.find(c=>c.correct).text;
+  const res=$('result');
+  res.className='result '+(ok?'good':'bad');
+  res.style.display='block';
+  res.innerHTML=`<h2>${ok?'正解です':'不正解です'}</h2><p><strong>正答：</strong>${escapeHtml(correctText)}</p><p class="explain">${escapeHtml(item.explain)}</p>`;
+  history.push({q:item.q, category:item.category, selected:item.choices[idx].text, correct:correctText, ok, explain:item.explain});
+  $('answerBtn').disabled=true; $('nextBtn').disabled=false;
+  $('bar').style.width=`${((current+1)/quiz.length)*100}%`;
+}
+function next(){
+  if(current < quiz.length-1){ current++; render(); }
+  else showSummary();
+}
+function showSummary(){
+  $('quiz').style.display='none'; $('summary').style.display='block';
+  $('finalScore').textContent=`${score} / ${quiz.length} 点`;
+  const msg = score===quiz.length ? 'よく整理できています。通所リハと通所介護、退院時連携、リハマネ加算の関係まで押さえられています。' : score>=3 ? '基本は押さえられています。誤答したカテゴリの解説を読み直すと安定します。' : '通所リハ＝デイケア、退院時共同指導、リハ・口腔・栄養の一体的取組を優先して復習しましょう。';
+  $('advice').textContent=msg;
+  const rev=$('review'); rev.innerHTML='';
+  history.forEach((h,i)=>{
+    const d=document.createElement('details');
+    d.innerHTML=`<summary>${i+1}. ${h.ok?'○':'×'} ${escapeHtml(h.category)}</summary><p>${escapeHtml(h.q)}</p><p><strong>選択：</strong>${escapeHtml(h.selected)}</p><p><strong>正答：</strong>${escapeHtml(h.correct)}</p><p>${escapeHtml(h.explain)}</p>`;
+    rev.appendChild(d);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function escapeHtml(str){return String(str).replace(/[&<>"]/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));}
+$('answerBtn').addEventListener('click', answer);
+$('nextBtn').addEventListener('click', next);
+$('retryBtn').addEventListener('click', buildQuiz);
+buildQuiz();
+</script>
+</body>
+</html>

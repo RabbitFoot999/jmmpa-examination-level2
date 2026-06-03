@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>入院料算定要件 実践問題</title>
+  <style>
+    :root {
+      --bg: #0e1621;
+      --bg2: #121d2b;
+      --card: #182334;
+      --card2: #1f2d40;
+      --text: #e8eef6;
+      --muted: #aeb9c7;
+      --line: #2b3b50;
+      --accent: #87bfff;
+      --accent2: #7dd3c7;
+      --ok: #56d08a;
+      --ng: #ff7b8a;
+      --warn: #f2c572;
+      --shadow: rgba(0, 0, 0, .35);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", Meiryo, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(45, 83, 122, .35), transparent 32rem),
+        linear-gradient(180deg, #0b111b 0%, var(--bg) 46%, #0a111a 100%);
+      min-height: 100svh;
+      line-height: 1.75;
+      letter-spacing: .01em;
+    }
+    button { font: inherit; }
+    .wrap { width: min(1120px, 100%); margin: 0 auto; padding: 18px 14px 36px; }
+    .hero {
+      background: linear-gradient(135deg, rgba(31,45,64,.96), rgba(18,29,43,.96));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 18px 40px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(14px);
+    }
+    .badge {
+      display: inline-flex; gap: 8px; align-items: center;
+      color: #c8d7e8;
+      background: rgba(135,191,255,.12);
+      border: 1px solid rgba(135,191,255,.24);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 { margin: 10px 0 6px; font-size: clamp(24px, 6vw, 42px); line-height: 1.18; }
+    .lead { margin: 0; color: var(--muted); font-size: 14px; }
+    .layout { display: grid; grid-template-columns: 1fr 320px; gap: 18px; margin-top: 18px; }
+    .card {
+      background: rgba(24, 35, 52, .96);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 18px 40px var(--shadow);
+    }
+    .question-card { padding: 18px; scroll-margin-top: 118px; }
+    .topline { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 14px; }
+    .qnum { color: var(--muted); font-weight: 800; font-size: 13px; }
+    .cat {
+      display: inline-block;
+      margin-top: 6px;
+      border-radius: 999px;
+      padding: 3px 9px;
+      background: rgba(125, 211, 199, .12);
+      color: #b7f3eb;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid rgba(125, 211, 199, .22);
+    }
+    h2 { margin: 0; font-size: clamp(20px, 5vw, 28px); line-height: 1.35; }
+    .question { white-space: pre-line; font-size: 17px; margin: 18px 0; color: #f0f5fb; }
+    .choices { display: grid; gap: 10px; }
+    .choice {
+      width: 100%; text-align: left;
+      color: var(--text);
+      background: rgba(255,255,255,.035);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, transform .05s ease;
+    }
+    .choice:active { transform: scale(.995); }
+    .choice:hover { border-color: rgba(135,191,255,.55); }
+    .choice.selected { background: rgba(135,191,255,.13); border-color: rgba(135,191,255,.85); }
+    .choice.correct { background: rgba(86,208,138,.14); border-color: rgba(86,208,138,.85); }
+    .choice.wrong { background: rgba(255,123,138,.14); border-color: rgba(255,123,138,.85); }
+    .mark {
+      width: 30px; height: 30px;
+      display: inline-flex; justify-content: center; align-items: center;
+      border-radius: 10px;
+      background: rgba(255,255,255,.075);
+      color: #d7e4f2;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+    .result-mark { font-size: 20px; font-weight: 900; }
+    .correct .result-mark { color: var(--ok); }
+    .wrong .result-mark { color: var(--ng); }
+    .actions { display: flex; gap: 10px; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      min-height: 48px;
+    }
+    .btn.primary { background: linear-gradient(135deg, #3f7fba, #2d6d87); border-color: rgba(135,191,255,.6); }
+    .btn:disabled { opacity: .42; cursor: not-allowed; }
+    .explain { margin-top: 16px; border-radius: 20px; padding: 16px; border: 1px solid var(--line); background: rgba(255,255,255,.04); }
+    .explain.ok { border-color: rgba(86,208,138,.35); background: rgba(86,208,138,.08); }
+    .explain.ng { border-color: rgba(255,123,138,.35); background: rgba(255,123,138,.08); }
+    .explain h3 { margin: 0 0 8px; font-size: 19px; }
+    .mini { color: var(--muted); font-size: 13px; }
+    .reason-box { margin-top: 10px; padding: 12px; background: rgba(0,0,0,.18); border-radius: 14px; border: 1px solid rgba(255,255,255,.08); }
+    .key { margin-top: 12px; color: #dbf7f3; background: rgba(125,211,199,.10); border: 1px solid rgba(125,211,199,.20); padding: 10px 12px; border-radius: 14px; font-weight: 800; }
+    .side { display: grid; gap: 14px; align-self: start; position: sticky; top: 145px; }
+    .panel { padding: 16px; }
+    .panel h3 { margin: 0 0 10px; font-size: 17px; }
+    .score { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .score div { border-radius: 14px; padding: 10px; text-align: center; font-weight: 900; background: rgba(255,255,255,.045); }
+    .score .okc { color: var(--ok); }
+    .score .ngc { color: var(--ng); }
+    .progress { height: 9px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; margin-top: 10px; }
+    .bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .25s ease; }
+    .navgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .navbtn {
+      min-height: 42px; border-radius: 12px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.04); color: var(--text); font-weight: 900; cursor: pointer;
+    }
+    .navbtn.current { background: #dceeff; color: #0a1420; border-color: #dceeff; }
+    .navbtn.ok { background: rgba(86,208,138,.16); border-color: rgba(86,208,138,.45); color: #a8f0c7; }
+    .navbtn.ng { background: rgba(255,123,138,.16); border-color: rgba(255,123,138,.45); color: #ffc1c8; }
+    .mistake {
+      width: 100%; text-align: left; color: var(--text); cursor: pointer;
+      border: 1px solid rgba(255,123,138,.25); background: rgba(255,123,138,.09);
+      border-radius: 16px; padding: 12px; margin-top: 8px;
+    }
+    .mistake strong { color: #ffc1c8; }
+    .finish { margin-top: 14px; padding: 14px; border-radius: 18px; border: 1px solid rgba(242,197,114,.35); background: rgba(242,197,114,.09); }
+    footer { color: var(--muted); font-size: 12px; margin: 20px 6px 0; }
+    @media (max-width: 860px) {
+      .hero { position: relative; top: auto; padding: 16px; }
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; grid-row: auto; }
+      .question-card { scroll-margin-top: 12px; }
+      .choice { grid-template-columns: 30px 1fr auto; padding: 13px; }
+      .actions .btn { flex: 1 1 100%; }
+      .side { order: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <span class="badge">医療経営士2級対策</span>
+      <h1>入院料算定要件 実践問題</h1>
+      <p class="lead">急性期・包括期・回復期・慢性期の入院料について、看護配置、平均在院日数、在宅復帰、重症度・医療・看護必要度、多職種協働の論点を確認します。</p>
+      <p class="lead">問題プール27問から毎回10問をランダム出題。カテゴリの偏りと連続をできるだけ抑え、選択肢の順番も毎回変わります。</p>
+    </header>
+
+    <div class="layout">
+      <main>
+        <section id="questionCard" class="card question-card" aria-live="polite">
+          <div class="topline">
+            <div>
+              <div id="qnum" class="qnum"></div>
+              <h2 id="qtitle"></h2>
+              <span id="qcat" class="cat"></span>
+            </div>
+            <span class="badge">五者択一</span>
+          </div>
+          <div id="qtext" class="question"></div>
+          <div id="choices" class="choices"></div>
+          <div id="feedback"></div>
+          <div class="actions">
+            <button id="resetBtn" class="btn" type="button">新しい10問でやり直す</button>
+            <button id="answerBtn" class="btn primary" type="button">回答</button>
+            <button id="nextBtn" class="btn primary" type="button">次の問題へ</button>
+          </div>
+        </section>
+      </main>
+
+      <aside class="side">
+        <section class="card panel">
+          <h3>今回の成績</h3>
+          <div id="summary" class="mini">まだ解答していません</div>
+          <div class="progress"><div id="bar" class="bar"></div></div>
+          <div class="score">
+            <div class="okc">正答 <span id="okCount">0</span></div>
+            <div class="ngc">誤答 <span id="ngCount">0</span></div>
+          </div>
+        </section>
+        <section class="card panel">
+          <h3>解答状況</h3>
+          <div id="nav" class="navgrid"></div>
+        </section>
+        <section class="card panel">
+          <h3>間違えた問題</h3>
+          <div id="mistakes" class="mini">まだ誤答はありません。</div>
+        </section>
+        <section id="finishBox" class="card panel" style="display:none;">
+          <h3>今回の結果</h3>
+          <div id="finishText" class="mini"></div>
+          <button id="againBtn" class="btn primary" type="button" style="width:100%; margin-top:10px;">新しい10問に挑戦</button>
+        </section>
+      </aside>
+    </div>
+
+    <footer>
+      参考：令和8年度診療報酬改定の概要、問題作成時のポイント。令和8年度改定資料は概要版であり、正式な告示・通知等で詳細確認が必要です。
+    </footer>
+  </div>
+
+  <script>
+    const QUESTION_POOL = [
+  {
+    "id": "acute-hospital-1",
+    "category": "急性期病院A・B",
+    "title": "急性期病院A・Bの基本要件",
+    "question": "急性期病院A一般入院料と急性期病院B一般入院料について、看護配置と平均在院日数の組み合わせとして正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "A：7対1、16日以内　B：10対1、21日以内",
+        "correct": true,
+        "reason": "正しい組み合わせです。Aは7対1・16日以内、Bは10対1・21日以内です。"
+      },
+      {
+        "text": "A：10対1、16日以内　B：7対1、21日以内",
+        "correct": false,
+        "reason": "AとBの看護配置が逆です。Aは7対1、Bは10対1です。"
+      },
+      {
+        "text": "A：7対1、21日以内　B：10対1、16日以内",
+        "correct": false,
+        "reason": "平均在院日数が逆です。Aは16日以内、Bは21日以内です。"
+      },
+      {
+        "text": "A：13対1、60日以内　B：10対1、21日以内",
+        "correct": false,
+        "reason": "13対1・60日以内は地域包括ケア病棟の代表的な整理です。"
+      },
+      {
+        "text": "A：10対1、20日原則　B：13対1、60日以内",
+        "correct": false,
+        "reason": "10対1・20日原則は地域包括医療病棟、13対1・60日以内は地域包括ケア病棟の整理です。"
+      }
+    ],
+    "explanation": "令和8年度改定では、病院全体の急性期機能に着目した急性期病院一般入院基本料が新設されました。急性期病院Aは7対1・平均在院日数16日以内、急性期病院Bは10対1・平均在院日数21日以内で整理します。",
+    "key": "A＝7対1・16日、B＝10対1・21日"
+  },
+  {
+    "id": "acute-hospital-2",
+    "category": "急性期病院A・B",
+    "title": "急性期病院Aの病院機能",
+    "question": "急性期病院A一般入院料の病院機能に係る主な施設基準として、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "救急搬送件数が年間2,000件以上、かつ全身麻酔手術件数が年間1,200件以上である。",
+        "correct": true,
+        "reason": "急性期病院Aの代表的な病院実績要件です。"
+      },
+      {
+        "text": "救急搬送件数が年間1,500件以上であれば、全身麻酔手術件数は問われない。",
+        "correct": false,
+        "reason": "救急搬送1,500件以上は急性期病院Bの実績要件の1つとして整理します。"
+      },
+      {
+        "text": "地域包括医療病棟の届出を行っていることが共通要件である。",
+        "correct": false,
+        "reason": "逆です。急性期病院一般入院基本料では、地域包括医療病棟の届出を行っていないことが共通要件です。"
+      },
+      {
+        "text": "DPC対象病院であることは求められない。",
+        "correct": false,
+        "reason": "共通の施設基準としてDPC対象病院であることが示されています。"
+      },
+      {
+        "text": "在宅復帰率72.5%以上を満たすことが中心的な要件である。",
+        "correct": false,
+        "reason": "72.5%以上は地域包括ケア病棟で混同しやすい数値です。急性期病院Aでは救急搬送件数・全身麻酔手術件数などが重要です。"
+      }
+    ],
+    "explanation": "急性期病院A一般入院料では、救急搬送件数年間2,000件以上、全身麻酔手術件数年間1,200件以上など、高度急性期機能を示す病院全体の実績が重視されます。",
+    "key": "急性期A＝救急2,000件＋全麻1,200件"
+  },
+  {
+    "id": "acute-hospital-3",
+    "category": "急性期病院A・B",
+    "title": "急性期病院Bの病院機能",
+    "question": "急性期病院B一般入院料の急性期医療に係る実績として、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "救急搬送1,500件以上、または救急搬送500件以上かつ全身麻酔手術500件以上などの基準がある。",
+        "correct": true,
+        "reason": "急性期病院Bの実績要件として示される代表的な内容です。"
+      },
+      {
+        "text": "救急搬送2,000件以上かつ全身麻酔手術1,200件以上を必ず満たす必要がある。",
+        "correct": false,
+        "reason": "これは急性期病院Aの要件です。Bでは複数の実績基準が設定されています。"
+      },
+      {
+        "text": "第二次救急医療機関又は救急病院であることは求められない。",
+        "correct": false,
+        "reason": "急性期病院Bでは、第二次救急医療機関又は救急病院であることが示されています。"
+      },
+      {
+        "text": "夜間時間帯の救急搬送受入割合は要件と関係しない。",
+        "correct": false,
+        "reason": "夜間時間帯に受け入れた救急搬送件数が1割以上あることも要件に含まれます。"
+      },
+      {
+        "text": "平均在院日数は60日以内である。",
+        "correct": false,
+        "reason": "60日以内は地域包括ケア病棟で用いられる数値です。急性期病院Bは21日以内です。"
+      }
+    ],
+    "explanation": "急性期病院Bは地域の急性期医療を担う病院を評価します。救急搬送1,500件以上、または救急搬送500件以上かつ全身麻酔手術500件以上など、複数の実績要件が示されています。",
+    "key": "急性期B＝地域急性期、10対1、21日以内"
+  },
+  {
+    "id": "acute-general-1",
+    "category": "急性期一般入院料",
+    "title": "急性期一般入院料1",
+    "question": "急性期一般入院料1について、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "看護配置は7対1、平均在院日数は16日以内である。",
+        "correct": true,
+        "reason": "急性期一般入院料1の基本整理として正しいです。"
+      },
+      {
+        "text": "看護配置は10対1、平均在院日数は21日以内である。",
+        "correct": false,
+        "reason": "10対1・21日以内は急性期病院Bや急性期一般入院料の別区分で混同しやすい組み合わせです。"
+      },
+      {
+        "text": "看護配置は13対1、算定期間は60日を限度とする。",
+        "correct": false,
+        "reason": "13対1・60日以内は地域包括ケア病棟の代表的な整理です。"
+      },
+      {
+        "text": "在宅復帰・病床機能連携率は72.5%以上である。",
+        "correct": false,
+        "reason": "72.5%以上は地域包括ケア病棟の数値です。急性期一般入院料1では8割以上が重要です。"
+      },
+      {
+        "text": "重症度、医療・看護必要度の評価は施設基準上用いられない。",
+        "correct": false,
+        "reason": "急性期一般入院料では重症度、医療・看護必要度が重要です。"
+      }
+    ],
+    "explanation": "急性期一般入院料1は、7対1、平均在院日数16日以内、在宅復帰・病床機能連携率8割以上、重症度・医療・看護必要度が重要です。",
+    "key": "急性期一般1＝7対1・16日・8割"
+  },
+  {
+    "id": "acute-general-2",
+    "category": "急性期一般入院料",
+    "title": "急性期一般入院料2〜5の必要度",
+    "question": "急性期一般入院料2〜5における重症度、医療・看護必要度の該当患者基準として、最も適切なものを1つ選べ。",
+    "choices": [
+      {
+        "text": "A得点2点以上かつB得点3点以上、またはA得点3点以上、またはC得点1点以上が基準に含まれる。",
+        "correct": true,
+        "reason": "急性期一般入院料2〜5で押さえるべき基準です。"
+      },
+      {
+        "text": "A項目とC項目を用い、B項目は評価票での評価も行わない。",
+        "correct": false,
+        "reason": "急性期一般入院料2〜5ではB項目も該当患者基準に関係します。"
+      },
+      {
+        "text": "B項目のみで判定し、A項目とC項目は用いない。",
+        "correct": false,
+        "reason": "A項目・C項目も基準に関係します。"
+      },
+      {
+        "text": "C項目は急性期一般入院料では用いられない。",
+        "correct": false,
+        "reason": "C項目1点以上も基準に含まれます。"
+      },
+      {
+        "text": "重症度、医療・看護必要度は急性期一般入院料2〜5では不要である。",
+        "correct": false,
+        "reason": "不要ではありません。A・B・C項目を用いる基準があります。"
+      }
+    ],
+    "explanation": "急性期一般入院料2〜5では、A得点2点以上かつB得点3点以上、またはA得点3点以上、またはC得点1点以上という形で、A・B・C項目を用いる基準があります。",
+    "key": "急性期一般2〜5＝A2+B3、またはA3、またはC1"
+  },
+  {
+    "id": "acute-general-3",
+    "category": "急性期一般入院料",
+    "title": "急性期一般入院料の組み合わせ",
+    "question": "急性期一般入院料に関する記述として、正しいものを選ぶ組み合わせはどれか。\nア　急性期一般入院料1の平均在院日数は16日以内である。\nイ　急性期一般入院料1では在宅復帰・病床機能連携率8割以上が重要である。\nウ　急性期一般入院料2〜5では、B項目も該当患者基準に関係する。",
+    "choices": [
+      {
+        "text": "ア・イ・ウ",
+        "correct": true,
+        "reason": "3つとも正しい記述です。急性期一般入院料1と2〜5の必要度の扱いを区別します。"
+      },
+      {
+        "text": "ア・イ",
+        "correct": false,
+        "reason": "ウも正しいです。急性期一般入院料2〜5ではB項目も基準に関係します。"
+      },
+      {
+        "text": "ア・ウ",
+        "correct": false,
+        "reason": "イも正しいです。急性期一般入院料1では在宅復帰・病床機能連携率8割以上が重要です。"
+      },
+      {
+        "text": "イ・ウ",
+        "correct": false,
+        "reason": "アも正しいです。急性期一般入院料1は16日以内です。"
+      },
+      {
+        "text": "アのみ",
+        "correct": false,
+        "reason": "イとウも正しい記述です。"
+      }
+    ],
+    "explanation": "急性期一般入院料1は、平均在院日数16日以内、在宅復帰・病床機能連携率8割以上が重要です。急性期一般入院料2〜5では、重症度、医療・看護必要度のB項目も基準に関係します。",
+    "key": "急性期一般1と2〜5を必要度で区別"
+  },
+  {
+    "id": "severity-1",
+    "category": "重症度・医療看護必要度",
+    "title": "A〜C項目の使い分け",
+    "question": "急性期病院A・B、急性期一般入院料1、急性期一般入院料2〜5における重症度、医療・看護必要度の扱いとして、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "急性期病院A・Bと急性期一般入院料1はA項目・C項目を該当患者基準に用い、急性期一般入院料2〜5はA・B・C項目を用いる基準がある。",
+        "correct": true,
+        "reason": "正しい整理です。B項目の扱いが入院料区分で異なります。"
+      },
+      {
+        "text": "急性期病院A・Bと急性期一般入院料1では、B項目が完全に廃止された。",
+        "correct": false,
+        "reason": "B項目は廃止ではありません。評価は行いますが、該当患者基準には含めません。"
+      },
+      {
+        "text": "急性期一般入院料2〜5では、A項目とC項目を用い、B項目は該当患者基準に含めない。",
+        "correct": false,
+        "reason": "急性期一般入院料2〜5では、B項目も基準に関係します。"
+      },
+      {
+        "text": "急性期一般入院料1と急性期一般入院料2〜5では、該当患者基準は完全に同じである。",
+        "correct": false,
+        "reason": "同じではありません。B項目の扱いが異なります。"
+      },
+      {
+        "text": "重症度、医療・看護必要度は回復期リハ病棟の中心的なアウトカム指標である。",
+        "correct": false,
+        "reason": "回復期リハ病棟では、FIMやリハビリテーション実績指数が重要です。"
+      }
+    ],
+    "explanation": "急性期病院A・Bと急性期一般入院料1では、該当患者基準はA項目・C項目が中心です。B項目は評価しますが、基準には含めません。急性期一般入院料2〜5ではA・B・C項目を用いる基準があります。",
+    "key": "A/B・急性期一般1＝A/C中心、2〜5＝A/B/C"
+  },
+  {
+    "id": "severity-2",
+    "category": "重症度・医療看護必要度",
+    "title": "B項目の扱い",
+    "question": "重症度、医療・看護必要度のB項目について、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "B項目は患者のADLや看護の手間をみる項目であり、急性期病院A・Bと急性期一般入院料1では評価するが該当患者基準には含めない。",
+        "correct": true,
+        "reason": "B項目の扱いとして正しいです。廃止ではない点が重要です。"
+      },
+      {
+        "text": "B項目は令和8年度改定で完全に廃止された。",
+        "correct": false,
+        "reason": "廃止ではありません。評価票による評価は行います。"
+      },
+      {
+        "text": "B項目は手術等の医学的状況を評価する項目である。",
+        "correct": false,
+        "reason": "手術等の医学的状況はC項目のイメージです。"
+      },
+      {
+        "text": "B項目は急性期一般入院料2〜5では一切使われない。",
+        "correct": false,
+        "reason": "急性期一般入院料2〜5では、A2点以上かつB3点以上などの基準があります。"
+      },
+      {
+        "text": "B項目は療養病棟の医療区分を判定するための項目である。",
+        "correct": false,
+        "reason": "療養病棟では医療区分・ADL区分が中心であり、B項目とは整理が異なります。"
+      }
+    ],
+    "explanation": "B項目は、患者の状況やADL、看護の手間をみる項目です。急性期病院A・Bと急性期一般入院料1では、B項目は評価するものの、該当患者基準には含まれません。",
+    "key": "B項目＝廃止ではない。評価するが基準外の場合あり"
+  },
+  {
+    "id": "severity-3",
+    "category": "重症度・医療看護必要度",
+    "title": "必要度の組み合わせ問題",
+    "question": "重症度、医療・看護必要度に関する記述として、正しいものを選ぶ組み合わせはどれか。\nア　A項目はモニタリングや処置等を評価する項目である。\nイ　B項目は患者の状況やADL、看護の手間に関係する項目である。\nウ　C項目は手術等の医学的状況に関係する項目である。",
+    "choices": [
+      {
+        "text": "ア・イ・ウ",
+        "correct": true,
+        "reason": "A・B・C項目の基本的な意味として3つとも正しいです。"
+      },
+      {
+        "text": "ア・イ",
+        "correct": false,
+        "reason": "ウも正しいです。C項目は手術等の医学的状況に関係します。"
+      },
+      {
+        "text": "ア・ウ",
+        "correct": false,
+        "reason": "イも正しいです。B項目は患者の状況やADL、看護の手間に関係します。"
+      },
+      {
+        "text": "イ・ウ",
+        "correct": false,
+        "reason": "アも正しいです。A項目はモニタリングや処置等を評価します。"
+      },
+      {
+        "text": "イのみ",
+        "correct": false,
+        "reason": "アとウも正しい記述です。"
+      }
+    ],
+    "explanation": "A項目はモニタリング及び処置等、B項目は患者の状況等、C項目は手術等の医学的状況として整理します。試験では、B項目が廃止ではない点と、どの入院料で基準に含むかが問われやすいです。",
+    "key": "A＝処置、B＝ADL・看護の手間、C＝手術等"
+  },
+  {
+    "id": "chiiki-iryo-1",
+    "category": "地域包括医療病棟",
+    "title": "地域包括医療病棟の基本",
+    "question": "地域包括医療病棟入院料について、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "看護配置は10対1で、平均在院日数は20日を原則とする。",
+        "correct": true,
+        "reason": "地域包括医療病棟の基本整理として正しいです。"
+      },
+      {
+        "text": "看護配置は13対1で、算定期間は60日を限度とする。",
+        "correct": false,
+        "reason": "これは地域包括ケア病棟の整理です。"
+      },
+      {
+        "text": "看護配置は7対1で、平均在院日数は16日以内である。",
+        "correct": false,
+        "reason": "これは急性期一般入院料1や急性期病院Aと混同しやすい組み合わせです。"
+      },
+      {
+        "text": "重症度、医療・看護必要度は不要である。",
+        "correct": false,
+        "reason": "地域包括医療病棟では、重症度、医療・看護必要度も重要です。"
+      },
+      {
+        "text": "主な役割は長期療養患者の受け皿である。",
+        "correct": false,
+        "reason": "地域包括医療病棟は高齢者救急・中等症急性疾患等の受け皿として整理します。"
+      }
+    ],
+    "explanation": "地域包括医療病棟は、高齢者救急や中等症急性疾患の受け皿です。看護配置は10対1、平均在院日数は20日を原則とし、85歳以上患者割合に応じて延長されます。",
+    "key": "地域包括医療＝10対1・原則20日"
+  },
+  {
+    "id": "chiiki-iryo-2",
+    "category": "地域包括医療病棟",
+    "title": "地域包括医療病棟の平均在院日数",
+    "question": "地域包括医療病棟の平均在院日数について、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "20日を原則とし、85歳以上の患者割合が2割以上で21日、4割以上で22日、6割以上で23日となる。",
+        "correct": true,
+        "reason": "高齢者特性に配慮した平均在院日数の調整として正しい整理です。"
+      },
+      {
+        "text": "一律21日以内であり、患者年齢による調整はない。",
+        "correct": false,
+        "reason": "令和8年度改定では、高齢者特性に配慮した調整があります。"
+      },
+      {
+        "text": "85歳以上の患者割合が4割以上の場合は60日以内となる。",
+        "correct": false,
+        "reason": "60日以内は地域包括ケア病棟です。4割以上の場合は22日です。"
+      },
+      {
+        "text": "85歳以上の患者割合が6割以上の場合は21日である。",
+        "correct": false,
+        "reason": "6割以上の場合は23日です。"
+      },
+      {
+        "text": "平均在院日数の要件は廃止された。",
+        "correct": false,
+        "reason": "廃止ではありません。原則20日を基準に調整されます。"
+      }
+    ],
+    "explanation": "地域包括医療病棟の平均在院日数は、20日を原則とし、85歳以上の患者割合が2割以上で21日、4割以上で22日、6割以上で23日となります。",
+    "key": "20日→2割で21日→4割で22日→6割で23日"
+  },
+  {
+    "id": "chiiki-iryo-3",
+    "category": "地域包括医療病棟",
+    "title": "地域包括医療病棟の90日超",
+    "question": "地域包括医療病棟入院料を算定する患者が90日を超えて入院する場合の取扱いとして、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "地域一般入院料3の例により算定する。",
+        "correct": true,
+        "reason": "地域包括医療病棟の90日超の取扱いとして正しいです。"
+      },
+      {
+        "text": "地域包括医療病棟入院料をそのまま算定し続ける。",
+        "correct": false,
+        "reason": "90日超では地域一般入院料3の例により算定します。"
+      },
+      {
+        "text": "地域包括ケア病棟入院料を自動的に算定する。",
+        "correct": false,
+        "reason": "地域包括ケア病棟の算定に自動的に切り替わるわけではありません。"
+      },
+      {
+        "text": "療養病棟入院基本料1を必ず算定する。",
+        "correct": false,
+        "reason": "地域包括医療病棟の90日超は地域一般入院料3の例です。"
+      },
+      {
+        "text": "特別入院基本料の例により算定する。",
+        "correct": false,
+        "reason": "特別入院基本料の例は、地域包括ケア病棟の60日超で混同しやすい取扱いです。"
+      }
+    ],
+    "explanation": "地域包括医療病棟では、90日を超えて入院する患者について、地域一般入院料3の例により算定します。地域包括ケア病棟の60日超とは区別が必要です。",
+    "key": "地域包括医療の90日超＝地域一般入院料3の例"
+  },
+  {
+    "id": "chiiki-care-1",
+    "category": "地域包括ケア病棟",
+    "title": "地域包括ケア病棟の基本",
+    "question": "地域包括ケア病棟入院料について、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "看護配置は13対1で、算定期間は入棟・入室から60日を限度とする。",
+        "correct": true,
+        "reason": "地域包括ケア病棟の基本整理として正しいです。"
+      },
+      {
+        "text": "看護配置は10対1で、平均在院日数は20日原則である。",
+        "correct": false,
+        "reason": "これは地域包括医療病棟の整理です。"
+      },
+      {
+        "text": "看護配置は7対1で、平均在院日数は16日以内である。",
+        "correct": false,
+        "reason": "これは急性期一般入院料1や急性期病院Aと混同しやすい組み合わせです。"
+      },
+      {
+        "text": "在宅復帰率は8割以上である。",
+        "correct": false,
+        "reason": "8割以上は急性期一般入院料1などで混同しやすい数値です。地域包括ケア病棟では72.5%以上を押さえます。"
+      },
+      {
+        "text": "主な役割は高度急性期手術の集積である。",
+        "correct": false,
+        "reason": "地域包括ケア病棟は在宅復帰支援、急性期後や在宅患者の受入が主な役割です。"
+      }
+    ],
+    "explanation": "地域包括ケア病棟は、急性期後の患者や在宅療養中の患者を受け入れ、在宅復帰を支援する病棟です。13対1、60日、在宅復帰率72.5%以上をセットで押さえます。",
+    "key": "地域包括ケア＝13対1・60日・72.5%"
+  },
+  {
+    "id": "chiiki-care-2",
+    "category": "地域包括ケア病棟",
+    "title": "地域包括ケア病棟の60日超",
+    "question": "地域包括ケア病棟入院料を算定している患者が、入棟後60日を超えて同じ病棟に入院する場合の取扱いとして、最も適切なものを1つ選べ。",
+    "choices": [
+      {
+        "text": "一般病棟の場合は特別入院基本料の例により算定する。",
+        "correct": true,
+        "reason": "地域包括ケア病棟の60日超の扱いとして正しいです。"
+      },
+      {
+        "text": "地域一般入院料3の例により算定する。",
+        "correct": false,
+        "reason": "これは地域包括医療病棟の90日超と混同しやすい取扱いです。"
+      },
+      {
+        "text": "地域包括ケア病棟入院料を継続して算定する。",
+        "correct": false,
+        "reason": "地域包括ケア病棟入院料は60日を限度として算定します。"
+      },
+      {
+        "text": "急性期病院B一般入院料を算定する。",
+        "correct": false,
+        "reason": "60日超で急性期病院B一般入院料へ自動的に切り替わるわけではありません。"
+      },
+      {
+        "text": "特定集中治療室管理料を算定する。",
+        "correct": false,
+        "reason": "ICUとは全く異なる取扱いです。"
+      }
+    ],
+    "explanation": "地域包括ケア病棟入院料は60日を限度として算定します。60日を超える場合、一般病棟型なら特別入院基本料の例、療養病棟型なら療養病棟入院基本料の例により算定します。",
+    "key": "地域包括ケアの60日超＝特別入院基本料等"
+  },
+  {
+    "id": "chiiki-care-3",
+    "category": "地域包括ケア病棟",
+    "title": "地域包括ケア病棟の役割",
+    "question": "地域包括ケア病棟の役割として、正しいものを選ぶ組み合わせはどれか。\nア　急性期治療後の患者を受け入れる。\nイ　在宅療養中の患者の急変時等を受け入れる。\nウ　長期療養患者を無期限に受け入れることを主目的とする。",
+    "choices": [
+      {
+        "text": "ア・イ",
+        "correct": true,
+        "reason": "地域包括ケア病棟のポストアキュート、サブアキュートの役割として正しいです。"
+      },
+      {
+        "text": "アのみ",
+        "correct": false,
+        "reason": "イも正しいです。在宅療養中の患者の急変時等の受入も重要です。"
+      },
+      {
+        "text": "イのみ",
+        "correct": false,
+        "reason": "アも正しいです。急性期治療後の患者受入も重要です。"
+      },
+      {
+        "text": "ア・ウ",
+        "correct": false,
+        "reason": "ウが誤りです。地域包括ケア病棟は長期療養を無期限に担う病棟ではありません。"
+      },
+      {
+        "text": "ア・イ・ウ",
+        "correct": false,
+        "reason": "ウが誤りです。60日を限度とする算定期間にも注意が必要です。"
+      }
+    ],
+    "explanation": "地域包括ケア病棟は、急性期後の受け皿であるポストアキュート機能と、在宅患者の急変時等を受け入れるサブアキュート機能を持ちます。長期療養を無期限に担う病棟ではありません。",
+    "key": "地域包括ケア＝在宅復帰支援、60日限度"
+  },
+  {
+    "id": "rehab-1",
+    "category": "回復期リハ病棟",
+    "title": "回復期リハ病棟入院料1",
+    "question": "回復期リハビリテーション病棟入院料1の主な施設基準の組み合わせとして、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "看護職員13対1以上、専従常勤PT3名以上・OT2名以上・ST1名以上、重症患者割合3割5分以上、実績指数42以上",
+        "correct": true,
+        "reason": "回復期リハ病棟入院料1の主な施設基準として正しい組み合わせです。"
+      },
+      {
+        "text": "看護職員10対1以上、専従常勤PT2名以上・OT1名以上、重症患者割合2割5分以上、実績指数32以上",
+        "correct": false,
+        "reason": "看護配置、リハ専門職配置、重症患者割合、実績指数のいずれも入院料1の整理と異なります。"
+      },
+      {
+        "text": "看護職員15対1以上、専従常勤PT1名以上・OT1名以上、重症患者割合不要、実績指数不要",
+        "correct": false,
+        "reason": "入院料1では、13対1、PT3名・OT2名・ST1名、重症患者割合、実績指数が重要です。"
+      },
+      {
+        "text": "看護職員13対1以上、専従常勤PT2名以上・OT1名以上、重症患者割合3割5分以上、実績指数32以上",
+        "correct": false,
+        "reason": "PT/OT/ST配置と実績指数が入院料1の基準と異なります。"
+      },
+      {
+        "text": "看護職員20対1以上、医療区分2・3該当患者割合8割以上、実績指数42以上",
+        "correct": false,
+        "reason": "20対1や医療区分は療養病棟と混同しやすい内容です。"
+      }
+    ],
+    "explanation": "回復期リハビリテーション病棟入院料1では、看護職員13対1以上、専従常勤PT3名以上・OT2名以上・ST1名以上、重症患者割合3割5分以上、リハビリテーション実績指数42以上が重要です。",
+    "key": "回リハ1＝13対1・PT3/OT2/ST1・重症35%・実績42"
+  },
+  {
+    "id": "rehab-2",
+    "category": "回復期リハ病棟",
+    "title": "回復期リハ病棟の実績指数",
+    "question": "回復期リハビリテーション病棟入院料1から4におけるリハビリテーション実績指数の組み合わせとして、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "入院料1：42以上、入院料2：32以上、入院料3：37以上、入院料4：32以上",
+        "correct": true,
+        "reason": "令和8年度改定資料の整理に合う組み合わせです。"
+      },
+      {
+        "text": "入院料1：32以上、入院料2：42以上、入院料3：32以上、入院料4：37以上",
+        "correct": false,
+        "reason": "入院料1と2、3と4の数値が入れ替わっています。"
+      },
+      {
+        "text": "入院料1：40以上、入院料2：35以上、入院料3：30以上、入院料4：25以上",
+        "correct": false,
+        "reason": "この組み合わせではありません。入院料1は42以上です。"
+      },
+      {
+        "text": "入院料1から4まで、すべて37以上である。",
+        "correct": false,
+        "reason": "入院料ごとに異なります。1は42以上、2は32以上、3は37以上、4は32以上です。"
+      },
+      {
+        "text": "入院料1から4まで、すべて実績指数は不要である。",
+        "correct": false,
+        "reason": "実績指数は回復期リハ病棟で重要なアウトカム指標です。"
+      }
+    ],
+    "explanation": "回復期リハビリテーション病棟では、在宅復帰やADL改善を評価するため、実績指数が重要です。入院料1は42以上、2は32以上、3は37以上、4は32以上と整理します。",
+    "key": "実績指数＝1は42、2は32、3は37、4は32"
+  },
+  {
+    "id": "rehab-3",
+    "category": "回復期リハ病棟",
+    "title": "回復期リハ病棟の評価軸",
+    "question": "回復期リハビリテーション病棟入院料について、最も適切なものを1つ選べ。",
+    "choices": [
+      {
+        "text": "在宅復帰、ADL改善、FIM、リハビリテーション実績指数が重要である。",
+        "correct": true,
+        "reason": "回復期リハ病棟の評価軸として適切です。"
+      },
+      {
+        "text": "救急搬送2,000件以上と全身麻酔手術1,200件以上が中心的な要件である。",
+        "correct": false,
+        "reason": "これは急性期病院Aの病院機能要件です。"
+      },
+      {
+        "text": "地域一般入院料3の例により90日超を算定することが中心論点である。",
+        "correct": false,
+        "reason": "これは地域包括医療病棟の90日超の取扱いです。"
+      },
+      {
+        "text": "医療区分・ADL区分により長期療養患者を評価する。",
+        "correct": false,
+        "reason": "これは療養病棟の評価軸です。"
+      },
+      {
+        "text": "重症度、医療・看護必要度のA項目・C項目で該当患者を判定する。",
+        "correct": false,
+        "reason": "回復期リハ病棟は急性期一般入院料1とは評価軸が異なります。"
+      }
+    ],
+    "explanation": "回復期リハビリテーション病棟では、急性期治療後の患者に対してリハビリを行い、ADL改善と在宅復帰を目指します。FIMやリハビリテーション実績指数が重要です。",
+    "key": "回リハ＝FIM・実績指数・在宅復帰"
+  },
+  {
+    "id": "chronic-icu-1",
+    "category": "療養・ICU",
+    "title": "療養病棟入院基本料",
+    "question": "療養病棟入院基本料について、最も適切なものを1つ選べ。",
+    "choices": [
+      {
+        "text": "医療区分やADL区分が評価上重要である。",
+        "correct": true,
+        "reason": "療養病棟の中心的な評価軸です。"
+      },
+      {
+        "text": "看護配置は2対1である。",
+        "correct": false,
+        "reason": "2対1はICUで混同しやすい看護配置です。"
+      },
+      {
+        "text": "平均在院日数は16日以内である。",
+        "correct": false,
+        "reason": "16日以内は急性期一般入院料1や急性期病院Aで重要です。"
+      },
+      {
+        "text": "在宅復帰率72.5%以上が中心的な施設基準である。",
+        "correct": false,
+        "reason": "72.5%以上は地域包括ケア病棟と混同しやすい数値です。"
+      },
+      {
+        "text": "救急搬送や全身麻酔手術の実績を中心に評価する。",
+        "correct": false,
+        "reason": "これは急性期・高度急性期側の評価です。"
+      }
+    ],
+    "explanation": "療養病棟は慢性期・長期療養の病棟であり、急性期一般のような平均在院日数や重症度、医療・看護必要度よりも、医療区分・ADL区分が重要です。",
+    "key": "療養＝医療区分・ADL区分"
+  },
+  {
+    "id": "chronic-icu-2",
+    "category": "療養・ICU",
+    "title": "ICUの評価",
+    "question": "特定集中治療室管理料等の令和8年度改定の方向性として、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "救急搬送や全身麻酔に係る一定の病院実績が要件化される。",
+        "correct": true,
+        "reason": "ICU等の見直しの方向性として正しいです。"
+      },
+      {
+        "text": "在宅復帰率72.5%以上が中心的な要件となる。",
+        "correct": false,
+        "reason": "72.5%以上は地域包括ケア病棟と混同しやすい数値です。"
+      },
+      {
+        "text": "看護配置は20対1である。",
+        "correct": false,
+        "reason": "20対1は療養病棟の整理です。ICUはより手厚い配置です。"
+      },
+      {
+        "text": "FIM改善と実績指数42以上が中心的な要件となる。",
+        "correct": false,
+        "reason": "これは回復期リハビリテーション病棟の論点です。"
+      },
+      {
+        "text": "地域一般入院料3の例により90日超を算定する。",
+        "correct": false,
+        "reason": "これは地域包括医療病棟の90日超の取扱いです。"
+      }
+    ],
+    "explanation": "特定集中治療室管理料等では、救急搬送や全身麻酔に係る一定の病院実績が要件化される方向です。高度急性期機能を病院単位でも評価する流れの一部です。",
+    "key": "ICU＝超重症・救急・全麻実績"
+  },
+  {
+    "id": "chronic-icu-3",
+    "category": "療養・ICU",
+    "title": "療養病棟とICUの比較",
+    "question": "療養病棟入院基本料と特定集中治療室管理料の説明として、正しいものを選ぶ組み合わせはどれか。\nア　療養病棟では医療区分・ADL区分が重要である。\nイ　ICUでは救急搬送や全身麻酔に係る病院実績が重視される。\nウ　療養病棟とICUはいずれも在宅復帰率72.5%以上が中心的要件である。",
+    "choices": [
+      {
+        "text": "ア・イ",
+        "correct": true,
+        "reason": "アとイが正しく、ウは誤りです。"
+      },
+      {
+        "text": "アのみ",
+        "correct": false,
+        "reason": "イも正しいです。ICU等では救急搬送や全身麻酔の実績が重視されます。"
+      },
+      {
+        "text": "イのみ",
+        "correct": false,
+        "reason": "アも正しいです。療養病棟では医療区分・ADL区分が重要です。"
+      },
+      {
+        "text": "ア・ウ",
+        "correct": false,
+        "reason": "ウが誤りです。72.5%以上は地域包括ケア病棟と混同しやすい数値です。"
+      },
+      {
+        "text": "ア・イ・ウ",
+        "correct": false,
+        "reason": "ウが誤りです。療養病棟とICUを地域包括ケア病棟の在宅復帰率と混同しないよう注意します。"
+      }
+    ],
+    "explanation": "療養病棟では医療区分・ADL区分が重要です。一方、ICU等では救急搬送や全身麻酔に係る病院実績が重視される方向です。72.5%以上は地域包括ケア病棟の在宅復帰率で混同しやすい数値です。",
+    "key": "療養＝慢性期、ICU＝高度急性期"
+  },
+  {
+    "id": "team-nursing-1",
+    "category": "看護・多職種協働加算",
+    "title": "看護・多職種協働加算の対象入院料",
+    "question": "看護・多職種協働加算を算定できる入院料の組み合わせとして、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "急性期一般入院料4、急性期病院B一般入院料",
+        "correct": true,
+        "reason": "看護・多職種協働加算は、急性期一般入院料4と急性期病院B一般入院料を対象として整理します。"
+      },
+      {
+        "text": "急性期病院A一般入院料、急性期一般入院料1",
+        "correct": false,
+        "reason": "高度急性期寄りの入院料だから対象になるという整理ではありません。対象は急性期一般入院料4と急性期病院B一般入院料です。"
+      },
+      {
+        "text": "地域包括医療病棟入院料、地域包括ケア病棟入院料",
+        "correct": false,
+        "reason": "地域包括医療病棟や地域包括ケア病棟の加算として整理するものではありません。"
+      },
+      {
+        "text": "回復期リハビリテーション病棟入院料1、療養病棟入院基本料1",
+        "correct": false,
+        "reason": "回復期リハ病棟や療養病棟ではなく、急性期系の特定の入院料に組み合わせる加算です。"
+      },
+      {
+        "text": "急性期一般入院料1、急性期一般入院料2、急性期一般入院料3",
+        "correct": false,
+        "reason": "急性期一般入院料の1〜3で算定するという整理ではありません。急性期一般入院料4が対象です。"
+      }
+    ],
+    "explanation": "看護・多職種協働加算は、急性期一般入院料4と急性期病院B一般入院料に組み合わせる加算として押さえます。地域急性期寄りの病棟で多職種が協働する体制を評価する点が重要です。",
+    "key": "看護・多職種協働加算＝急性期一般4＋急性期病院B"
+  },
+  {
+    "id": "team-nursing-2",
+    "category": "看護・多職種協働加算",
+    "title": "看護・多職種協働加算の性格",
+    "question": "看護・多職種協働加算について、最も適切なものを1つ選べ。",
+    "choices": [
+      {
+        "text": "入院料そのものの必須要件ではなく、所定の体制を満たして届け出た場合に算定する加算である。",
+        "correct": true,
+        "reason": "看護・多職種協働加算は、入院料本体の必須要件ではなく、体制を評価する加算として整理します。"
+      },
+      {
+        "text": "急性期病院B一般入院料を算定するために、必ず届出が必要な入院料本体の要件である。",
+        "correct": false,
+        "reason": "急性期病院B一般入院料と組み合わせることはできますが、入院料本体の必須要件そのものではありません。"
+      },
+      {
+        "text": "急性期病院A一般入院料の高度急性期機能を評価するための専用加算である。",
+        "correct": false,
+        "reason": "急性期病院Aではなく、急性期病院Bや急性期一般入院料4と関連する加算です。"
+      },
+      {
+        "text": "地域包括ケア病棟の在宅復帰支援を評価する加算である。",
+        "correct": false,
+        "reason": "地域包括ケア病棟の在宅復帰支援ではなく、急性期系の特定入院料における多職種協働体制を評価する加算です。"
+      },
+      {
+        "text": "回復期リハ病棟のFIM改善を直接評価するアウトカム加算である。",
+        "correct": false,
+        "reason": "FIM改善や実績指数は回復期リハ病棟の論点です。看護・多職種協働加算とは別に整理します。"
+      }
+    ],
+    "explanation": "看護・多職種協働加算は、急性期一般入院料4や急性期病院B一般入院料において、看護職員を含む多職種が病棟で協働する体制を評価する加算です。入院料本体の必須要件と混同しないことが重要です。",
+    "key": "本体要件ではなく、多職種協働体制を評価する加算"
+  },
+  {
+    "id": "team-nursing-3",
+    "category": "看護・多職種協働加算",
+    "title": "看護・多職種協働加算の施設基準",
+    "question": "看護・多職種協働加算の施設基準に関する記述として、正しいものを選ぶ組み合わせはどれか。\nア　看護職員を含む多職種が協働して専門的な指導や診療の補助を行う体制を評価する。\nイ　病棟の入院患者25人又はその端数を増すごとに、看護職員及び他の医療職種の数が常時1以上であることが示されている。\nウ　急性期一般入院料1と同等の平均在院日数や在宅復帰率等の基準も関係する。",
+    "choices": [
+      {
+        "text": "ア・イ・ウ",
+        "correct": true,
+        "reason": "3つとも正しい記述です。体制評価、25対1、多職種協働、急性期一般1相当の基準をまとめて押さえます。"
+      },
+      {
+        "text": "ア・イ",
+        "correct": false,
+        "reason": "ウも正しいです。平均在院日数、在宅復帰率、常勤医師数なども急性期一般入院料1と同等の基準が関係します。"
+      },
+      {
+        "text": "ア・ウ",
+        "correct": false,
+        "reason": "イも正しいです。25人又はその端数を増すごとに1以上という配置が示されています。"
+      },
+      {
+        "text": "イ・ウ",
+        "correct": false,
+        "reason": "アも正しいです。多職種協働による専門的な指導や診療補助の体制を評価します。"
+      },
+      {
+        "text": "アのみ",
+        "correct": false,
+        "reason": "イとウも正しい記述です。"
+      }
+    ],
+    "explanation": "看護・多職種協働加算では、看護職員を含む多職種が協働する体制、25対1以上の配置、急性期一般入院料1と同等の平均在院日数・在宅復帰率等の基準が重要です。",
+    "key": "25対1＋多職種協働＋急性期一般1相当の基準"
+  },
+  {
+    "id": "comparison-1",
+    "category": "総合比較",
+    "title": "入院料と施設要件の比較",
+    "question": "入院料と施設要件の組み合わせとして、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "地域包括医療病棟 ― 10対1、平均在院日数20日原則",
+        "correct": true,
+        "reason": "地域包括医療病棟の基本整理として正しい組み合わせです。"
+      },
+      {
+        "text": "急性期病院A一般入院料 ― 10対1、21日以内",
+        "correct": false,
+        "reason": "これは急性期病院Bの整理です。Aは7対1・16日以内です。"
+      },
+      {
+        "text": "急性期病院B一般入院料 ― 7対1、16日以内",
+        "correct": false,
+        "reason": "これは急性期病院Aの整理です。Bは10対1・21日以内です。"
+      },
+      {
+        "text": "地域包括ケア病棟 ― 7対1、16日以内",
+        "correct": false,
+        "reason": "地域包括ケア病棟は13対1・60日が重要です。"
+      },
+      {
+        "text": "療養病棟 ― 13対1、60日以内",
+        "correct": false,
+        "reason": "13対1・60日以内は地域包括ケア病棟と混同しやすい組み合わせです。"
+      }
+    ],
+    "explanation": "地域包括医療病棟は10対1、平均在院日数20日原則です。急性期病院Aは7対1・16日以内、急性期病院Bは10対1・21日以内、地域包括ケア病棟は13対1・60日です。",
+    "key": "A・B・地域包括医療・地域包括ケアを数字で区別"
+  },
+  {
+    "id": "comparison-2",
+    "category": "総合比較",
+    "title": "入院料と役割",
+    "question": "入院料と主な役割の組み合わせとして、正しいものを1つ選べ。",
+    "choices": [
+      {
+        "text": "地域包括医療病棟 ― 高齢者救急・中等症急性疾患",
+        "correct": true,
+        "reason": "地域包括医療病棟の役割として適切です。"
+      },
+      {
+        "text": "急性期病院A一般入院料 ― 長期療養",
+        "correct": false,
+        "reason": "急性期病院Aは高度急性期寄りの評価です。長期療養は療養病棟の役割です。"
+      },
+      {
+        "text": "回復期リハビリテーション病棟 ― 超急性期集中治療",
+        "correct": false,
+        "reason": "回復期リハ病棟はADL改善・在宅復帰を目指す病棟です。"
+      },
+      {
+        "text": "療養病棟 ― 高度急性期手術",
+        "correct": false,
+        "reason": "療養病棟は慢性期・長期療養の病棟です。"
+      },
+      {
+        "text": "地域包括ケア病棟 ― 三次救急中心",
+        "correct": false,
+        "reason": "地域包括ケア病棟は在宅復帰支援が中心です。三次救急中心ではありません。"
+      }
+    ],
+    "explanation": "地域包括医療病棟は、高齢者救急や中等症急性疾患の受け皿です。急性期病院Aは高度急性期、回復期リハはADL改善・在宅復帰、療養病棟は長期療養です。",
+    "key": "役割で区別：急性期・包括期・回復期・慢性期"
+  },
+  {
+    "id": "comparison-3",
+    "category": "総合比較",
+    "title": "頻出数値の総合問題",
+    "question": "次の記述のうち、正しいものを選ぶ組み合わせはどれか。\nア　急性期病院A一般入院料は7対1・16日以内である。\nイ　地域包括医療病棟は10対1・平均在院日数20日原則である。\nウ　地域包括ケア病棟は13対1・60日を限度として算定する。",
+    "choices": [
+      {
+        "text": "ア・イ・ウ",
+        "correct": true,
+        "reason": "3つとも正しい記述です。頻出数値の整理として重要です。"
+      },
+      {
+        "text": "アのみ",
+        "correct": false,
+        "reason": "イとウも正しい記述です。"
+      },
+      {
+        "text": "イのみ",
+        "correct": false,
+        "reason": "アとウも正しい記述です。"
+      },
+      {
+        "text": "ア・イ",
+        "correct": false,
+        "reason": "ウも正しいです。地域包括ケア病棟は13対1・60日が重要です。"
+      },
+      {
+        "text": "イ・ウ",
+        "correct": false,
+        "reason": "アも正しいです。急性期病院Aは7対1・16日以内です。"
+      }
+    ],
+    "explanation": "急性期病院Aは7対1・16日以内、地域包括医療病棟は10対1・20日原則、地域包括ケア病棟は13対1・60日です。近い数値を入れ替えた選択肢に注意します。",
+    "key": "A＝7/16、包括医療＝10/20、包括ケア＝13/60"
+  }
+];
+    const QUESTIONS_PER_SESSION = 10;
+
+    let sessionQuestions = [];
+    let current = 0;
+    let selected = null;
+    let checked = false;
+    let results = {};
+
+    const el = (id) => document.getElementById(id);
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function groupByCategory(pool) {
+      return pool.reduce((acc, q) => {
+        if (!acc[q.category]) acc[q.category] = [];
+        acc[q.category].push(q);
+        return acc;
+      }, {});
+    }
+
+    function pickBalancedQuestions() {
+      const groups = groupByCategory(QUESTION_POOL);
+      const categories = shuffle(Object.keys(groups));
+      const picked = [];
+      categories.forEach(cat => {
+        if (picked.length >= QUESTIONS_PER_SESSION) return;
+        picked.push(shuffle(groups[cat])[0]);
+      });
+      const rest = shuffle(QUESTION_POOL.filter(q => !picked.some(p => p.id === q.id)));
+      rest.forEach(q => {
+        if (picked.length < QUESTIONS_PER_SESSION) picked.push(q);
+      });
+      return picked;
+    }
+
+    function orderWithoutAdjacentCategories(questions) {
+      const rest = shuffle(questions);
+      const ordered = [];
+      while (rest.length) {
+        const prev = ordered.length ? ordered[ordered.length - 1].category : null;
+        let idx = rest.findIndex(q => q.category !== prev);
+        if (idx < 0) idx = 0;
+        ordered.push(rest.splice(idx, 1)[0]);
+      }
+      return ordered;
+    }
+
+    function createSessionQuestions() {
+      return orderWithoutAdjacentCategories(pickBalancedQuestions()).map(q => {
+        return { ...q, choices: shuffle(q.choices) };
+      });
+    }
+
+    function resultFor(q) { return results[q.id]; }
+    function answeredCount() { return Object.keys(results).length; }
+    function correctCount() { return Object.values(results).filter(r => r.isCorrect).length; }
+    function wrongCount() { return answeredCount() - correctCount(); }
+
+    function scrollToQuestion() {
+      setTimeout(() => el('questionCard').scrollIntoView({ behavior: 'smooth', block: 'start' }), 20);
+    }
+
+    function render() {
+      const q = sessionQuestions[current];
+      const existing = resultFor(q);
+      if (existing) {
+        checked = true;
+        selected = q.choices.findIndex(c => c.text === existing.selectedText);
+      }
+      el('qnum').textContent = `問題 ${current + 1} / ${sessionQuestions.length}`;
+      el('qtitle').textContent = q.title;
+      el('qcat').textContent = q.category;
+      el('qtext').textContent = q.question;
+      el('choices').innerHTML = '';
+
+      q.choices.forEach((choice, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice';
+        if (selected === index && !checked) btn.classList.add('selected');
+        if (checked && choice.correct) btn.classList.add('correct');
+        if (checked && selected === index && !choice.correct) btn.classList.add('wrong');
+        btn.innerHTML = `<span class="mark">${index + 1}</span><span>${escapeHtml(choice.text)}</span><span class="result-mark">${checked && choice.correct ? '○' : checked && selected === index && !choice.correct ? '×' : ''}</span>`;
+        btn.addEventListener('click', () => {
+          if (checked) return;
+          selected = index;
+          render();
+        });
+        el('choices').appendChild(btn);
+      });
+
+      renderFeedback();
+      renderSide();
+      el('answerBtn').style.display = checked ? 'none' : 'inline-block';
+      el('answerBtn').disabled = selected === null;
+      el('nextBtn').style.display = checked ? 'inline-block' : 'none';
+      el('nextBtn').disabled = current === sessionQuestions.length - 1;
+    }
+
+    function renderFeedback() {
+      const q = sessionQuestions[current];
+      const fb = el('feedback');
+      fb.innerHTML = '';
+      if (!checked) return;
+      const selectedChoice = q.choices[selected];
+      const correctChoice = q.choices.find(c => c.correct);
+      const ok = Boolean(selectedChoice && selectedChoice.correct);
+      const box = document.createElement('div');
+      box.className = `explain ${ok ? 'ok' : 'ng'}`;
+      let detail = '';
+      if (ok) {
+        detail = `<div class="reason-box"><strong>選んだ答え：</strong>${escapeHtml(selectedChoice.text)}</div>`;
+      } else {
+        detail = `<div class="reason-box">
+          <div><strong>選んだ答え：</strong>${escapeHtml(selectedChoice ? selectedChoice.text : '')}</div>
+          <div><strong>誤答の理由：</strong>${escapeHtml(selectedChoice ? selectedChoice.reason : '')}</div>
+          <div><strong>正しい答え：</strong>${escapeHtml(correctChoice.text)}</div>
+        </div>`;
+      }
+      box.innerHTML = `<h3>${ok ? '正解です' : '不正解です'}</h3>${detail}<p>${escapeHtml(q.explanation)}</p><div class="key">覚え方：${escapeHtml(q.key)}</div>`;
+      fb.appendChild(box);
+    }
+
+    function renderSide() {
+      const ac = answeredCount();
+      const cc = correctCount();
+      const wc = wrongCount();
+      el('okCount').textContent = cc;
+      el('ngCount').textContent = wc;
+      el('summary').textContent = ac === 0 ? 'まだ解答していません' : `${ac}問中 正答${cc}問・誤答${wc}問`;
+      el('bar').style.width = `${Math.round((ac / sessionQuestions.length) * 100)}%`;
+
+      el('nav').innerHTML = '';
+      sessionQuestions.forEach((q, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'navbtn';
+        if (index === current) btn.classList.add('current');
+        const r = resultFor(q);
+        if (r && r.isCorrect) btn.classList.add('ok');
+        if (r && !r.isCorrect) btn.classList.add('ng');
+        btn.textContent = index + 1;
+        btn.addEventListener('click', () => {
+          current = index;
+          const existing = resultFor(sessionQuestions[current]);
+          checked = Boolean(existing);
+          selected = existing ? sessionQuestions[current].choices.findIndex(c => c.text === existing.selectedText) : null;
+          render();
+          scrollToQuestion();
+        });
+        el('nav').appendChild(btn);
+      });
+
+      const mistakes = sessionQuestions.filter(q => resultFor(q) && !resultFor(q).isCorrect);
+      if (mistakes.length === 0) {
+        el('mistakes').innerHTML = 'まだ誤答はありません。';
+      } else {
+        el('mistakes').innerHTML = '';
+        mistakes.forEach(q => {
+          const r = resultFor(q);
+          const index = sessionQuestions.findIndex(x => x.id === q.id);
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'mistake';
+          btn.innerHTML = `<strong>問題${index + 1}：${escapeHtml(q.title)}</strong><br><span class="mini">${escapeHtml(q.category)}</span><br><span>選択：${escapeHtml(r.selectedText)}</span><br><span>正解：${escapeHtml(r.correctText)}</span>`;
+          btn.addEventListener('click', () => {
+            current = index;
+            checked = true;
+            selected = sessionQuestions[current].choices.findIndex(c => c.text === r.selectedText);
+            render();
+            scrollToQuestion();
+          });
+          el('mistakes').appendChild(btn);
+        });
+      }
+
+      const done = ac === sessionQuestions.length;
+      el('finishBox').style.display = done ? 'block' : 'none';
+      if (done) el('finishText').textContent = `10問中、正答${cc}問・誤答${wc}問でした。新しい10問で再挑戦できます。`;
+    }
+
+    function checkAnswer() {
+      const q = sessionQuestions[current];
+      if (selected === null || checked) return;
+      const picked = q.choices[selected];
+      const correct = q.choices.find(c => c.correct);
+      checked = true;
+      results[q.id] = {
+        isCorrect: picked.correct,
+        selectedText: picked.text,
+        correctText: correct.text,
+        category: q.category,
+        title: q.title
+      };
+      render();
+    }
+
+    function nextQuestion() {
+      if (current >= sessionQuestions.length - 1) return;
+      current += 1;
+      const existing = resultFor(sessionQuestions[current]);
+      checked = Boolean(existing);
+      selected = existing ? sessionQuestions[current].choices.findIndex(c => c.text === existing.selectedText) : null;
+      render();
+      scrollToQuestion();
+    }
+
+    function resetQuiz() {
+      sessionQuestions = createSessionQuestions();
+      current = 0;
+      selected = null;
+      checked = false;
+      results = {};
+      render();
+      scrollToQuestion();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    el('answerBtn').addEventListener('click', checkAnswer);
+    el('nextBtn').addEventListener('click', nextQuestion);
+    el('resetBtn').addEventListener('click', resetQuiz);
+    el('againBtn').addEventListener('click', resetQuiz);
+
+    resetQuiz();
+  </script>
+</body>
+</html>

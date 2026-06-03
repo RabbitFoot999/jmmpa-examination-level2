@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>かかりつけ医機能関連診療報酬 実践問題</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #111827;
+      --card: #182235;
+      --card2: #202b40;
+      --text: #e5e7eb;
+      --muted: #a7b0c0;
+      --line: #334155;
+      --line2: #475569;
+      --accent: #38bdf8;
+      --accent2: #0ea5e9;
+      --good: #86efac;
+      --good-bg: rgba(22, 101, 52, .24);
+      --bad: #fca5a5;
+      --bad-bg: rgba(127, 29, 29, .28);
+      --warn: #fde68a;
+      --shadow: rgba(0, 0, 0, .36);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, .18), transparent 32rem),
+        linear-gradient(180deg, #0b1120 0%, var(--bg) 45%, #0b1120 100%);
+      color: var(--text);
+      line-height: 1.75;
+      -webkit-text-size-adjust: 100%;
+    }
+    header {
+      padding: 28px 18px 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, .2);
+    }
+    .header-inner, main, footer {
+      width: min(920px, 100%);
+      margin: 0 auto;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.35rem, 5.2vw, 2.05rem);
+      line-height: 1.35;
+      letter-spacing: .03em;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: .96rem;
+    }
+    main {
+      padding: 16px;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+    .panel, .question-card, .result-card {
+      background: color-mix(in srgb, var(--card) 92%, black);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 16px 34px var(--shadow);
+    }
+    .panel {
+      padding: 16px;
+      margin: 0 0 14px;
+    }
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, .12);
+      border: 1px solid rgba(56, 189, 248, .28);
+      color: #bae6fd;
+      font-weight: 800;
+      font-size: .88rem;
+    }
+    .lead {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: .94rem;
+    }
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform .08s ease, background .2s ease, opacity .2s ease, border-color .2s ease;
+      touch-action: manipulation;
+    }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .primary-btn, .secondary-btn {
+      min-height: 46px;
+      padding: 11px 18px;
+    }
+    .primary-btn {
+      color: #082f49;
+      background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+    }
+    .secondary-btn {
+      color: var(--text);
+      background: rgba(148, 163, 184, .13);
+      border: 1px solid var(--line2);
+    }
+    .question-card {
+      padding: 17px;
+      margin: 14px 0;
+    }
+    .q-head {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .q-num {
+      flex: 0 0 auto;
+      min-width: 54px;
+      height: 34px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(56, 189, 248, .16);
+      border: 1px solid rgba(56, 189, 248, .35);
+      color: #bae6fd;
+      font-weight: 900;
+      font-size: .9rem;
+    }
+    .q-title {
+      font-weight: 900;
+      font-size: clamp(1.02rem, 4vw, 1.18rem);
+      line-height: 1.65;
+    }
+    .statements {
+      margin: 12px 0;
+      padding: 12px 13px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, .58);
+      border: 1px solid var(--line);
+      color: #dbeafe;
+      font-size: .95rem;
+    }
+    .statements div { margin: 4px 0; }
+    .choices {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .choice {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      width: 100%;
+      min-height: 54px;
+      text-align: left;
+      align-items: flex-start;
+      color: var(--text);
+      background: rgba(30, 41, 59, .72);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 13px 14px;
+      line-height: 1.65;
+    }
+    .choice.selected {
+      background: rgba(14, 165, 233, .16);
+      border-color: rgba(125, 211, 252, .75);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, .10);
+    }
+    .choice.correct {
+      background: var(--good-bg);
+      border-color: rgba(134, 239, 172, .72);
+      color: #dcfce7;
+    }
+    .choice.wrong {
+      background: var(--bad-bg);
+      border-color: rgba(252, 165, 165, .72);
+      color: #fee2e2;
+    }
+    .choice.disabled { cursor: default; }
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    .actions button { flex: 0 1 auto; }
+    .explanation {
+      display: none;
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 15px;
+      background: rgba(15, 23, 42, .7);
+      border: 1px solid var(--line);
+      color: #dbeafe;
+    }
+    .explanation .ok { color: var(--good); font-weight: 900; }
+    .explanation .ng { color: var(--bad); font-weight: 900; }
+    .why-wrong {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(127, 29, 29, .23);
+      border: 1px solid rgba(252, 165, 165, .34);
+      color: #fecaca;
+    }
+    .point {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px dashed var(--line2);
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .result-card {
+      display: none;
+      padding: 18px;
+      margin: 14px 0;
+      text-align: center;
+    }
+    .result-card h2 { margin: 0 0 8px; }
+    .review {
+      text-align: left;
+      display: grid;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .review-item {
+      padding: 11px 12px;
+      border-radius: 13px;
+      background: rgba(15, 23, 42, .56);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    footer {
+      padding: 0 16px 30px;
+      color: #7c8799;
+      font-size: .84rem;
+    }
+    @media (max-width: 640px) {
+      header { padding-top: 22px; }
+      main { padding-inline: 12px; }
+      .panel, .question-card, .result-card { border-radius: 16px; }
+      .status { align-items: stretch; }
+      .status .secondary-btn { width: 100%; }
+      .actions { display: grid; grid-template-columns: 1fr; }
+      .actions button { width: 100%; }
+      .choice { font-size: .98rem; padding: 13px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>かかりつけ医機能関連診療報酬 実践問題</h1>
+      <p class="subtitle">機能強化加算、地域包括診療料・地域包括診療加算、生活習慣病管理料、特定疾患療養管理料を中心に、2026年度診療報酬改定における外来医療の機能分化・強化を確認します。</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="status">
+        <div class="badges">
+          <span class="badge" id="progressBadge">1 / 10 問</span>
+          <span class="badge" id="scoreBadge">正答 0 問</span>
+        </div>
+        <button class="secondary-btn" type="button" onclick="startQuiz()">最初からランダム出題</button>
+      </div>
+      <p class="lead">問題は1問ずつ表示されます。選択肢を1つ選び、「回答」ボタンを押すと正誤判定と解説が表示されます。各カテゴリ3問のプールから毎回ランダムに出題します。</p>
+    </section>
+
+    <section id="quiz"></section>
+
+    <section class="result-card" id="resultBox">
+      <h2 id="resultTitle">結果</h2>
+      <p id="resultMessage"></p>
+      <div class="review" id="reviewBox"></div>
+      <button class="primary-btn" type="button" onclick="startQuiz()">もう一度ランダム出題する</button>
+    </section>
+  </main>
+
+  <footer>
+    ※ 学習用の実践問題です。令和8年度診療報酬改定の概要資料等に基づいて作成していますが、正式な算定要件・施設基準は告示・通知等で確認してください。
+  </footer>
+
+<script>
+const categories = [
+  {
+    id: "kinou",
+    items: [
+      {
+        question: "機能強化加算について、適切でないものを1つ選べ。",
+        choices: [
+          { text: "初診料に対する加算である。", correct: false, reason: "これは正しい記述です。機能強化加算は、かかりつけ医機能を有する医療機関での初診を評価する加算です。" },
+          { text: "地域において包括的な診療を担う医療機関であることを示すため、院内掲示や情報提供が求められる。", correct: false, reason: "これは正しい記述です。患者が医療機関の役割を確認できるようにする趣旨があります。" },
+          { text: "2026年度改定では、業務継続計画に関する要件が追加されている。", correct: false, reason: "これは正しい記述です。BCPは2026年度改定で押さえるべき論点です。" },
+          { text: "再診料に対する加算として、慢性疾患患者の継続管理を毎月評価する。", correct: true, reason: "機能強化加算は再診料ではなく初診料への加算です。慢性疾患の毎月の継続管理そのものは、地域包括診療料や生活習慣病管理料等と整理します。" },
+          { text: "かかりつけ医機能を担う医療機関を評価する診療報酬である。", correct: false, reason: "これは正しい記述です。外来におけるかかりつけ医機能の評価として整理します。" }
+        ],
+        explanation: "機能強化加算は、地域で包括的な診療を担う医療機関の初診を評価する加算です。2026年度改定では、BCPに関する要件も外来機能の安定的提供という文脈で問われやすくなります。",
+        point: "初診料への加算、情報提供、BCP要件をセットで整理します。"
+      },
+      {
+        question: "機能強化加算に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　かかりつけ医機能を有する医療機関での初診を評価する。",
+          "イ　地域包括診療加算等との関係に加え、地域で継続的に診療を担う体制が問われる。",
+          "ウ　2026年度改定では、業務継続計画に関する要件が追加された。",
+          "エ　入院基本料に上乗せして算定する評価である。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ", correct: true, reason: "ア、イ、ウが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウも正しいため不十分です。" },
+          { text: "ア、ウ、エ", correct: false, reason: "エが誤りです。機能強化加算は入院基本料ではなく初診料に対する加算です。" },
+          { text: "イ、エ", correct: false, reason: "エが誤りで、アとウも正しいです。" },
+          { text: "エのみ", correct: false, reason: "エは誤りです。正しいのはア、イ、ウです。" }
+        ],
+        explanation: "機能強化加算は、かかりつけ医機能を担う医療機関を初診時に評価するものです。2026年度改定では、BCPの観点も加わり、地域で安定的に外来機能を担う体制が重視されています。",
+        point: "入院評価ではなく、外来の入口である初診評価として押さえます。"
+      },
+      {
+        question: "2026年度改定を踏まえた機能強化加算の説明として、適切なものを1つ選べ。",
+        choices: [
+          { text: "業務継続計画の策定等が要件として加わった。", correct: true, reason: "正しい記述です。" },
+          { text: "外来医療の機能分化とは別に、急性期病院の入院機能だけを評価する項目へ変更された。", correct: false, reason: "機能強化加算は外来のかかりつけ医機能に関係します。急性期入院機能のみの評価ではありません。" },
+          { text: "特定機能病院の紹介受診重点外来だけを対象にした加算である。", correct: false, reason: "特定機能病院の外来だけを対象とする評価ではありません。" },
+          { text: "生活習慣病管理料に統合され、初診時評価としての位置づけはなくなった。", correct: false, reason: "生活習慣病管理料に統合されたわけではありません。初診時のかかりつけ医機能評価として整理します。" },
+          { text: "在宅医療や介護との連携を含む地域の役割とは関係しない。", correct: false, reason: "かかりつけ医機能は、地域での継続診療、在宅医療、介護との連携と関連して理解します。" }
+        ],
+        explanation: "2026年度改定では、機能強化加算にBCPの要件が追加され、地域のかかりつけ医機能を安定的に担う体制が問われる方向になっています。",
+        point: "BCPは安全管理だけでなく、外来のかかりつけ医機能評価にも関係します。"
+      }
+    ]
+  },
+  {
+    id: "houkatsu-ryo",
+    items: [
+      {
+        question: "地域包括診療料について、適切なものを1つ選べ。",
+        choices: [
+          { text: "主治医機能をもつ医師による継続的・全人的な医療を評価する。", correct: true, reason: "正しい記述です。" },
+          { text: "特定機能病院の高度急性期入院医療を包括評価する入院料である。", correct: false, reason: "地域包括診療料は高度急性期入院医療の評価ではなく、外来での継続的・全人的な管理を評価します。" },
+          { text: "服薬管理は薬局の役割であるため、地域包括診療料の趣旨からは外れる。", correct: false, reason: "服薬管理は地域包括診療料の重要な要素です。多剤服用や服薬状況の把握も関係します。" },
+          { text: "介護保険に係る対応は、医科診療報酬では評価の対象にならない。", correct: false, reason: "地域包括診療料では、介護保険に係る対応も含めた全人的な管理が重視されます。" },
+          { text: "一時的な救急受診のみを対象に、継続診療とは切り離して評価する。", correct: false, reason: "地域包括診療料は継続的な医学管理を評価するもので、一時的な救急受診だけを対象とするものではありません。" }
+        ],
+        explanation: "地域包括診療料は、慢性疾患を有する患者に対し、療養上の指導、服薬管理、健康管理、介護保険に係る対応、在宅医療への対応などを含めた継続的・全人的な医療を評価します。",
+        point: "継続的・全人的、服薬管理、介護保険、在宅医療をまとめて押さえます。"
+      },
+      {
+        question: "地域包括診療料の対象疾患等について、適切でないものを1つ選べ。",
+        choices: [
+          { text: "脂質異常症は対象疾患に含まれる。", correct: false, reason: "これは正しい記述です。" },
+          { text: "高血圧症は対象疾患に含まれる。", correct: false, reason: "これは正しい記述です。" },
+          { text: "糖尿病は対象疾患に含まれる。", correct: false, reason: "これは正しい記述です。" },
+          { text: "慢性心不全や慢性腎臓病も対象疾患として追加されている。", correct: false, reason: "これは正しい記述です。" },
+          { text: "対象疾患は、脂質異常症、高血圧症、糖尿病、認知症の4疾患に現在も限定される。", correct: true, reason: "4疾患に限定されるわけではありません。慢性心不全・慢性腎臓病が追加され、2026年度改定では要介護被保険者等への対象拡大も論点です。" }
+        ],
+        explanation: "地域包括診療料は従来の4疾患だけでなく、慢性心不全・慢性腎臓病も含めて整理します。2026年度改定では、介護給付又は予防給付を受けている要介護被保険者等への対象拡大も重要です。",
+        point: "4疾患だけで止めず、追加疾患と要介護高齢者等への拡大を確認します。"
+      },
+      {
+        question: "地域包括診療料に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　服薬管理や健康管理を含む継続的な医学管理を評価する。",
+          "イ　介護保険に係る対応も評価の趣旨に含まれる。",
+          "ウ　患者の状態等に応じて長期処方やリフィル処方を活用できることの周知が求められる。",
+          "エ　保険薬局が算定する調剤基本料の一種である。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ", correct: true, reason: "ア、イ、ウが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウも正しいため不十分です。" },
+          { text: "ア、ウ、エ", correct: false, reason: "エが誤りです。地域包括診療料は保険薬局が算定する調剤基本料ではありません。" },
+          { text: "イ、エ", correct: false, reason: "エが誤りで、アとウも正しいです。" },
+          { text: "ウ、エ", correct: false, reason: "エが誤りです。正しい組み合わせはア、イ、ウです。" }
+        ],
+        explanation: "地域包括診療料は、継続的・全人的な医科外来管理を評価します。服薬管理、健康管理、介護保険対応、長期処方・リフィル処方に関する患者周知が関連します。",
+        point: "医科外来の主治医機能の評価であり、調剤基本料ではありません。"
+      }
+    ]
+  },
+  {
+    id: "houkatsu-kasan",
+    items: [
+      {
+        question: "地域包括診療料と地域包括診療加算の違いについて、適切なものを1つ選べ。",
+        choices: [
+          { text: "地域包括診療料は包括的な診療料、地域包括診療加算は加算として整理される。", correct: true, reason: "正しい記述です。" },
+          { text: "地域包括診療料は初診料への加算、地域包括診療加算は入院基本料への加算である。", correct: false, reason: "地域包括診療料は初診料への加算ではありません。地域包括診療加算も入院基本料への加算ではありません。" },
+          { text: "地域包括診療加算は、特定機能病院の高度急性期入院医療を評価する。", correct: false, reason: "地域包括診療加算は外来での継続的・全人的な管理に関係します。高度急性期入院医療の評価ではありません。" },
+          { text: "地域包括診療料も地域包括診療加算も、慢性疾患の継続管理とは関係しない。", correct: false, reason: "いずれも慢性疾患等への継続的な管理と関係します。" },
+          { text: "地域包括診療加算は、在宅患者訪問薬剤管理指導料に上乗せする薬局加算である。", correct: false, reason: "地域包括診療加算は医科診療報酬の評価であり、薬局の在宅患者訪問薬剤管理指導料への加算ではありません。" }
+        ],
+        explanation: "地域包括診療料は包括的な診療料、地域包括診療加算は加算です。どちらも、かかりつけ医による継続的・全人的な外来管理に関係します。",
+        point: "料と加算の違い、医科外来の評価である点を確認します。"
+      },
+      {
+        question: "2026年度改定における地域包括診療加算等の見直しとして、適切なものを1つ選べ。",
+        choices: [
+          { text: "対象疾患を有し、介護給付又は予防給付を受けている要介護被保険者等である患者が対象に追加された。", correct: true, reason: "正しい記述です。" },
+          { text: "対象患者から要介護被保険者等を除外し、若年の生活習慣病患者に重点化された。", correct: false, reason: "2026年度改定では、対象疾患を有する要介護被保険者等への対象拡大が示されています。" },
+          { text: "地域包括診療加算等は廃止され、急性期病院一般入院基本料に統合された。", correct: false, reason: "廃止・入院基本料への統合ではありません。外来評価として対象患者等の見直しが行われています。" },
+          { text: "外来医療の機能分化とは切り離され、入院時食事療養費の見直しに含められた。", correct: false, reason: "地域包括診療加算等は、外来医療の機能分化・強化の文脈で整理します。食事療養費とは別の論点です。" },
+          { text: "慢性疾患患者ではなく、救急搬送後の入院患者を主な対象に変更された。", correct: false, reason: "救急搬送後の入院患者を主な対象にした変更ではありません。慢性疾患等を有する患者の外来管理が中心です。" }
+        ],
+        explanation: "2026年度改定では、地域包括診療加算等について、対象疾患を有する要介護高齢者等への対象患者の拡大が示されています。",
+        point: "要介護高齢者等への対象拡大を押さえます。"
+      },
+      {
+        question: "地域包括診療加算等に関する次の記述について、誤っているものの組み合わせを1つ選べ。",
+        statements: [
+          "ア　かかりつけ医機能の強化と関係する。",
+          "イ　対象疾患を有する要介護高齢者等への対象拡大が2026年度改定で示された。",
+          "ウ　特定機能病院の入院基本料に上乗せする評価である。",
+          "エ　調剤報酬のみの改定事項である。"
+        ],
+        choices: [
+          { text: "ウ、エ", correct: true, reason: "ウ、エが誤りです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イはいずれも正しい記述です。誤っているものはウ、エです。" },
+          { text: "ア、ウ", correct: false, reason: "アは正しい記述です。ウは誤りですが、エも誤りです。" },
+          { text: "イ、エ", correct: false, reason: "イは正しい記述です。エは誤りですが、ウも誤りです。" },
+          { text: "ア、エ", correct: false, reason: "アは正しい記述です。誤っているものはウ、エです。" }
+        ],
+        explanation: "地域包括診療加算等は、かかりつけ医機能を評価する医科外来の診療報酬です。特定機能病院の入院基本料への上乗せでも、調剤報酬のみの事項でもありません。",
+        point: "入院評価・調剤報酬へのすり替えに注意します。"
+      }
+    ]
+  },
+  {
+    id: "seikatsu",
+    items: [
+      {
+        question: "生活習慣病管理料について、適切なものを1つ選べ。",
+        choices: [
+          { text: "糖尿病・高血圧症・脂質異常症などの生活習慣病を継続的に管理する評価である。", correct: true, reason: "正しい記述です。" },
+          { text: "急性期手術後の入院管理を、手術料と一体で評価する項目である。", correct: false, reason: "生活習慣病管理料は外来での生活習慣病の継続管理を評価します。急性期手術後の入院評価ではありません。" },
+          { text: "療養計画を用いず、検査値の説明だけを評価する。", correct: false, reason: "生活習慣病管理料では、療養計画に基づく医学管理が重要です。" },
+          { text: "患者の生活指導や服薬状況の確認とは関係しない。", correct: false, reason: "生活習慣病管理では、生活指導や服薬管理が重要です。" },
+          { text: "外来医療の機能分化・かかりつけ医機能の強化とは別領域として扱われる。", correct: false, reason: "生活習慣病の継続的な外来管理は、外来医療の機能分化やかかりつけ医機能の強化と関係します。" }
+        ],
+        explanation: "生活習慣病管理料は、糖尿病・高血圧症・脂質異常症などの患者に対して、療養計画に基づく継続的な医学管理を行う評価です。",
+        point: "生活習慣病の外来継続管理として整理します。"
+      },
+      {
+        question: "2026年度改定における生活習慣病管理料の見直しとして、適切なものを1つ選べ。",
+        choices: [
+          { text: "生活習慣病管理料（Ⅰ）及び（Ⅱ）の包括範囲の見直しが示された。", correct: true, reason: "正しい記述です。" },
+          { text: "糖尿病患者の眼科・歯科連携に係る評価は、生活習慣病管理料の論点から外された。", correct: false, reason: "糖尿病患者の眼科・歯科連携に係る評価は2026年度改定の論点です。" },
+          { text: "外来評価から入院評価に転換され、外来では算定できない評価となった。", correct: false, reason: "外来における生活習慣病管理の評価です。" },
+          { text: "高血圧症は対象疾患から外れ、慢性腎臓病だけを対象とする評価になった。", correct: false, reason: "高血圧症は生活習慣病管理料の主要な対象疾患として整理されます。" },
+          { text: "療養計画に基づく管理ではなく、紹介状作成だけを評価する項目へ変更された。", correct: false, reason: "療養計画に基づく継続管理が中心です。紹介状作成だけを評価するものではありません。" }
+        ],
+        explanation: "2026年度改定では、生活習慣病管理料（Ⅰ）及び（Ⅱ）の包括範囲の見直し、糖尿病患者の眼科・歯科連携に係る評価などが示されています。",
+        point: "包括範囲の見直しと糖尿病患者の眼科・歯科連携をセットで確認します。"
+      },
+      {
+        question: "生活習慣病管理料に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　生活習慣病患者への継続的な療養管理を評価する。",
+          "イ　2026年度改定では、生活習慣病管理料（Ⅰ）及び（Ⅱ）の包括範囲が論点となった。",
+          "ウ　糖尿病患者の眼科・歯科連携に係る評価が論点となった。",
+          "エ　急性期病院の救急搬送受入実績を評価する入院料である。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ", correct: true, reason: "ア、イ、ウが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウも正しいため不十分です。" },
+          { text: "イ、ウ、エ", correct: false, reason: "エが誤りです。生活習慣病管理料は救急搬送受入実績を評価する入院料ではありません。" },
+          { text: "ア、エ", correct: false, reason: "エが誤りで、イとウも正しいです。" },
+          { text: "エのみ", correct: false, reason: "エは誤りです。正しいのはア、イ、ウです。" }
+        ],
+        explanation: "生活習慣病管理料は生活習慣病患者への継続的な外来管理を評価します。2026年度改定では包括範囲や糖尿病患者の眼科・歯科連携が論点です。",
+        point: "急性期入院評価との混同を避けます。"
+      }
+    ]
+  },
+  {
+    id: "tokutei",
+    items: [
+      {
+        question: "特定疾患療養管理料について、適切なものを1つ選べ。",
+        choices: [
+          { text: "特定疾患を有する患者に対して計画的な医学管理を行うことを評価する。", correct: true, reason: "正しい記述です。" },
+          { text: "急性期手術の麻酔管理を評価する手術関連の加算である。", correct: false, reason: "特定疾患療養管理料は、特定疾患を有する患者への計画的な医学管理を評価するもので、麻酔管理の加算ではありません。" },
+          { text: "2026年度改定では対象疾患の見直しは行われず、従来の取扱いがそのまま維持された。", correct: false, reason: "2026年度改定では、対象疾患の見直し等が示されています。" },
+          { text: "長期処方やリフィル処方に関する患者周知要件とは関係しない。", correct: false, reason: "2026年度改定では、地域包括診療料と同様の長期処方・リフィル処方に関する患者周知要件が横展開されています。" },
+          { text: "保険薬局が薬剤服用歴管理指導料に上乗せして算定する評価である。", correct: false, reason: "特定疾患療養管理料は医科診療報酬の評価であり、保険薬局の薬剤服用歴管理指導料への上乗せではありません。" }
+        ],
+        explanation: "特定疾患療養管理料は、特定疾患をもつ患者に対して計画的な医学管理を行うことを評価します。2026年度改定では対象疾患の見直しや、長期処方・リフィル処方に関する患者周知要件が論点です。",
+        point: "計画的管理、対象疾患見直し、患者周知要件を結びつけます。"
+      },
+      {
+        question: "2026年度改定における特定疾患療養管理料の説明として、適切でないものを1つ選べ。",
+        choices: [
+          { text: "対象疾患の見直しが示された。", correct: false, reason: "これは正しい記述です。" },
+          { text: "長期処方やリフィル処方を活用できることの患者周知要件が横展開された。", correct: false, reason: "これは正しい記述です。地域包括診療料と同様の考え方が横展開されています。" },
+          { text: "非ステロイド性抗炎症薬の投与を受けている場合の胃潰瘍及び十二指腸潰瘍の取扱いが見直された。", correct: false, reason: "これは正しい記述です。対象疾患の見直しの一部として押さえます。" },
+          { text: "生活習慣病管理料に完全統合され、特定疾患療養管理料としての評価は廃止された。", correct: true, reason: "完全統合・廃止ではありません。対象疾患や要件の見直しが行われています。" },
+          { text: "外来における計画的な慢性疾患管理と関係する。", correct: false, reason: "これは正しい記述です。" }
+        ],
+        explanation: "2026年度改定では、特定疾患療養管理料の対象疾患の見直しや、長期処方・リフィル処方に関する患者周知要件の横展開が示されています。",
+        point: "完全統合・廃止という極端な表現に注意します。"
+      },
+      {
+        question: "特定疾患療養管理料に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　特定疾患を有する患者への計画的な医学管理を評価する。",
+          "イ　2026年度改定では対象疾患の見直しが示された。",
+          "ウ　地域包括診療料と同様の長期処方・リフィル処方に関する患者周知要件が横展開された。",
+          "エ　救急外来医学管理料の一部として、24時間救急受入体制を評価する。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ", correct: true, reason: "ア、イ、ウが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウも正しいため不十分です。" },
+          { text: "ア、エ", correct: false, reason: "エが誤りです。救急外来医学管理料の一部ではありません。" },
+          { text: "イ、ウ、エ", correct: false, reason: "エが誤りです。アも正しいため、正しい組み合わせはア、イ、ウです。" },
+          { text: "エのみ", correct: false, reason: "エは誤りです。正しいのはア、イ、ウです。" }
+        ],
+        explanation: "特定疾患療養管理料は、特定疾患患者への計画的な医学管理の評価です。2026年度改定では対象疾患の見直しと、長期処方・リフィル処方に係る患者周知要件の横展開が重要です。",
+        point: "救急外来の評価ではなく、外来慢性疾患管理の評価として押さえます。"
+      }
+    ]
+  },
+  {
+    id: "shohou",
+    items: [
+      {
+        question: "長期処方・リフィル処方に関する説明として、適切なものを1つ選べ。",
+        choices: [
+          { text: "地域包括診療料では、医師の判断により長期処方やリフィル処方を活用できることを患者に周知する要件が追加されている。", correct: true, reason: "正しい記述です。" },
+          { text: "リフィル処方は2026年度改定で保険診療上廃止された。", correct: false, reason: "廃止ではありません。長期処方・リフィル処方の取組強化が示されています。" },
+          { text: "長期処方やリフィル処方は、入院患者の退院時処方に限って評価される。", correct: false, reason: "地域包括診療料や特定疾患療養管理料など、外来慢性疾患管理の文脈で問われます。" },
+          { text: "医療機関側の患者周知は不要であり、保険薬局の説明だけで制度上完結する。", correct: false, reason: "医療機関側にも患者周知要件が関係します。" },
+          { text: "地域包括診療料では、患者の状態にかかわらずリフィル処方を必ず実施することが求められる。", correct: false, reason: "必ず実施する義務ではありません。患者の状態等に応じて医師が判断します。" }
+        ],
+        explanation: "地域包括診療料では、患者の状況等に合わせて医師の判断によりリフィル処方や長期処方を活用できることを患者に周知する要件が追加されています。",
+        point: "活用可能性の周知と、一律実施義務を区別します。"
+      },
+      {
+        question: "長期処方・リフィル処方に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　地域包括診療料では、患者周知要件が追加されている。",
+          "イ　2026年度改定では、特定疾患療養管理料にも同様の患者周知要件が横展開された。",
+          "ウ　患者の状態等にかかわらず、リフィル処方を一律に実施する義務がある。",
+          "エ　長期処方・リフィル処方の取組強化は、2026年度改定の効率化・適正化の論点にも含まれる。"
+        ],
+        choices: [
+          { text: "ア、イ、エ", correct: true, reason: "ア、イ、エが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、エも正しいため不十分です。" },
+          { text: "ア、ウ", correct: false, reason: "ウが誤りです。一律実施義務ではありません。" },
+          { text: "イ、ウ、エ", correct: false, reason: "ウが誤りです。正しいのはア、イ、エです。" },
+          { text: "ウのみ", correct: false, reason: "ウは誤りです。" }
+        ],
+        explanation: "地域包括診療料で追加された長期処方・リフィル処方に係る患者周知要件は、2026年度改定で特定疾患療養管理料にも横展開されています。長期処方・リフィル処方の取組強化は、効率化・適正化の論点にも含まれます。",
+        point: "地域包括診療料から特定疾患療養管理料への横展開を確認します。"
+      },
+      {
+        question: "長期処方・リフィル処方の患者周知要件について、適切でないものを1つ選べ。",
+        choices: [
+          { text: "患者の状態等に応じて医師が判断する。", correct: false, reason: "これは正しい記述です。" },
+          { text: "地域包括診療料では患者周知要件が追加されている。", correct: false, reason: "これは正しい記述です。" },
+          { text: "2026年度改定では、特定疾患療養管理料にも同様の要件が横展開された。", correct: false, reason: "これは正しい記述です。" },
+          { text: "患者への周知は、医師の判断による活用可能性を知らせる趣旨である。", correct: false, reason: "これは正しい記述です。" },
+          { text: "処方期間を長くすれば医学管理は不要になる、という考え方に基づく要件である。", correct: true, reason: "長期処方・リフィル処方を活用する場合でも、医学管理が不要になるわけではありません。患者の状態を踏まえた医師の判断が前提です。" }
+        ],
+        explanation: "長期処方・リフィル処方の患者周知要件は、患者の状態等に応じて医師の判断で活用できることを周知するものです。医学管理を不要にする趣旨ではありません。",
+        point: "効率化と継続的な医学管理は両立するものとして整理します。"
+      }
+    ]
+  },
+  {
+    id: "gairai",
+    items: [
+      {
+        question: "2026年度改定における外来医療の機能分化・強化に関する説明として、適切なものを1つ選べ。",
+        choices: [
+          { text: "特定機能病院等から紹介を受けた患者に対する初診を、診療所又は200床未満の病院が行った場合の評価が新設された。", correct: true, reason: "正しい記述です。" },
+          { text: "紹介・逆紹介に関する評価は廃止され、大病院外来への患者集中を促す方向に整理された。", correct: false, reason: "大病院外来への集中を促す方向ではなく、外来医療の機能分化を進める見直しです。" },
+          { text: "かかりつけ医機能の強化は、外来医療の機能分化とは別の政策領域として扱われる。", correct: false, reason: "かかりつけ医機能の強化は、外来医療の機能分化・連携と関係します。" },
+          { text: "外来医療の機能分化は、調剤報酬の薬学管理料に限った論点である。", correct: false, reason: "医科診療報酬の外来評価にも関係する論点です。" },
+          { text: "特定機能病院等から地域の医療機関へ患者をつなぐ流れは、評価の対象から外された。", correct: false, reason: "むしろ特定機能病院等からの紹介患者の初診に関する評価が新設されています。" }
+        ],
+        explanation: "2026年度改定では、特定機能病院等からの紹介患者を診療所又は200床未満病院が初診した場合の評価が新設され、外来医療の機能分化が推進されています。",
+        point: "大病院外来から地域のかかりつけ医へつなぐ流れを理解します。"
+      },
+      {
+        question: "外来医療の機能分化・強化に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　特定機能病院等の外来診療料等の減算に係る逆紹介割合の基準が見直された。",
+          "イ　特定機能病院等からの紹介患者の初診に関する加算が新設された。",
+          "ウ　生活習慣病管理料の包括範囲や地域包括診療加算等の対象患者が見直された。",
+          "エ　外来医療の機能分化は2026年度改定の論点から外された。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ", correct: true, reason: "ア、イ、ウが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウも正しいため不十分です。" },
+          { text: "イ、ウ、エ", correct: false, reason: "エが誤りです。外来医療の機能分化は2026年度改定の重要論点です。" },
+          { text: "ア、エ", correct: false, reason: "エが誤りで、イとウも正しいです。" },
+          { text: "エのみ", correct: false, reason: "エは誤りです。正しいのはア、イ、ウです。" }
+        ],
+        explanation: "2026年度改定では、逆紹介割合の基準見直し、特定機能病院等からの紹介患者の初診に関する加算新設、生活習慣病管理料・地域包括診療加算等の見直しが示されています。",
+        point: "外来医療の機能分化とかかりつけ医機能の強化をセットで理解します。"
+      },
+      {
+        question: "外来医療の機能分化に関する説明として、適切でないものを1つ選べ。",
+        choices: [
+          { text: "大病院と地域の医療機関の役割分担を進める考え方である。", correct: false, reason: "これは正しい記述です。" },
+          { text: "かかりつけ医機能の評価と関係する。", correct: false, reason: "これは正しい記述です。" },
+          { text: "特定機能病院等から地域の医療機関へ患者をつなぐ流れとも関係する。", correct: false, reason: "これは正しい記述です。" },
+          { text: "生活習慣病管理料や地域包括診療加算等の見直しとも関係する。", correct: false, reason: "これは正しい記述です。" },
+          { text: "入院時の食費・光熱水費の基準額を引き上げるための仕組みである。", correct: true, reason: "入院時の食費・光熱水費の基準額見直しとは別の論点です。外来医療の機能分化は、大病院外来と地域の医療機関の役割分担などを進めるものです。" }
+        ],
+        explanation: "外来医療の機能分化は、大病院と地域の医療機関の役割分担、かかりつけ医機能の強化、慢性疾患の継続管理の見直しと関係します。",
+        point: "物価対応や食費・光熱水費の論点とは区別します。"
+      }
+    ]
+  },
+  {
+    id: "jikangai",
+    items: [
+      {
+        question: "時間外対応体制加算について、適切なものを1つ選べ。",
+        choices: [
+          { text: "時間外の相談・対応体制を評価するもので、かかりつけ医機能と関係が深い。", correct: true, reason: "正しい記述です。" },
+          { text: "入院患者への食事療養費を評価する加算である。", correct: false, reason: "時間外対応体制加算は食事療養費の評価ではありません。時間外の相談・対応体制の評価です。" },
+          { text: "2026年度改定では、名称変更や評価の引上げは示されていない。", correct: false, reason: "2026年度改定では、時間外対応加算の名称変更や評価の引上げが示されています。" },
+          { text: "救急外来医学管理料と同じく、24時間救急外来の受入実績のみで評価される。", correct: false, reason: "時間外対応体制加算は、外来患者の時間外相談・対応体制に関係する評価であり、救急外来医学管理料とは整理が異なります。" },
+          { text: "医科診療所のかかりつけ医機能とは関係せず、高度急性期病院だけを評価する。", correct: false, reason: "かかりつけ医機能と関係する評価であり、高度急性期病院だけの評価ではありません。" }
+        ],
+        explanation: "時間外対応体制加算は、患者が時間外に相談できる体制などを評価するもので、かかりつけ医機能の一部と整理できます。2026年度改定では名称変更や評価の引上げが示されています。",
+        point: "救急外来の24時間受入評価とは区別します。"
+      },
+      {
+        question: "時間外対応体制加算に関する説明として、適切でないものを1つ選べ。",
+        choices: [
+          { text: "患者が時間外に相談できる体制と関係する。", correct: false, reason: "これは正しい記述です。" },
+          { text: "かかりつけ医機能の一部として理解できる。", correct: false, reason: "これは正しい記述です。" },
+          { text: "2026年度改定では、時間外対応加算から時間外対応体制加算への名称変更が示された。", correct: false, reason: "これは正しい記述です。" },
+          { text: "評価の引上げが示されている。", correct: false, reason: "これは正しい記述です。" },
+          { text: "地域包括診療加算等とは異なり、外来医療の機能強化とは関係しない入院評価である。", correct: true, reason: "外来の時間外相談・対応体制に関係する評価であり、入院評価として整理するのは誤りです。" }
+        ],
+        explanation: "時間外対応体制加算は、外来におけるかかりつけ医機能の一部として、時間外の相談・対応体制を評価するものです。",
+        point: "外来機能強化の周辺論点として押さえます。"
+      },
+      {
+        question: "時間外対応体制加算に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　時間外の相談・対応体制を評価する。",
+          "イ　かかりつけ医機能と関係する。",
+          "ウ　2026年度改定で名称変更が示された。",
+          "エ　入院時の光熱水費を評価する。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ", correct: true, reason: "ア、イ、ウが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウも正しいため不十分です。" },
+          { text: "ア、エ", correct: false, reason: "エが誤りです。光熱水費の評価ではありません。" },
+          { text: "イ、ウ、エ", correct: false, reason: "エが誤りです。正しいのはア、イ、ウです。" },
+          { text: "エのみ", correct: false, reason: "エは誤りです。時間外対応体制加算は光熱水費の評価ではありません。" }
+        ],
+        explanation: "時間外対応体制加算は、時間外の相談・対応体制を評価し、かかりつけ医機能と関係します。2026年度改定では名称変更も押さえます。",
+        point: "物価対応料や入院時光熱水費の見直しとは別項目です。"
+      }
+    ]
+  },
+  {
+    id: "zaitaku",
+    items: [
+      {
+        question: "かかりつけ医機能と在宅医療の関係について、適切なものを1つ選べ。",
+        choices: [
+          { text: "在宅時医学総合管理料や施設入居時等医学総合管理料は、在宅・施設入居者への継続的な医学管理と関係する。", correct: true, reason: "正しい記述です。" },
+          { text: "在宅医療は外来のかかりつけ医機能とは制度上関係しない。", correct: false, reason: "在宅医療は、地域で患者を支えるかかりつけ医機能と関係します。" },
+          { text: "在宅時医学総合管理料は、救急搬送件数と全身麻酔手術件数を評価する入院料である。", correct: false, reason: "在宅時医学総合管理料は、在宅療養患者への継続的な医学管理の評価です。" },
+          { text: "施設入居時等医学総合管理料は、保険薬局の調剤基本料に含まれる評価である。", correct: false, reason: "施設入居時等医学総合管理料は医科診療報酬の評価であり、保険薬局の調剤基本料ではありません。" },
+          { text: "2026年度改定では、質の高い在宅医療・訪問看護の推進は示されていない。", correct: false, reason: "2026年度改定では、質の高い在宅医療・訪問看護の推進が示されています。" }
+        ],
+        explanation: "在宅時医学総合管理料・施設入居時等医学総合管理料は、在宅療養患者や施設入居者への継続的な医学管理を評価するもので、地域で患者を支えるかかりつけ医機能と関連します。",
+        point: "外来・在宅・介護連携を一体で理解します。"
+      },
+      {
+        question: "在宅医療に関する2026年度改定の方向性として、適切なものを1つ選べ。",
+        choices: [
+          { text: "地域で在宅医療における積極的役割を担う医療機関の更なる評価が示された。", correct: true, reason: "正しい記述です。" },
+          { text: "在宅医療に関する評価は廃止され、入院医療の評価に一本化された。", correct: false, reason: "廃止ではありません。質の高い在宅医療・訪問看護の推進として評価の見直しが行われています。" },
+          { text: "在宅医療は調剤報酬だけの論点であり、医科診療報酬には関係しない。", correct: false, reason: "在宅医療は医科診療報酬にも重要な論点です。" },
+          { text: "地域包括ケアシステムの推進とは別に、在宅医療は急性期手術の評価として扱われる。", correct: false, reason: "在宅医療は地域包括ケアシステムの推進と密接に関係します。急性期手術評価ではありません。" },
+          { text: "在宅療養患者の後方支援機能は、2026年度改定の基本方針から外された。", correct: false, reason: "在宅療養患者や介護保険施設等入所者の後方支援機能は重要な論点です。" }
+        ],
+        explanation: "2026年度改定では、質の高い在宅医療・訪問看護の推進として、地域で在宅医療における積極的役割を担う医療機関の更なる評価が示されています。",
+        point: "在宅医療は地域包括ケアシステムとかかりつけ医機能の接点です。"
+      },
+      {
+        question: "かかりつけ医機能と在宅医療に関する次の記述について、正しい組み合わせを1つ選べ。",
+        statements: [
+          "ア　在宅時医学総合管理料は、在宅療養患者への計画的・継続的な医学管理と関係する。",
+          "イ　施設入居時等医学総合管理料は、施設入居者への医学管理と関係する。",
+          "ウ　地域包括診療料の趣旨には、在宅医療の提供も含まれる。",
+          "エ　在宅医療は地域包括ケアシステムの推進とは関係しない。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ", correct: true, reason: "ア、イ、ウが正しい組み合わせです。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウも正しいため不十分です。" },
+          { text: "ア、エ", correct: false, reason: "エが誤りです。在宅医療は地域包括ケアシステムと関係します。" },
+          { text: "イ、ウ、エ", correct: false, reason: "エが誤りです。正しいのはア、イ、ウです。" },
+          { text: "エのみ", correct: false, reason: "エは誤りです。在宅医療は地域包括ケアシステムの重要論点です。" }
+        ],
+        explanation: "在宅時医学総合管理料、施設入居時等医学総合管理料、地域包括診療料はいずれも、地域で患者を継続的に支える機能と関係します。",
+        point: "外来・在宅・介護連携を一体として整理します。"
+      }
+    ]
+  },
+  {
+    id: "sougou",
+    items: [
+      {
+        question: "かかりつけ医機能を評価・強化する診療報酬の組み合わせとして、最も適切なものを1つ選べ。",
+        choices: [
+          { text: "機能強化加算、地域包括診療料、地域包括診療加算、生活習慣病管理料、特定疾患療養管理料。", correct: true, reason: "正しい組み合わせです。" },
+          { text: "救命救急入院料、特定集中治療室管理料、急性期総合体制加算、手術料、麻酔管理料。", correct: false, reason: "急性期・救急・手術系の評価が中心で、外来のかかりつけ医機能評価とは焦点が異なります。" },
+          { text: "DPC包括評価、入院時食事療養費、療養病棟入院料、回復期リハビリテーション病棟入院料、特定入院料。", correct: false, reason: "入院評価が中心で、今回の外来かかりつけ医機能の主要論点とは異なります。" },
+          { text: "調剤基本料、薬剤料、特定保険医療材料料、入院基本料、画像診断料。", correct: false, reason: "調剤・入院・画像診断が混在しており、かかりつけ医機能評価の主要な組み合わせではありません。" },
+          { text: "外科医療確保特別加算、救急外来医学管理料、急性期病院一般入院基本料、看護・多職種協働加算、入院物価対応料。", correct: false, reason: "2026年度改定の重要項目ではありますが、主に急性期・救急・入院や物価対応の評価であり、外来かかりつけ医機能の組み合わせとしては不適切です。" }
+        ],
+        explanation: "機能強化加算、地域包括診療料・地域包括診療加算、生活習慣病管理料、特定疾患療養管理料は、いずれも外来での慢性疾患管理や継続的・包括的な診療、かかりつけ医機能の評価と関連します。",
+        point: "急性期入院評価や物価対応評価と混同しないようにします。"
+      },
+      {
+        question: "2026年度改定を踏まえたかかりつけ医機能の強化について、適切でないものを1つ選べ。",
+        choices: [
+          { text: "機能強化加算では、業務継続計画の策定等が要件として示された。", correct: false, reason: "これは正しい記述です。" },
+          { text: "地域包括診療加算等では、対象疾患を有する要介護高齢者等への対象患者拡大が示された。", correct: false, reason: "これは正しい記述です。" },
+          { text: "生活習慣病管理料では、包括範囲の見直し等が示された。", correct: false, reason: "これは正しい記述です。" },
+          { text: "特定疾患療養管理料では、対象疾患の見直しが示された。", correct: false, reason: "これは正しい記述です。" },
+          { text: "外来医療の機能分化・強化の項目から、かかりつけ医機能の評価は外された。", correct: true, reason: "外されていません。外来医療の機能分化・強化の中で、かかりつけ医機能の強化は重要な論点です。" }
+        ],
+        explanation: "2026年度改定では、外来医療の機能分化・強化の中で、機能強化加算、地域包括診療加算等、生活習慣病管理料、特定疾患療養管理料の見直しが関連します。",
+        point: "外来機能分化とかかりつけ医機能強化をセットで整理します。"
+      },
+      {
+        question: "次のうち、説明の組み合わせとして適切でないものを1つ選べ。",
+        choices: [
+          { text: "機能強化加算：かかりつけ医機能を有する医療機関での初診を評価。", correct: false, reason: "これは正しい組み合わせです。" },
+          { text: "地域包括診療料：主治医機能をもつ医師による継続的・全人的な医療を評価。", correct: false, reason: "これは正しい組み合わせです。" },
+          { text: "生活習慣病管理料：生活習慣病患者への継続的な療養管理を評価。", correct: false, reason: "これは正しい組み合わせです。" },
+          { text: "特定疾患療養管理料：特定疾患に対する計画的な医学管理を評価。", correct: false, reason: "これは正しい組み合わせです。" },
+          { text: "地域包括診療加算：特定機能病院の高度急性期入院医療を評価。", correct: true, reason: "地域包括診療加算は、特定機能病院の高度急性期入院医療を評価するものではありません。" }
+        ],
+        explanation: "地域包括診療加算は、外来におけるかかりつけ医機能、慢性疾患の継続的・全人的管理に関係する評価です。特定機能病院の高度急性期入院医療の評価ではありません。",
+        point: "各診療報酬が何を評価するかを1対1で整理します。"
+      }
+    ]
+  }
+];
+
+const QUESTIONS_PER_ROUND = 10;
+let currentQuestions = [];
+let currentIndex = 0;
+let selectedIndex = null;
+let answeredCurrent = false;
+let correctCount = 0;
+let history = [];
+
+function shuffle(array) {
+  const copied = array.slice();
+  for (let i = copied.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copied[i];
+    copied[i] = copied[j];
+    copied[j] = temp;
+  }
+  return copied;
+}
+
+function startQuiz() {
+  currentQuestions = shuffle(categories).slice(0, QUESTIONS_PER_ROUND).map(function(category) {
+    const picked = shuffle(category.items)[0];
+    const shuffledChoices = shuffle(picked.choices);
+    return Object.assign({}, picked, {
+      choices: shuffledChoices,
+      answer: shuffledChoices.findIndex(function(choice) { return choice.correct; })
+    });
+  });
+  currentIndex = 0;
+  selectedIndex = null;
+  answeredCurrent = false;
+  correctCount = 0;
+  history = [];
+  document.getElementById("resultBox").style.display = "none";
+  renderQuestion();
+  updateBadges();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderQuestion() {
+  const quiz = document.getElementById("quiz");
+  const q = currentQuestions[currentIndex];
+  selectedIndex = null;
+  answeredCurrent = false;
+  const statementsHtml = q.statements ? '<div class="statements">' + q.statements.map(function(s) {
+    return '<div>' + escapeHtml(s) + '</div>';
+  }).join("") + '</div>' : "";
+
+  quiz.innerHTML = '' +
+    '<article class="question-card" id="questionTop">' +
+      '<div class="q-head">' +
+        '<div class="q-num">Q' + (currentIndex + 1) + '</div>' +
+        '<div class="q-title">' + escapeHtml(q.question) + '</div>' +
+      '</div>' +
+      statementsHtml +
+      '<div class="choices">' +
+        q.choices.map(function(choice, index) {
+          return '<button type="button" class="choice" id="choice-' + index + '" onclick="selectChoice(' + index + ')">' +
+            '<span>' + (index + 1) + '.</span><span>' + escapeHtml(choice.text) + '</span>' +
+          '</button>';
+        }).join("") +
+      '</div>' +
+      '<div class="actions">' +
+        '<button type="button" class="primary-btn" id="answerBtn" onclick="checkAnswer()" disabled>回答</button>' +
+        '<button type="button" class="secondary-btn" id="nextBtn" onclick="nextQuestion()" style="display:none;">' + (currentIndex + 1 === currentQuestions.length ? "結果を見る" : "次の問題へ") + '</button>' +
+      '</div>' +
+      '<div class="explanation" id="explanation"></div>' +
+    '</article>';
+  updateBadges();
+}
+
+function selectChoice(index) {
+  if (answeredCurrent) return;
+  selectedIndex = index;
+  document.querySelectorAll(".choice").forEach(function(btn) { btn.classList.remove("selected"); });
+  document.getElementById("choice-" + index).classList.add("selected");
+  document.getElementById("answerBtn").disabled = false;
+}
+
+function checkAnswer() {
+  if (selectedIndex === null || answeredCurrent) return;
+  answeredCurrent = true;
+  const q = currentQuestions[currentIndex];
+  const selected = q.choices[selectedIndex];
+  const isCorrect = selected.correct;
+  if (isCorrect) correctCount++;
+
+  document.querySelectorAll(".choice").forEach(function(btn, index) {
+    btn.classList.add("disabled");
+    if (q.choices[index].correct) btn.classList.add("correct");
+  });
+  if (!isCorrect) document.getElementById("choice-" + selectedIndex).classList.add("wrong");
+
+  const explanation = document.getElementById("explanation");
+  explanation.style.display = "block";
+  explanation.innerHTML =
+    '<div>' + (isCorrect ? '<span class="ok">正解です。</span>' : '<span class="ng">不正解です。</span>') + '</div>' +
+    (!isCorrect ? '<div class="why-wrong">選んだ選択肢が誤りである理由：' + escapeHtml(selected.reason) + '</div>' : '') +
+    '<div style="margin-top:10px;">' + escapeHtml(q.explanation) + '</div>' +
+    '<div class="point">ポイント：' + escapeHtml(q.point) + '</div>';
+
+  history.push({
+    number: currentIndex + 1,
+    question: q.question,
+    correct: isCorrect,
+    selected: selected.text,
+    answer: q.choices[q.answer].text
+  });
+
+  document.getElementById("answerBtn").style.display = "none";
+  document.getElementById("nextBtn").style.display = "inline-flex";
+  updateBadges();
+}
+
+function nextQuestion() {
+  if (currentIndex + 1 >= currentQuestions.length) {
+    showResult();
+    return;
+  }
+  currentIndex++;
+  renderQuestion();
+  const top = document.getElementById("questionTop").getBoundingClientRect().top + window.scrollY - 8;
+  window.scrollTo({ top: top, behavior: "smooth" });
+}
+
+function updateBadges() {
+  const total = currentQuestions.length || QUESTIONS_PER_ROUND;
+  document.getElementById("progressBadge").textContent = Math.min(currentIndex + 1, total) + " / " + total + " 問";
+  document.getElementById("scoreBadge").textContent = "正答 " + correctCount + " 問";
+}
+
+function showResult() {
+  document.getElementById("quiz").innerHTML = "";
+  const resultBox = document.getElementById("resultBox");
+  const rate = Math.round((correctCount / currentQuestions.length) * 100);
+  document.getElementById("resultTitle").textContent = "結果：" + correctCount + " / " + currentQuestions.length + " 問正解（" + rate + "%）";
+  document.getElementById("resultMessage").textContent = rate >= 80
+    ? "かなり良い仕上がりです。別の組み合わせで、制度間の違いまで確認しましょう。"
+    : "要復習です。機能強化加算＝初診料、地域包括診療料＝継続的・全人的管理、2026年度改定＝BCP・対象患者拡大・包括範囲見直し・特定疾患の見直しを押さえましょう。";
+  document.getElementById("reviewBox").innerHTML = history.map(function(item) {
+    return '<div class="review-item">' +
+      '<strong>Q' + item.number + '：</strong>' + (item.correct ? "○" : "×") + ' ' + escapeHtml(item.question) + '<br>' +
+      '<span>選択：' + escapeHtml(item.selected) + '</span><br>' +
+      (item.correct ? "" : '<span>正答：' + escapeHtml(item.answer) + '</span>') +
+    '</div>';
+  }).join("");
+  resultBox.style.display = "block";
+  window.scrollTo({ top: resultBox.getBoundingClientRect().top + window.scrollY - 12, behavior: "smooth" });
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+startQuiz();
+</script>
+</body>
+</html>

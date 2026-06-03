@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>高齢社会白書・2040年問題実践問題</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #111827;
+      --card: #182235;
+      --card2: #1f2a3d;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --line: rgba(148, 163, 184, .22);
+      --accent: #7dd3fc;
+      --accent2: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, .14);
+      --good: #86efac;
+      --good-bg: rgba(22, 101, 52, .38);
+      --bad: #fca5a5;
+      --bad-bg: rgba(127, 29, 29, .38);
+      --warn: #fde68a;
+      --warn-bg: rgba(120, 53, 15, .32);
+      --shadow: 0 18px 40px rgba(0,0,0,.28);
+      --radius: 22px;
+      --tap: 52px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.13), transparent 36rem),
+        radial-gradient(circle at bottom right, rgba(125,211,252,.08), transparent 32rem),
+        linear-gradient(180deg, #0b1120 0%, var(--bg) 48%, #0b1120 100%);
+      line-height: 1.75;
+    }
+
+    .wrap {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding: 18px 14px calc(88px + env(safe-area-inset-bottom));
+    }
+
+    header {
+      border: 1px solid var(--line);
+      background: rgba(24,34,53,.78);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin: 8px 0 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.45rem, 5.5vw, 2.15rem);
+      line-height: 1.3;
+      letter-spacing: .02em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: .96rem;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(24,34,53,.86);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .status {
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .subnote {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .progress {
+      width: 100%;
+      height: 9px;
+      background: rgba(148,163,184,.16);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent2), #a5f3fc);
+      border-radius: inherit;
+      transition: width .25s ease;
+    }
+
+    button {
+      min-height: var(--tap);
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      color: #f8fafc;
+      font-weight: 800;
+      font-size: .98rem;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(14,165,233,.18);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+    .ghost {
+      background: rgba(148,163,184,.14);
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .question-card {
+      padding: 18px;
+    }
+
+    .qmeta {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 900;
+      border: 1px solid rgba(125,211,252,.24);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(148,163,184,.13);
+      color: #cbd5e1;
+      font-size: .82rem;
+      font-weight: 800;
+      border: 1px solid var(--line);
+    }
+
+    .question {
+      font-weight: 900;
+      font-size: clamp(1.04rem, 4vw, 1.2rem);
+      line-height: 1.72;
+      margin: 0 0 16px;
+    }
+
+    .statements {
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(15,23,42,.5);
+      border: 1px solid var(--line);
+      color: #d1d5db;
+      font-weight: 650;
+    }
+
+    .choices {
+      display: grid;
+      gap: 11px;
+      margin: 16px 0;
+    }
+
+    .choice {
+      position: relative;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 11px;
+      align-items: start;
+      min-height: var(--tap);
+      padding: 13px 14px;
+      border-radius: 17px;
+      background: rgba(31,42,61,.9);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .choice input {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      margin: 3px 0 0;
+      border: 2px solid rgba(203,213,225,.55);
+      border-radius: 999px;
+      background: rgba(15,23,42,.48);
+    }
+
+    .choice.selected {
+      border-color: rgba(125,211,252,.76);
+      background: rgba(14,116,144,.28);
+    }
+
+    .choice.selected input {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 5px #1f2a3d;
+      background: var(--accent);
+    }
+
+    .choice.correct {
+      border-color: rgba(134,239,172,.7);
+      background: var(--good-bg);
+      color: #dcfce7;
+    }
+
+    .choice.wrong {
+      border-color: rgba(252,165,165,.72);
+      background: var(--bad-bg);
+      color: #fee2e2;
+    }
+
+    .message {
+      min-height: 1.5em;
+      color: var(--muted);
+      font-weight: 800;
+      margin: 4px 0 0;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .explanation {
+      display: none;
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(15,23,42,.62);
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--accent2);
+    }
+
+    .explanation.show { display: block; }
+    .explanation h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #f8fafc;
+    }
+    .explanation p { margin: 8px 0; }
+
+    .wrong-reason {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 15px;
+      background: var(--warn-bg);
+      border: 1px solid rgba(253,230,138,.3);
+      color: #fef3c7;
+    }
+
+    .result {
+      display: none;
+      padding: 20px;
+    }
+    .result.show { display: block; }
+    .result h2 { margin: 0 0 10px; font-size: 1.45rem; }
+    .result p { color: #cbd5e1; }
+    .review {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(15,23,42,.62);
+      border: 1px solid var(--line);
+    }
+    .review ul { margin: 8px 0 0; padding-left: 1.25em; }
+    .review li { margin: 9px 0; }
+
+    .fixed-bottom {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(11,17,32,.86);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--line);
+      z-index: 10;
+    }
+    .fixed-inner {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 720px) {
+      .wrap { padding-top: 28px; }
+      header { padding: 26px; }
+      .topbar { grid-template-columns: 1fr auto; align-items: center; padding: 16px 18px; }
+      .question-card { padding: 24px; }
+      .actions { grid-template-columns: 1fr auto auto; align-items: center; }
+      .message { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>高齢社会白書・2040年問題実践問題</h1>
+      <p class="lead">高齢社会白書の人口構造、2040年頃を見据えた医療・介護需要、地域包括ケアシステム、令和8年度診療報酬改定における包括期医療・在宅医療・地域医療体制の評価を確認します。</p>
+    </header>
+
+    <section class="panel topbar">
+      <div>
+        <div class="status" id="status">準備中</div>
+        <p class="subnote">5カテゴリから各1問をランダム出題。各カテゴリには3問ずつ登録しています。</p>
+        <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+      </div>
+      <button class="ghost" type="button" id="restartTop">別問題で再挑戦</button>
+    </section>
+
+    <main id="quiz" class="panel question-card"></main>
+    <section id="result" class="panel result"></section>
+  </div>
+
+  <div class="fixed-bottom" id="fixedBottom">
+    <div class="fixed-inner">
+      <button class="ghost" type="button" id="restartBottom">最初から</button>
+      <button type="button" id="mainAction" disabled>回答</button>
+    </div>
+  </div>
+
+<script>
+const categories = [
+  {
+    name: "高齢社会白書・人口構造",
+    questions: [
+      {
+        q: "高齢社会白書等で用いられる高齢化の説明として、最も適切なものはどれか。",
+        choices: [
+          { text: "高齢化率とは、65歳以上人口が総人口に占める割合である。", correct: true, reason: "高齢化率は、一般に65歳以上人口が総人口に占める割合です。" },
+          { text: "高齢化率とは、75歳以上人口が総人口に占める割合である。", correct: false, reason: "75歳以上人口の割合ではなく、65歳以上人口の割合です。75歳以上人口は後期高齢者の規模をみる際に重要です。" },
+          { text: "高齢化率とは、要介護認定者が65歳以上人口に占める割合である。", correct: false, reason: "これは要介護認定率に近い考え方です。高齢化率は総人口に占める65歳以上人口の割合です。" },
+          { text: "高齢化率が14％を超えると高齢化社会、21％を超えると高齢社会と整理される。", correct: false, reason: "一般的には、7％以上が高齢化社会、14％以上が高齢社会、21％以上が超高齢社会です。" },
+          { text: "高齢化率は人口構造を示す指標であり、医療・介護需要の見通しには通常用いられない。", correct: false, reason: "高齢化率は、医療需要・介護需要・在宅医療需要・人材確保を考える基礎指標として重要です。" }
+        ],
+        exp: "高齢化率は65歳以上人口が総人口に占める割合です。高齢化社会・高齢社会・超高齢社会の分類や、75歳以上人口の増加と医療・介護需要との関係をあわせて整理します。"
+      },
+      {
+        q: "令和7年版高齢社会白書に基づく日本の高齢化の状況として、最も適切なものはどれか。",
+        choices: [
+          { text: "2024年現在の日本の高齢化率は29.3％で、世界で最も高い水準とされる。", correct: true, reason: "令和7年版高齢社会白書の論点として、日本の高齢化率は29.3％、世界で最も高い水準と整理されます。" },
+          { text: "2024年現在の日本の高齢化率は14.0％で、高齢社会に入った直後の水準である。", correct: false, reason: "14％は高齢社会の目安ですが、日本はすでに超高齢社会であり、29.3％と整理されます。" },
+          { text: "2024年現在の日本の高齢化率は21.0％で、超高齢社会に入った直後の水準である。", correct: false, reason: "21％は超高齢社会の目安ですが、現在の日本はさらに進んで29.3％と整理されます。" },
+          { text: "日本の高齢化率は欧米主要国より低く、今後の医療需要への影響は限定的と整理される。", correct: false, reason: "日本の高齢化率は世界的にも高い水準であり、医療・介護需要への影響は重要な論点です。" },
+          { text: "高齢化率が高くても、75歳以上人口の増加は介護需要とは切り離して考える。", correct: false, reason: "75歳以上人口の増加は、医療、介護、在宅医療、生活支援の需要と密接に関係します。" }
+        ],
+        exp: "試験対策では、数値そのものに加え、高齢化率の上昇が医療需要・介護需要・地域包括ケアの必要性につながる流れを押さえます。"
+      },
+      {
+        q: "団塊の世代と2025年問題に関する説明として、最も適切なものはどれか。",
+        choices: [
+          { text: "団塊の世代は2025年に全員が75歳以上となり、後期高齢者となった。", correct: true, reason: "団塊の世代は1947〜1949年生まれで、2025年には全員が75歳以上となります。" },
+          { text: "団塊の世代は2025年に全員が65歳以上となり、前期高齢者となった。", correct: false, reason: "団塊の世代が65歳以上になった段階はすでに過去です。2025年には全員が75歳以上となります。" },
+          { text: "団塊の世代は2040年に初めて65歳以上となる。", correct: false, reason: "2040年時点では団塊の世代は90歳前後となります。" },
+          { text: "団塊の世代の高齢化は入院医療に関係するが、在宅医療や生活支援には影響しない。", correct: false, reason: "後期高齢者の増加は、入院だけでなく在宅医療、介護、生活支援、看取りにも関係します。" },
+          { text: "2025年問題は、主に小児医療需要の急増を指す。", correct: false, reason: "2025年問題は団塊の世代が75歳以上となることによる後期高齢者増加が中心論点です。" }
+        ],
+        exp: "2025年問題は、団塊の世代が後期高齢者となることで、医療・介護・在宅医療・生活支援の需要が増加する点を押さえます。"
+      }
+    ]
+  },
+  {
+    name: "2040年問題・地域包括ケア",
+    questions: [
+      {
+        q: "2040年問題を医療・介護の観点から説明したものとして、最も適切なものはどれか。",
+        choices: [
+          { text: "85歳以上人口の増加と生産年齢人口の減少により、医療・介護需要の増加と支え手不足が同時に進む問題である。", correct: true, reason: "2040年問題の中心は、需要増加と担い手不足が同時に進む点です。" },
+          { text: "高齢者人口が急減し、医療・介護需要が急速に縮小する問題である。", correct: false, reason: "2040年頃に向けて問題となるのは、高齢者、とくに医療・介護ニーズの高い層の増加と支え手不足です。" },
+          { text: "急性期病床を増やすことで、在宅医療や介護連携を考慮せず対応できる問題である。", correct: false, reason: "病床数だけでは対応できません。機能分化、在宅医療、介護連携、人材確保、業務効率化が必要です。" },
+          { text: "医療需要の増加を中心とし、介護や生活支援の需要は制度上別問題として扱われる。", correct: false, reason: "高齢化に伴う複合ニーズでは、医療、介護、生活支援、住まいを一体的に考える必要があります。" },
+          { text: "人口減少地域では医療需要が一律に消滅するため、地域医療体制の維持は論点にならない。", correct: false, reason: "人口減少地域でも高齢化や医療資源不足が進み、地域医療体制の維持が重要な論点になります。" }
+        ],
+        exp: "2040年問題は、高齢者増加だけでなく、支える側の生産年齢人口や医療・介護人材の減少が重なる点が重要です。"
+      },
+      {
+        q: "地域包括ケアシステムの説明として、最も適切なものはどれか。",
+        choices: [
+          { text: "医療、介護、予防、住まい、生活支援を一体的に提供し、高齢者が住み慣れた地域で暮らし続けることを支える仕組みである。", correct: true, reason: "地域包括ケアシステムの基本的な説明です。" },
+          { text: "高度急性期病院が高齢者を長期入院で支えることを中心とした仕組みである。", correct: false, reason: "病院完結型の長期入院ではなく、地域で医療・介護・生活支援を一体的に支える考え方です。" },
+          { text: "介護保険施設を中心とする仕組みで、医療機関の役割は想定されない。", correct: false, reason: "医療機関、介護事業所、行政、地域資源などの連携が必要です。" },
+          { text: "在宅医療や訪問看護を縮小し、入院医療へ集約する仕組みである。", correct: false, reason: "在宅医療、訪問看護、介護、生活支援を含めて地域で支える方向です。" },
+          { text: "地域包括ケアシステムは医療機関単独の収益改善手法として位置づけられる。", correct: false, reason: "地域包括ケアシステムは、医療機関単独ではなく地域全体の提供体制に関する概念です。" }
+        ],
+        exp: "地域包括ケアシステムは、医療・介護・予防・住まい・生活支援を地域で一体的に提供し、高齢者の生活継続を支える仕組みです。"
+      },
+      {
+        q: "2040年頃を見据えた医療提供体制について、正しいものの組み合わせとして最も適切なものはどれか。",
+        stmts: [
+          "ア　病院単位の機能や地域での役割にも着目した評価が重要になる。",
+          "イ　地域完結型の医療・介護提供体制の構築が重要になる。",
+          "ウ　医療・介護需要の増加に対し、病院完結型の長期入院を基本とする。",
+          "エ　生産年齢人口の減少を踏まえ、ICT等の活用や業務効率化も課題となる。"
+        ],
+        choices: [
+          { text: "ア、イ、エ", correct: true, reason: "ア、イ、エが正しい組み合わせです。ウは病院完結型の長期入院を基本としている点が不適切です。" },
+          { text: "ア、ウ", correct: false, reason: "アは正しいですが、ウが不適切です。地域完結型の医療・介護提供体制が重要です。" },
+          { text: "イ、ウ、エ", correct: false, reason: "イとエは正しいですが、ウが不適切です。長期入院中心ではなく、地域で支える体制が求められます。" },
+          { text: "ウ、エ", correct: false, reason: "エは正しいですが、ウが不適切です。2040年対応では地域完結型の体制が重要です。" },
+          { text: "ア、イ、ウ、エ", correct: false, reason: "ウが不適切です。病院完結型の長期入院を基本とする方向ではありません。" }
+        ],
+        exp: "2040年頃を見据えた体制では、医療機関の機能分化・連携、地域完結型の医療・介護提供体制、ICT活用や業務効率化が重要です。"
+      }
+    ]
+  },
+  {
+    name: "令和8年度改定・包括期入院医療",
+    questions: [
+      {
+        q: "令和8年度診療報酬改定における地域包括医療病棟の見直しとして、最も適切なものはどれか。",
+        choices: [
+          { text: "高齢者の中等症までの救急疾患等の受入を推進する観点から、高齢者特性に配慮した要件見直しが行われた。", correct: true, reason: "地域包括医療病棟では、高齢者救急や高齢者特性に配慮した見直しが行われています。" },
+          { text: "地域包括医療病棟は急性期病院一般入院基本料に統合され、包括期入院医療の評価は終了した。", correct: false, reason: "地域包括医療病棟は廃止ではなく、高齢者特性に配慮した見直しの対象です。" },
+          { text: "ADL低下割合や平均在院日数は、地域包括医療病棟の見直しでは扱われない。", correct: false, reason: "高齢者特性を踏まえ、平均在院日数、ADL低下割合、重症度・医療看護必要度などが論点となります。" },
+          { text: "地域包括医療病棟は、小児・周産期医療に特化した病棟として再編された。", correct: false, reason: "高齢者の救急疾患等を含む包括期医療の評価であり、小児・周産期特化ではありません。" },
+          { text: "地域包括医療病棟では、リハビリテーション・栄養・口腔管理との連携は評価上の論点から外された。", correct: false, reason: "高齢者の生活を支えるケアとして、リハビリ・栄養・口腔管理等は重要な論点です。" }
+        ],
+        exp: "令和8年度改定では、地域包括医療病棟について、高齢者の中等症までの救急疾患等を受け入れる観点から、高齢者特性に配慮した見直しが行われています。"
+      },
+      {
+        q: "包括期充実体制加算の趣旨として、最も適切なものはどれか。",
+        choices: [
+          { text: "高齢者救急、在宅医療、介護保険施設等の後方支援を担う包括期入院医療を評価する。", correct: true, reason: "包括期充実体制加算は、高齢者救急や在宅医療・介護保険施設等の後方支援を担う医療機関の評価です。" },
+          { text: "急性期病院A一般入院料の算定病院に限定し、手術集積性を評価する。", correct: false, reason: "手術集積性の評価は急性期総合体制加算等の論点です。包括期充実体制加算は包括期入院医療の後方支援機能が中心です。" },
+          { text: "在宅や介護施設からの緊急入院を予定入院より低く評価するために設けられた。", correct: false, reason: "在宅や介護施設等からの緊急入院を受け入れる後方支援機能を充実させる趣旨です。" },
+          { text: "外来の生活習慣病管理を包括評価するために新設された。", correct: false, reason: "生活習慣病管理料等の外来評価とは別の論点で、包括期入院医療に関する評価です。" },
+          { text: "精神科地域密着多機能体制加算を改組し、精神科外来に限定して評価する。", correct: false, reason: "精神科地域密着多機能体制加算は別の評価です。包括期充実体制加算は高齢者救急・在宅・介護施設の後方支援が中心です。" }
+        ],
+        exp: "包括期充実体制加算は、地域包括医療病棟や地域包括ケア病棟など、包括期入院医療が高齢者救急や在宅・介護施設の後方支援を担うことを評価するものです。"
+      },
+      {
+        q: "令和8年度改定における『治し、支える医療』に関する説明として、正しいものの組み合わせとして最も適切なものはどれか。",
+        stmts: [
+          "ア　リハビリテーション・栄養管理・口腔管理等の高齢者の生活を支えるケアが重視される。",
+          "イ　円滑な入退院の実現が重視される。",
+          "ウ　在宅療養患者や介護保険施設等入所者の後方支援機能は評価対象外となった。",
+          "エ　包括期入院医療では生活に配慮した支援も論点となる。"
+        ],
+        choices: [
+          { text: "ア、イ、エ", correct: true, reason: "ア、イ、エが正しい組み合わせです。ウは、後方支援機能を評価対象外としている点が誤りです。" },
+          { text: "ア、ウ", correct: false, reason: "アは正しいですが、ウが誤りです。在宅療養患者や介護保険施設等入所者の後方支援機能は評価されます。" },
+          { text: "イ、ウ、エ", correct: false, reason: "イとエは正しいですが、ウが誤りです。後方支援機能は令和8年度改定の重要論点です。" },
+          { text: "ウ、エ", correct: false, reason: "エは正しいですが、ウが誤りです。後方支援機能は評価対象外ではありません。" },
+          { text: "ア、イ、ウ、エ", correct: false, reason: "ウが誤りです。在宅療養患者や介護保険施設等入所者の後方支援機能は評価対象です。" }
+        ],
+        exp: "『治し、支える医療』では、疾患治療だけでなく、退院後の生活、ADL、リハビリ、栄養、口腔、入退院支援、在宅・介護連携が重視されます。"
+      }
+    ]
+  },
+  {
+    name: "在宅医療・後方支援",
+    questions: [
+      {
+        q: "地域包括ケア病棟における在宅患者支援病床初期加算等の見直しとして、最も適切なものはどれか。",
+        choices: [
+          { text: "介護老人保健施設、介護医療院、特別養護老人ホーム、自宅等からの緊急入院を意識した評価の見直しが行われた。", correct: true, reason: "地域包括ケア病棟では、在宅・介護施設等からの緊急入院を受け入れる後方支援機能が重要です。" },
+          { text: "介護保険施設からの入院患者は、地域包括ケア病棟の初期加算の評価から除外する方向で整理された。", correct: false, reason: "除外ではなく、介護保険施設等からの緊急入院受入が後方支援として重視されています。" },
+          { text: "初期加算は、予定入院患者の受入実績を中心に評価する仕組みへ整理された。", correct: false, reason: "緊急入院の受入が重要な論点です。予定入院中心の評価ではありません。" },
+          { text: "在宅患者支援病床初期加算は、外来初診時の在宅移行相談を評価する点数である。", correct: false, reason: "外来初診時の点数ではなく、地域包括ケア病棟等への入院初期の評価です。" },
+          { text: "地域包括ケア病棟では、退院支援や介護連携は急性期病棟に移管されるため評価上の位置づけが弱まった。", correct: false, reason: "地域包括ケア病棟では、退院支援や介護連携が重要な機能です。" }
+        ],
+        exp: "在宅や介護施設で暮らす高齢者の急変時に、地域包括ケア病棟等が入院受入を担う後方支援機能が重視されています。"
+      },
+      {
+        q: "在宅医療・訪問看護に関する令和8年度診療報酬改定の方向性として、最も適切なものはどれか。",
+        choices: [
+          { text: "地域で在宅医療における積極的役割を担う医療機関の評価や、訪問看護のきめ細かな評価の見直しが示された。", correct: true, reason: "在宅医療を担う医療機関の評価や、同一建物居住者数等に応じた訪問看護評価の見直しが示されています。" },
+          { text: "在宅医療は地域包括ケアの対象から外れ、外来医療の機能分化に一本化された。", correct: false, reason: "在宅医療は地域包括ケアを支える重要な要素であり、質の高い在宅医療・訪問看護の確保が示されています。" },
+          { text: "訪問看護は同一建物の利用者数による差を縮小し、すべて同一評価に近づける方向が示された。", correct: false, reason: "同一建物に居住する利用者の人数等に応じた、きめ細かな評価への見直しが示されています。" },
+          { text: "訪問看護は介護保険で評価されるため、医療保険の診療報酬改定では扱われない。", correct: false, reason: "訪問看護には医療保険で評価されるものがあり、診療報酬改定でも扱われます。" },
+          { text: "在宅医療の評価は、主に高度急性期病院の全身麻酔手術実績に連動して見直された。", correct: false, reason: "全身麻酔手術実績は急性期病院機能の評価に関する論点です。在宅医療評価とは別の軸です。" }
+        ],
+        exp: "令和8年度改定では、質の高い在宅医療・訪問看護の確保が方向性として示され、在宅医療に積極的役割を担う医療機関や訪問看護の評価見直しが論点となっています。"
+      },
+      {
+        q: "在宅・介護施設の後方支援に関する説明として、正しいものの組み合わせとして最も適切なものはどれか。",
+        stmts: [
+          "ア　高齢者が在宅や介護施設で生活する場合、急変時に入院を受け入れる医療機関の機能が重要となる。",
+          "イ　地域包括ケアシステムでは、平時からの連携と必要時の入院受入が重要となる。",
+          "ウ　介護保険施設等からの緊急入院は、診療報酬上の評価とは関係しない。",
+          "エ　在宅復帰や退院支援は、包括期入院医療と関係する。"
+        ],
+        choices: [
+          { text: "ア、イ、エ", correct: true, reason: "ア、イ、エが正しい組み合わせです。ウは、緊急入院が評価と関係しないとしている点が不適切です。" },
+          { text: "ア、ウ", correct: false, reason: "アは正しいですが、ウが不適切です。介護保険施設等からの緊急入院は後方支援機能の評価と関係します。" },
+          { text: "イ、ウ、エ", correct: false, reason: "イとエは正しいですが、ウが不適切です。緊急入院の受入は診療報酬上の評価と関係します。" },
+          { text: "ウ、エ", correct: false, reason: "エは正しいですが、ウが不適切です。在宅・介護施設等の後方支援は重要論点です。" },
+          { text: "ア、イ、ウ、エ", correct: false, reason: "ウが不適切です。在宅療養患者や介護保険施設等入所者の緊急入院等は評価対象となります。" }
+        ],
+        exp: "地域包括ケアを機能させるには、在宅・介護施設で生活する高齢者の急変時に、地域の医療機関が入院を受け入れ、退院支援まで担う後方支援機能が必要です。"
+      }
+    ]
+  },
+  {
+    name: "人口減少・人材確保・地域医療",
+    questions: [
+      {
+        q: "令和8年度診療報酬改定における医療提供機能連携確保加算の趣旨として、最も適切なものはどれか。",
+        choices: [
+          { text: "人口の少ない地域で、外来・在宅医療の確保や緊急入院の受入体制がある病院を評価する。", correct: true, reason: "医療提供機能連携確保加算は、人口の少ない地域で地域医療体制の確保に貢献する病院を評価するものです。" },
+          { text: "都市部の高度急性期病院に限定し、全身麻酔手術件数の集積性を評価する。", correct: false, reason: "全身麻酔手術件数の集積性は急性期病院機能等の論点です。医療提供機能連携確保加算は人口の少ない地域の医療確保に関する評価です。" },
+          { text: "地域医療連携を不要とし、外来患者を特定機能病院に集約する仕組みである。", correct: false, reason: "地域医療連携を不要とするものではなく、地域で必要な医療機能を確保するための評価です。" },
+          { text: "介護保険施設の職員配置を直接評価する介護報酬上の加算である。", correct: false, reason: "診療報酬上の評価であり、介護保険施設の職員配置を直接評価する介護報酬ではありません。" },
+          { text: "外来機能報告の対象医療機関を人口規模に応じて除外するための減算である。", correct: false, reason: "医療提供機能連携確保加算は、人口の少ない地域で医療提供機能を確保するための加算です。" }
+        ],
+        exp: "人口減少・高齢化が進む地域では、医療資源の確保が課題です。医療提供機能連携確保加算は、人口の少ない地域で地域医療体制を支える病院を評価します。"
+      },
+      {
+        q: "2040年問題と医療従事者確保に関する説明として、最も適切なものはどれか。",
+        choices: [
+          { text: "医療・介護需要の増加と支え手不足が見込まれるため、処遇改善、ICT活用、タスク・シフト／シェアなどが重要となる。", correct: true, reason: "需要増と担い手不足が同時に進むため、人材確保と業務効率化が重要です。" },
+          { text: "2040年問題は患者数の問題であり、医療従事者の働き方や人材確保とは切り離して整理される。", correct: false, reason: "2040年問題では、生産年齢人口の減少による人材確保制約も大きな論点です。" },
+          { text: "ICTやAIの活用は医療安全に関係するが、業務効率化や負担軽減の観点では評価対象にならない。", correct: false, reason: "令和8年度改定では、ICT、AI、IoT等の利活用による業務効率化・負担軽減が方向性として示されています。" },
+          { text: "タスク・シフト／タスク・シェアは、医療従事者が十分に確保されている地域に限定した取組である。", correct: false, reason: "タスク・シフト／シェアは、人材確保制約が増す中で必要な医療機能を確保するために重要です。" },
+          { text: "処遇改善は介護報酬改定の論点であり、令和8年度診療報酬改定では扱われない。", correct: false, reason: "令和8年度診療報酬改定では、ベースアップ評価料等による医療従事者の処遇改善が扱われています。" }
+        ],
+        exp: "2040年問題では、医療・介護需要の増加だけでなく担い手不足が重要です。賃上げ、ICT・AI・IoT活用、タスク・シフト／シェア、チーム医療が関連論点です。"
+      },
+      {
+        q: "令和8年度診療報酬改定の基本方針に関する説明として、正しいものの組み合わせとして最も適切なものはどれか。",
+        stmts: [
+          "ア　2040年頃を見据えた医療機関の機能分化・連携が掲げられている。",
+          "イ　地域包括ケアシステムの推進が掲げられている。",
+          "ウ　人口・医療資源の少ない地域への支援が掲げられている。",
+          "エ　医療従事者確保の制約が増す中で必要な医療機能を確保する取組が掲げられている。"
+        ],
+        choices: [
+          { text: "ア、イ、ウ、エ", correct: true, reason: "4つとも令和8年度診療報酬改定の基本方針に沿った内容です。" },
+          { text: "ア、イ", correct: false, reason: "ア、イは正しいですが、ウ、エも正しい内容です。" },
+          { text: "ア、ウ", correct: false, reason: "ア、ウは正しいですが、イ、エも正しい内容です。" },
+          { text: "イ、ウ、エ", correct: false, reason: "イ、ウ、エは正しいですが、アも正しい内容です。" },
+          { text: "ウ、エ", correct: false, reason: "ウ、エは正しいですが、ア、イも正しい内容です。" }
+        ],
+        exp: "令和8年度診療報酬改定の基本方針では、2040年頃を見据えた機能分化・連携、地域包括ケアシステム、人口・医療資源の少ない地域への支援、人材確保制約への対応が示されています。"
+      }
+    ]
+  }
+];
+
+const quizEl = document.getElementById('quiz');
+const resultEl = document.getElementById('result');
+const statusEl = document.getElementById('status');
+const barEl = document.getElementById('bar');
+const mainAction = document.getElementById('mainAction');
+const restartTop = document.getElementById('restartTop');
+const restartBottom = document.getElementById('restartBottom');
+const fixedBottom = document.getElementById('fixedBottom');
+
+let quiz = [];
+let current = 0;
+let selected = null;
+let answered = false;
+let results = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function start() {
+  quiz = categories.map(cat => {
+    const q = shuffle(cat.questions)[0];
+    return { category: cat.name, q: q.q, stmts: q.stmts || [], exp: q.exp, choices: shuffle(q.choices) };
+  });
+  current = 0;
+  results = [];
+  resultEl.classList.remove('show');
+  resultEl.innerHTML = '';
+  quizEl.style.display = 'block';
+  fixedBottom.style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestion() {
+  selected = null;
+  answered = false;
+  const item = quiz[current];
+  const stmtHtml = item.stmts.length ? `<div class="statements">${item.stmts.map(s => `<div>${s}</div>`).join('')}</div>` : '';
+  quizEl.innerHTML = `
+    <div class="qmeta">
+      <span class="num">${current + 1}</span>
+      <span class="tag">${item.category}</span>
+    </div>
+    <div class="question">${item.q}</div>
+    ${stmtHtml}
+    <div class="choices" id="choices">
+      ${item.choices.map((c, i) => `
+        <label class="choice" data-index="${i}">
+          <input type="radio" name="choice" value="${i}" aria-label="選択肢${i + 1}">
+          <span>${c.text}</span>
+        </label>
+      `).join('')}
+    </div>
+    <div class="actions">
+      <div class="message" id="message">選択肢を1つ選んでください。</div>
+      <button type="button" id="answerBtn" disabled>回答</button>
+      <button type="button" class="ghost" id="nextBtn" style="display:none;">次の問題へ</button>
+    </div>
+    <div class="explanation" id="explanation"></div>
+  `;
+  document.querySelectorAll('.choice').forEach(label => {
+    label.addEventListener('click', () => selectChoice(Number(label.dataset.index)));
+  });
+  document.getElementById('answerBtn').addEventListener('click', submit);
+  document.getElementById('nextBtn').addEventListener('click', next);
+  mainAction.textContent = '回答';
+  mainAction.disabled = true;
+  mainAction.onclick = submit;
+  updateStatus();
+}
+
+function selectChoice(i) {
+  if (answered) return;
+  selected = i;
+  document.querySelectorAll('.choice').forEach(el => el.classList.remove('selected'));
+  const chosen = document.querySelector(`.choice[data-index="${i}"]`);
+  chosen.classList.add('selected');
+  chosen.querySelector('input').checked = true;
+  document.getElementById('answerBtn').disabled = false;
+  document.getElementById('message').textContent = '選択しました。回答ボタンを押してください。';
+  mainAction.disabled = false;
+}
+
+function submit() {
+  if (selected === null || answered) return;
+  answered = true;
+  const item = quiz[current];
+  const chosen = item.choices[selected];
+  const correctIndex = item.choices.findIndex(c => c.correct);
+  const isCorrect = chosen.correct;
+
+  document.querySelectorAll('.choice').forEach(label => {
+    const idx = Number(label.dataset.index);
+    label.querySelector('input').disabled = true;
+    if (idx === correctIndex) label.classList.add('correct');
+    if (idx === selected && !isCorrect) label.classList.add('wrong');
+  });
+
+  const msg = document.getElementById('message');
+  msg.textContent = isCorrect ? '正解です。' : '不正解です。';
+  msg.style.color = isCorrect ? 'var(--good)' : 'var(--bad)';
+
+  const explanation = document.getElementById('explanation');
+  explanation.classList.add('show');
+  explanation.innerHTML = `
+    <h3>${isCorrect ? '正答の解説' : '正答の解説と誤答理由'}</h3>
+    <p>${item.exp}</p>
+    ${isCorrect ? '' : `<div class="wrong-reason"><strong>選んだ選択肢が誤りである理由</strong><br>${chosen.reason}</div>`}
+  `;
+
+  document.getElementById('answerBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  mainAction.textContent = current === quiz.length - 1 ? '結果を見る' : '次の問題へ';
+  mainAction.disabled = false;
+  mainAction.onclick = next;
+
+  results.push({ category: item.category, correct: isCorrect, selected: chosen.text, correctText: item.choices[correctIndex].text });
+  updateStatus();
+}
+
+function next() {
+  if (current < quiz.length - 1) {
+    current++;
+    renderQuestion();
+    quizEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    showResult();
+  }
+}
+
+function updateStatus() {
+  const correct = results.filter(r => r.correct).length;
+  statusEl.textContent = `${current + 1} / ${quiz.length} 問目　｜　回答済 ${results.length} 問　｜　正解 ${correct} 問`;
+  barEl.style.width = `${(results.length / quiz.length) * 100}%`;
+}
+
+function showResult() {
+  quizEl.style.display = 'none';
+  fixedBottom.style.display = 'none';
+  const correct = results.filter(r => r.correct).length;
+  let msg;
+  if (correct === 5) msg = '全問正解です。高齢社会白書の基礎と2040年問題、令和8年度改定の関連評価が整理できています。';
+  else if (correct >= 4) msg = 'かなり良いです。間違えたカテゴリを確認すれば得点源になります。';
+  else if (correct >= 3) msg = '基礎はつかめています。2040年問題と診療報酬改定のつながりを中心に復習しましょう。';
+  else msg = 'まずは「高齢者増加＋支え手不足 → 地域で支える医療・介護 → 診療報酬で後押し」という流れを押さえましょう。';
+
+  const misses = results.filter(r => !r.correct);
+  resultEl.innerHTML = `
+    <h2>結果：${correct} / ${quiz.length} 問正解</h2>
+    <p>${msg}</p>
+    <div class="review">
+      <strong>復習ポイント</strong>
+      ${misses.length ? `<ul>${misses.map(m => `<li>${m.category}<br>正答：${m.correctText}</li>`).join('')}</ul>` : '<p>特になし。別問題で定着確認しましょう。</p>'}
+    </div>
+    <div class="actions" style="margin-top:16px;">
+      <span></span>
+      <button type="button" id="retryResult">別問題で再挑戦</button>
+    </div>
+  `;
+  resultEl.classList.add('show');
+  document.getElementById('retryResult').addEventListener('click', start);
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+restartTop.addEventListener('click', start);
+restartBottom.addEventListener('click', start);
+start();
+</script>
+</body>
+</html>

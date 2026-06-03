@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>診療録管理体制加算実践問題</title>
+  <style>
+    :root {
+      --bg: #111827;
+      --bg2: #0f172a;
+      --card: #1f2937;
+      --card2: #172033;
+      --ink: #e5e7eb;
+      --muted: #a7b0c0;
+      --line: #334155;
+      --accent: #38bdf8;
+      --accent2: #22c55e;
+      --accent-soft: rgba(56, 189, 248, .13);
+      --ok: #86efac;
+      --ok-bg: rgba(22, 101, 52, .38);
+      --ng: #fca5a5;
+      --ng-bg: rgba(127, 29, 29, .42);
+      --warn-bg: rgba(120, 53, 15, .45);
+      --shadow: 0 18px 42px rgba(0, 0, 0, .35);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, .18), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, .12), transparent 34%),
+        linear-gradient(180deg, var(--bg2), var(--bg));
+      color: var(--ink);
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 22px 14px 46px; }
+    header {
+      background: linear-gradient(135deg, rgba(15, 23, 42, .96), rgba(30, 41, 59, .94));
+      border: 1px solid rgba(148, 163, 184, .2);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+    h1 { margin: 0 0 8px; font-size: clamp(1.45rem, 5vw, 2.1rem); line-height: 1.25; letter-spacing: .02em; }
+    .lead { margin: 0; color: var(--muted); font-size: .97rem; }
+    .panel {
+      background: rgba(31, 41, 55, .9);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      margin: 14px 0;
+    }
+    .status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .stat { background: rgba(15, 23, 42, .68); border: 1px solid var(--line); border-radius: 15px; padding: 10px 8px; text-align: center; }
+    .stat span { color: var(--muted); font-size: .82rem; }
+    .stat b { display: block; font-size: 1.14rem; color: var(--accent); }
+    .question-card {
+      background: rgba(31, 41, 55, .94);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin: 14px 0;
+    }
+    .q-top { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .badge, .category {
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-weight: 800;
+      font-size: .86rem;
+      white-space: nowrap;
+    }
+    .badge { background: var(--accent-soft); color: #7dd3fc; border: 1px solid rgba(125, 211, 252, .28); }
+    .category { background: rgba(34, 197, 94, .13); color: #86efac; border: 1px solid rgba(134, 239, 172, .25); }
+    .q-title { font-weight: 800; font-size: 1.06rem; margin: 8px 0 16px; }
+    .choices { display: grid; gap: 10px; }
+    label.choice {
+      width: 100%; display: flex; gap: 10px; align-items: flex-start; text-align: left;
+      border: 1px solid var(--line); border-radius: 16px; background: rgba(15, 23, 42, .64); padding: 13px 12px;
+      cursor: pointer; transition: transform .08s ease, border-color .15s ease, background .15s ease;
+      min-height: 50px;
+    }
+    label.choice:hover { transform: translateY(-1px); border-color: rgba(125, 211, 252, .55); background: rgba(15, 23, 42, .82); }
+    label.choice.selected { border-color: var(--accent); background: rgba(14, 116, 144, .22); }
+    label.choice.correct { border-color: rgba(134, 239, 172, .8); background: var(--ok-bg); }
+    label.choice.wrong { border-color: rgba(252, 165, 165, .85); background: var(--ng-bg); }
+    .choice input { margin-top: .45em; accent-color: var(--accent); transform: scale(1.1); }
+    .choice-text { flex: 1; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; align-items: center; }
+    button {
+      border: 0; border-radius: 999px; padding: 12px 18px; background: linear-gradient(135deg, #0284c7, #0891b2); color: white;
+      font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(8,145,178,.22);
+      min-height: 46px;
+    }
+    button.secondary { border: 1px solid var(--line); background: rgba(15, 23, 42, .78); color: var(--ink); box-shadow: none; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .feedback { margin-top: 16px; padding: 15px; border-radius: 16px; display: none; }
+    .feedback.ok { display: block; background: var(--ok-bg); color: #dcfce7; border: 1px solid rgba(134, 239, 172, .45); }
+    .feedback.ng { display: block; background: var(--ng-bg); color: #fee2e2; border: 1px solid rgba(252, 165, 165, .45); }
+    .feedback.warn { display: block; background: var(--warn-bg); color: #fed7aa; border: 1px solid rgba(253, 186, 116, .45); }
+    .explain { margin-top: 8px; color: var(--ink); }
+    .mini { color: var(--muted); font-size: .9rem; }
+    .result { display: none; }
+    .result.show { display: block; }
+    .review-item { border-top: 1px solid var(--line); padding: 14px 0; }
+    .review-item:first-child { border-top: 0; }
+    .source-box { font-size: .86rem; color: var(--muted); }
+    .source-box strong { color: var(--ink); }
+    @media (max-width: 720px) {
+      .wrap { padding: 14px 10px 34px; }
+      .status { grid-template-columns: 1fr 1fr; }
+      header { padding: 18px; border-radius: 20px; }
+      .question-card { padding: 16px; }
+      button { width: 100%; }
+      .actions { gap: 8px; }
+      label.choice { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>診療録管理体制加算実践問題</h1>
+      <p class="lead">診療録管理体制加算の算定場面、令和8年度改定後の区分、施設基準、中央病歴管理室、退院時要約、電子的診療情報連携体制整備加算との違いを確認できます。各カテゴリから1問ずつ、合計10問をランダム出題します。</p>
+    </header>
+
+    <section class="panel status" aria-label="進捗">
+      <div class="stat"><span>現在の問題</span><b id="now">1 / 10</b></div>
+      <div class="stat"><span>回答済み</span><b id="answered">0</b></div>
+      <div class="stat"><span>正答数</span><b id="correct">0</b></div>
+      <div class="stat"><span>正答率</span><b id="rate">0%</b></div>
+    </section>
+
+    <main id="quiz" class="question-card"></main>
+
+    <section id="result" class="panel result"></section>
+
+    <section class="panel source-box">
+      <strong>学習メモ：</strong><br>
+      本ページは、診療録管理体制加算の基礎、令和8年度改定後の整理、病院情報管理・電子カルテ三原則・DPC包括評価との関連を確認するための練習問題です。制度情報は今後の告示・通知で詳細が変わる可能性があるため、受験直前には最新資料も確認してください。
+    </section>
+  </div>
+
+  <script>
+    const questionPools = [
+      {
+        category: "算定場面",
+        items: [
+          {
+            q: "診療録管理体制加算の算定場面について、正しいものを1つ選べ。",
+            choices: [
+              { text: "外来初診時に月1回算定する。", ok: false, why: "診療録管理体制加算は外来初診時の加算ではありません。" },
+              { text: "外来再診時に月1回算定する。", ok: false, why: "外来再診時に算定する加算ではありません。" },
+              { text: "入院患者について、入院初日に算定する。", ok: true, why: "診療録管理体制加算は入院基本料等加算であり、入院初日に算定します。" },
+              { text: "退院時に退院時要約を作成した患者に算定する。", ok: false, why: "退院時要約は施設基準上の重要論点ですが、算定タイミングは退院時ではありません。" },
+              { text: "診療録を閲覧した都度、管理料として算定する。", ok: false, why: "診療録の閲覧回数に応じて算定するものではありません。" }
+            ],
+            exp: "診療録管理体制加算は、診療録管理体制を評価する入院基本料等加算です。試験対策では「入院患者・入院初日・外来不可」と整理します。"
+          },
+          {
+            q: "診療録管理体制加算と外来算定の関係について、正しいものを1つ選べ。",
+            choices: [
+              { text: "診療録管理体制加算1は、外来初診時にも算定できる。", ok: false, why: "加算1であっても外来で算定する加算ではありません。" },
+              { text: "診療録管理体制加算2は、外来再診時にも算定できる。", ok: false, why: "加算2であっても外来で算定する加算ではありません。" },
+              { text: "診療録管理体制加算は、外来初診・再診で算定する評価ではない。", ok: true, why: "入院基本料等加算であり、外来初診・再診の加算ではありません。" },
+              { text: "電子カルテを導入していれば、外来再診時に算定できる。", ok: false, why: "電子カルテ導入の有無だけで外来算定できるわけではありません。" },
+              { text: "中央病歴管理室があれば、外来初診時に診療録管理体制加算を算定できる。", ok: false, why: "中央病歴管理室等は施設基準上重要ですが、外来算定を可能にする要件ではありません。" }
+            ],
+            exp: "診療録管理体制加算は入院で算定する加算です。外来の医療DX・情報連携に関する評価とは分けて理解します。"
+          },
+          {
+            q: "診療録管理体制加算の位置づけとして、最も適切なものを1つ選べ。",
+            choices: [
+              { text: "医学管理等に分類される外来管理料である。", ok: false, why: "外来管理料ではありません。" },
+              { text: "在宅医療に分類される訪問診療時の加算である。", ok: false, why: "訪問診療時の加算ではありません。" },
+              { text: "入院基本料等加算である。", ok: true, why: "A207の入院基本料等加算として整理されます。" },
+              { text: "手術料に対する体制加算である。", ok: false, why: "手術件数や手術料に対する加算ではありません。" },
+              { text: "調剤報酬における薬学管理料である。", ok: false, why: "調剤報酬ではなく医科診療報酬の入院基本料等加算です。" }
+            ],
+            exp: "診療録管理体制加算は、病院の診療記録管理体制を評価する入院基本料等加算です。"
+          }
+        ]
+      },
+      {
+        category: "令和8年度改定",
+        items: [
+          {
+            q: "令和8年度診療報酬改定後の診療録管理体制加算の点数として、正しい組み合わせを1つ選べ。",
+            choices: [
+              { text: "加算1 140点、加算2 100点、加算3 30点", ok: false, why: "これは令和6年度時点の3区分の整理です。" },
+              { text: "加算1 100点、加算2 30点", ok: true, why: "令和8年度改定後は2区分となり、加算1が100点、加算2が30点です。" },
+              { text: "加算1 160点、加算2 80点", ok: false, why: "160点・80点は電子的診療情報連携体制整備加算の入院時評価と混同しやすい数値です。" },
+              { text: "加算1 15点、加算2 9点、加算3 4点", ok: false, why: "15点・9点・4点は電子的診療情報連携体制整備加算の初診時評価と混同しやすい数値です。" },
+              { text: "加算1 80点、加算2 30点、加算3 10点", ok: false, why: "令和8年度改定後の区分・点数ではありません。" }
+            ],
+            exp: "令和8年度改定後は、診療録管理体制加算は2区分に再編されました。"
+          },
+          {
+            q: "令和8年度改定における診療録管理体制加算の見直しについて、正しいものを1つ選べ。",
+            choices: [
+              { text: "旧加算3が廃止され、2区分に再編された。", ok: true, why: "旧加算3が廃止され、2区分に再編された点が重要です。" },
+              { text: "診療録管理体制加算は、すべて電子的診療情報連携体制整備加算に統合された。", ok: false, why: "診療録管理体制加算自体は残り、2区分に再編されています。" },
+              { text: "診療録管理体制加算3が新設され、サイバーセキュリティ要件を評価する区分となった。", ok: false, why: "加算3は新設ではなく廃止された区分です。" },
+              { text: "外来専用の加算に変更された。", ok: false, why: "外来専用の加算には変更されていません。" },
+              { text: "旧加算1・2・3の3区分が、点数を変えずに維持された。", ok: false, why: "令和8年度改定後は3区分ではありません。" }
+            ],
+            exp: "令和8年度改定では、旧・診療録管理体制加算3が廃止され、加算は2区分に再編されました。"
+          },
+          {
+            q: "令和8年度改定後の診療録管理体制加算について、正しいものの組み合わせを1つ選べ。\nア 加算1は100点である。\nイ 加算2は30点である。\nウ 加算3は30点で存続している。\nエ 入院初日に算定する。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "ア・イは正しいですが、エも正しいため不足しています。" },
+              { text: "ア・イ・エ", ok: true, why: "加算1 100点、加算2 30点、入院初日算定の3つが正しい組み合わせです。" },
+              { text: "ア・ウ・エ", ok: false, why: "ウが誤りです。令和8年度改定後、加算3は存続していません。" },
+              { text: "イ・ウ", ok: false, why: "ウが誤りであり、ア・エも正しいため不足しています。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "ウが誤りです。加算3は廃止されています。" }
+            ],
+            exp: "点数、区分、算定場面を組み合わせて問われる可能性があります。"
+          }
+        ]
+      },
+      {
+        category: "基本施設基準",
+        items: [
+          {
+            q: "診療録管理体制加算の施設基準として、適切でないものを1つ選べ。",
+            choices: [
+              { text: "過去5年間の診療録が保管・管理されている。", ok: false, why: "これは適切な内容です。診療録は過去5年間の保管・管理が重要です。" },
+              { text: "過去3年間の手術記録、看護記録等が保管・管理されている。", ok: false, why: "これは適切な内容です。手術記録・看護記録等は過去3年間が論点になります。" },
+              { text: "中央病歴管理室等、診療記録管理を行うための適切な施設・設備を有している。", ok: false, why: "これは適切な内容です。" },
+              { text: "診療記録の保管・管理のための規程が明文化されている。", ok: false, why: "これは適切な内容です。" },
+              { text: "診療録の保管・管理期間は、手術記録等と同じく過去3年間で足りる。", ok: true, why: "診療録は過去3年間ではなく、過去5年間の保管・管理が必要です。" }
+            ],
+            exp: "診療録は5年、手術記録・看護記録等は3年という組み合わせが頻出です。"
+          },
+          {
+            q: "診療録管理体制加算の基本的な施設基準として、正しいものの組み合わせを1つ選べ。\nア 診療記録の保管・管理の規程が明文化されている。\nイ 中央病歴管理室等の施設・設備を有している。\nウ 診療録管理部門又は診療記録管理委員会が設置されている。\nエ 診療録は過去3年間の保管で足りる。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "ア・イは正しいですが、ウも正しいため不足しています。" },
+              { text: "ア・イ・ウ", ok: true, why: "ア・イ・ウが正しい組み合わせです。エは診療録の保存期間が誤りです。" },
+              { text: "ア・エ", ok: false, why: "エが誤りです。診療録は過去5年間が基本です。" },
+              { text: "イ・ウ・エ", ok: false, why: "エが誤りです。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "エが誤りです。" }
+            ],
+            exp: "基本施設基準は、保存期間、中央病歴管理室等、管理部門・委員会、規程の明文化、診療記録管理者の配置をセットで押さえます。"
+          },
+          {
+            q: "診療録管理体制加算が評価している内容として、最も適切なものを1つ選べ。",
+            choices: [
+              { text: "救急搬送件数や全身麻酔手術件数に基づく急性期機能", ok: false, why: "急性期病院一般入院基本料などで問われやすい論点です。" },
+              { text: "適切な診療記録管理を行う体制", ok: true, why: "診療録管理体制加算は、診療記録の保管・管理、検索、退院時要約等の体制を評価します。" },
+              { text: "外来患者への長期処方・リフィル処方の体制", ok: false, why: "地域包括診療加算等で関連する論点です。" },
+              { text: "夜間休日の救急外来受入体制", ok: false, why: "救急外来医療の評価とは別です。" },
+              { text: "在宅医療における訪問診療実績", ok: false, why: "在宅医療の評価とは別です。" }
+            ],
+            exp: "名称どおり、診療録・診療記録の管理体制を評価する加算です。"
+          }
+        ]
+      },
+      {
+        category: "加算1の上乗せ要件",
+        items: [
+          {
+            q: "診療録管理体制加算1の施設基準として、正しいものを1つ選べ。",
+            choices: [
+              { text: "年間退院患者実数2,000名あたり1名以上の専任の常勤診療記録管理者を配置し、うち1名以上が専従である。", ok: true, why: "加算1の重要な上乗せ要件です。" },
+              { text: "診療記録管理者は非常勤で1名配置していれば足りる。", ok: false, why: "加算1では専任の常勤診療記録管理者の配置が問われます。" },
+              { text: "退院患者数にかかわらず、診療記録管理者は1名配置でよい。", ok: false, why: "年間退院患者実数2,000名あたり1名以上という基準が重要です。" },
+              { text: "専従者ではなく、兼任の診療記録管理者を複数配置することが主な要件である。", ok: false, why: "加算1では1名以上が専従であることが必要です。" },
+              { text: "診療記録管理者の配置よりも、救急搬送件数2,000件以上が中心要件である。", ok: false, why: "救急搬送件数2,000件は急性期病院A一般入院料などと混同しやすい数値です。" }
+            ],
+            exp: "加算1は、加算2よりも充実した診療録管理体制を評価します。特に「2,000名あたり1名以上」「専任常勤」「1名以上専従」を押さえます。"
+          },
+          {
+            q: "診療録管理体制加算1について、正しいものの組み合わせを1つ選べ。\nア 退院患者の氏名、生年月日、疾病名、入院中の手術等に関する電子的な一覧表を有する。\nイ 診療録の検索・抽出が速やかにできる体制を確保する。\nウ 退院時要約は全患者について30日以内に作成されることが望ましい。\nエ 退院日の翌日から起算して14日以内に退院時要約が作成され、中央病歴管理室に提出された者の割合が9割以上である。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "ア・イは正しいですが、エも正しいため不足しています。" },
+              { text: "ア・イ・エ", ok: true, why: "ア・イ・エが正しい組み合わせです。ウは30日以内ではなく、加算1では14日以内9割以上が重要です。" },
+              { text: "ア・ウ", ok: false, why: "ウが誤りです。" },
+              { text: "イ・ウ・エ", ok: false, why: "ウが誤りです。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "ウが誤りです。" }
+            ],
+            exp: "加算1は、電子的な一覧表による検索・抽出体制と、退院時要約の14日以内作成・提出割合9割以上が重要です。"
+          },
+          {
+            q: "診療録管理体制加算1と加算2の違いとして、最も適切なものを1つ選べ。",
+            choices: [
+              { text: "加算1は外来、加算2は入院で算定する。", ok: false, why: "どちらも外来ではなく入院基本料等加算です。" },
+              { text: "加算1では、コードに基づく診療録管理や専従職員の配置等、より充実した診療録管理体制が評価される。", ok: true, why: "加算1は加算2より高い水準の診療録管理体制を評価します。" },
+              { text: "加算2では中央病歴管理室等が必要で、加算1では不要となる。", ok: false, why: "中央病歴管理室等は加算1・2とも重要です。" },
+              { text: "加算1は入院初日、加算2は退院時に算定する。", ok: false, why: "算定タイミングを分けるものではありません。" },
+              { text: "加算1は診療録保存期間が3年、加算2は5年である。", ok: false, why: "診療録の保存期間を加算1・2でこのように分けるものではありません。" }
+            ],
+            exp: "加算1は、加算2に比べて専従配置、電子的一覧表、退院時要約14日以内9割以上などが問われます。"
+          }
+        ]
+      },
+      {
+        category: "中央病歴管理室",
+        items: [
+          {
+            q: "中央病歴管理室等について、最も適切なものを1つ選べ。",
+            choices: [
+              { text: "薬剤の在庫と発注を一元管理する部署である。", ok: false, why: "薬剤在庫管理ではなく、診療記録管理に関する施設・設備です。" },
+              { text: "診療記録を一元的に管理するための施設・設備である。", ok: true, why: "中央病歴管理室等は、診療記録管理を行うための適切な施設・設備として理解します。" },
+              { text: "救急患者のトリアージを専門に行う部署である。", ok: false, why: "救急外来・院内トリアージの論点とは別です。" },
+              { text: "地域包括ケア病棟に設置するカンファレンス室である。", ok: false, why: "地域包括ケア病棟に限定されるものではありません。" },
+              { text: "医療材料の共同購入を主業務とする部門である。", ok: false, why: "医療材料購入ではなく診療記録管理が中心です。" }
+            ],
+            exp: "中央病歴管理室等は、病院全体の診療記録を適切に保管・管理・検索するための施設・設備として押さえます。"
+          },
+          {
+            q: "中央病歴管理室等と診療録管理体制加算の関係について、正しいものを1つ選べ。",
+            choices: [
+              { text: "加算1では必要だが、加算2では不要である。", ok: false, why: "加算2でも中央病歴管理室等は重要な施設基準です。" },
+              { text: "加算2では必要だが、加算1では不要である。", ok: false, why: "加算1でも必要です。" },
+              { text: "加算1・加算2とも、中央病歴管理室等の適切な施設・設備が関係する。", ok: true, why: "加算1・2の共通論点として押さえます。" },
+              { text: "電子カルテを導入していれば、診療記録管理の施設・設備に関する体制は問われない。", ok: false, why: "電子化されていても、診療記録管理を行う適切な施設・設備の体制が問われます。" },
+              { text: "中央病歴管理室等は、外来算定を行う場合の施設基準である。", ok: false, why: "診療録管理体制加算は外来算定の加算ではありません。" }
+            ],
+            exp: "名称そのものが必ず『中央病歴管理室』であることより、診療記録管理を行う適切な施設・設備を有していることが重要です。"
+          },
+          {
+            q: "中央病歴管理室等の機能として、適切でないものを1つ選べ。",
+            choices: [
+              { text: "診療録の保管・管理", ok: false, why: "中央病歴管理室等の役割として適切です。" },
+              { text: "退院時要約の提出状況の管理", ok: false, why: "退院時要約の管理は関連する重要論点です。" },
+              { text: "疾病名等による診療記録の検索・抽出に関わる管理", ok: false, why: "検索・抽出体制は診療録管理体制加算1で特に重要です。" },
+              { text: "診療記録の貸出・返却管理", ok: false, why: "紙記録を含む診療記録管理の役割として考えられます。" },
+              { text: "入院時食費の基準額を病院ごとに決定すること", ok: true, why: "入院時食費の基準額は診療記録管理ではなく、診療報酬改定上の別論点です。" }
+            ],
+            exp: "中央病歴管理室等は診療記録管理のための施設・設備であり、食費・光熱水費基準額の決定とは関係しません。"
+          }
+        ]
+      },
+      {
+        category: "診療録・記録保存",
+        items: [
+          {
+            q: "診療録等の保管・管理について、正しいものを1つ選べ。",
+            choices: [
+              { text: "診療録は過去3年間、手術記録・看護記録等は過去3年間でよい。", ok: false, why: "診療録は過去5年間が重要です。" },
+              { text: "診療録は過去5年間、手術記録・看護記録等は過去3年間の保管・管理が必要である。", ok: true, why: "診療録5年、手術記録・看護記録等3年の組み合わせを押さえます。" },
+              { text: "診療録は過去1年間、手術記録等は過去5年間の保管・管理が必要である。", ok: false, why: "診療録は過去1年間では不十分です。" },
+              { text: "電子カルテで運用している場合、保存性の確保は施設基準上の論点にならない。", ok: false, why: "電子カルテでも保存性を確保する必要があります。" },
+              { text: "退院時要約が作成されていれば、診療録本体の保管・管理は不要である。", ok: false, why: "診療録そのものの保管・管理が必要です。" }
+            ],
+            exp: "診療録管理体制加算では、診療記録の保管・管理体制が中心論点です。"
+          },
+          {
+            q: "診療録の法令上の保存期間について、正しいものを1つ選べ。",
+            choices: [
+              { text: "1年間", ok: false, why: "1年ではありません。" },
+              { text: "2年間", ok: false, why: "2年ではありません。" },
+              { text: "3年間", ok: false, why: "手術記録・看護記録等と混同しやすいですが、診療録は5年です。" },
+              { text: "5年間", ok: true, why: "医師法上、診療録は5年間保存しなければなりません。" },
+              { text: "10年間", ok: false, why: "診療録の基本的な保存期間としては5年を押さえます。" }
+            ],
+            exp: "『診療録5年』は医療経営士3級レベルから出る基本論点ですが、2級でも他の記録と組み合わせて出題されやすいです。"
+          },
+          {
+            q: "診療録管理体制加算の施設基準に関連する記録管理について、正しいものの組み合わせを1つ選べ。\nア 診療録は過去5年間のものが保管・管理されている。\nイ 手術記録、看護記録等は過去3年間のものが保管・管理されている。\nウ 診療記録の保管・管理のための規程が明文化されている。\nエ 電子カルテで保存する場合は、真正性・見読性・保存性の確保を考慮しなくてよい。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "ア・イは正しいですが、ウも正しいため不足しています。" },
+              { text: "ア・イ・ウ", ok: true, why: "ア・イ・ウが正しい組み合わせです。エは電子カルテ三原則と反します。" },
+              { text: "ア・エ", ok: false, why: "エが誤りです。" },
+              { text: "イ・ウ・エ", ok: false, why: "エが誤りで、アも正しいため不足しています。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "エが誤りです。" }
+            ],
+            exp: "診療録管理と電子カルテ三原則は近接論点です。電子保存でも真正性・見読性・保存性が必要です。"
+          }
+        ]
+      },
+      {
+        category: "退院時要約",
+        items: [
+          {
+            q: "診療録管理体制加算1における退院時要約について、正しいものを1つ選べ。",
+            choices: [
+              { text: "退院日の翌日から起算して14日以内に作成され、中央病歴管理室に提出された者の割合が9割以上である。", ok: true, why: "加算1の重要な施設基準です。" },
+              { text: "退院後30日以内に5割以上作成されていればよい。", ok: false, why: "30日以内5割ではありません。" },
+              { text: "退院時要約は、急性期病棟の一部診療科で作成されれば足りる。", ok: false, why: "全診療科の全退院患者が論点になります。" },
+              { text: "退院時要約は、外来患者の継続受診時に作成する記録である。", ok: false, why: "退院時要約は退院患者に関する記録です。" },
+              { text: "退院時要約は、電子的診療情報連携体制整備加算でのみ評価される。", ok: false, why: "診療録管理体制加算の重要論点です。" }
+            ],
+            exp: "加算1では、退院時要約の14日以内作成・中央病歴管理室提出割合9割以上が問われます。"
+          },
+          {
+            q: "退院時要約に関する記述として、適切でないものを1つ選べ。",
+            choices: [
+              { text: "全診療科において、全退院患者について作成されることが必要とされる。", ok: false, why: "これは適切な内容です。" },
+              { text: "加算1では、14日以内に作成・提出された者の割合が9割以上であることが重要である。", ok: false, why: "これは適切な内容です。" },
+              { text: "中央病歴管理室に提出された者の割合が加算1の論点となる。", ok: false, why: "これは適切な内容です。" },
+              { text: "外来再診患者について、再診の都度作成する記録である。", ok: true, why: "退院時要約は退院患者について作成されるものであり、外来再診ごとに作成する記録ではありません。" },
+              { text: "診療記録管理体制の充実度を判断する材料となる。", ok: false, why: "これは適切な内容です。" }
+            ],
+            exp: "退院時要約は、退院患者の診療経過等をまとめる記録で、診療録管理体制加算の施設基準と関係します。"
+          },
+          {
+            q: "退院時要約について、正しいものの組み合わせを1つ選べ。\nア 加算1では14日以内作成・提出割合9割以上が重要である。\nイ 全診療科の全退院患者について作成されることが必要とされる。\nウ 外来初診患者について作成される。\nエ 退院時要約の提出先として中央病歴管理室が関係する。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "ア・イは正しいですが、エも正しいため不足しています。" },
+              { text: "ア・イ・エ", ok: true, why: "ア・イ・エが正しい組み合わせです。ウは誤りです。" },
+              { text: "ア・ウ", ok: false, why: "ウが誤りです。" },
+              { text: "イ・ウ・エ", ok: false, why: "ウが誤りです。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "ウが誤りです。" }
+            ],
+            exp: "退院時要約は、全診療科・全退院患者、加算1では14日以内9割以上、中央病歴管理室提出がキーワードです。"
+          }
+        ]
+      },
+      {
+        category: "電子的診療情報連携体制整備加算との違い",
+        items: [
+          {
+            q: "診療録管理体制加算と電子的診療情報連携体制整備加算の関係について、最も適切なものを1つ選べ。",
+            choices: [
+              { text: "両者は同じ加算であり、名称だけが異なる。", ok: false, why: "別の加算です。" },
+              { text: "診療録管理体制加算は診療記録管理体制、電子的診療情報連携体制整備加算は医療DX・ICT連携等の体制を評価する。", ok: true, why: "令和8年度改定では、この切り分けが重要です。" },
+              { text: "電子的診療情報連携体制整備加算は令和8年度改定で廃止された。", ok: false, why: "令和8年度改定で新設された評価です。" },
+              { text: "診療録管理体制加算は外来専用、電子的診療情報連携体制整備加算は入院専用である。", ok: false, why: "診療録管理体制加算は入院、電子的診療情報連携体制整備加算は初診時・再診時・入院時に設定があります。" },
+              { text: "どちらも入院時食費の基準額を評価する加算である。", ok: false, why: "食費・光熱水費基準額とは別論点です。" }
+            ],
+            exp: "令和8年度改定では、医療DX関連の評価が電子的診療情報連携体制整備加算として整理されています。"
+          },
+          {
+            q: "電子的診療情報連携体制整備加算の算定場面として、正しいものを1つ選べ。",
+            choices: [
+              { text: "外来初診時の評価として整理され、再診時と入院時には点数設定がない。", ok: false, why: "初診時だけではありません。" },
+              { text: "入院時の評価として整理され、外来には点数設定がない。", ok: false, why: "入院時だけではありません。" },
+              { text: "初診時、再診時、入院時に評価が設定されている。", ok: true, why: "初診時・再診時・入院時に点数が設定されています。" },
+              { text: "退院時要約の提出時に算定する評価である。", ok: false, why: "退院時のみの加算ではありません。" },
+              { text: "保険薬局の調剤時に算定する医科の評価である。", ok: false, why: "調剤では電子的調剤情報連携体制整備加算が別にあります。" }
+            ],
+            exp: "診療録管理体制加算が外来不可であるのに対し、電子的診療情報連携体制整備加算は外来初診・再診にも設定があります。"
+          },
+          {
+            q: "令和8年度改定後の医療DX関連評価について、正しいものの組み合わせを1つ選べ。\nア 電子的診療情報連携体制整備加算が新設された。\nイ 初診時は15点・9点・4点の区分がある。\nウ 再診時は2点である。\nエ 入院時は160点・80点の区分がある。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "ア・イは正しいですが、ウ・エも正しいため不足しています。" },
+              { text: "ア・イ・ウ", ok: false, why: "エも正しいため不足しています。" },
+              { text: "ア・イ・ウ・エ", ok: true, why: "すべて正しい組み合わせです。" },
+              { text: "イ・ウ・エ", ok: false, why: "アも正しいため不足しています。" },
+              { text: "ア・エ", ok: false, why: "イ・ウも正しいため不足しています。" }
+            ],
+            exp: "電子的診療情報連携体制整備加算は、初診時15点・9点・4点、再診時2点、入院時160点・80点として整理されます。"
+          }
+        ]
+      },
+      {
+        category: "DPCとの関係",
+        items: [
+          {
+            q: "DPC対象病院における診療録管理体制加算の扱いとして、最も適切なものを1つ選べ。",
+            choices: [
+              { text: "手術料と同じく、原則として出来高評価される。", ok: false, why: "診療録管理体制加算はDPCでは包括評価される項目として整理されます。" },
+              { text: "包括評価される項目に含まれる。", ok: true, why: "予想問題集では、診療録管理体制加算はDPCにおける包括評価項目として整理されています。" },
+              { text: "麻酔料と同じく、必ず出来高評価される。", ok: false, why: "手術・麻酔などは出来高評価される代表例ですが、診療録管理体制加算は異なります。" },
+              { text: "リハビリテーション料と同じく、出来高評価される入院基本料等加算である。", ok: false, why: "リハビリテーション料は出来高評価の代表例として出ますが、診療録管理体制加算は包括評価側です。" },
+              { text: "DPC病院では、診療録管理に関する施設基準の届出管理は不要である。", ok: false, why: "DPCで包括評価されることと、施設基準の届出・管理は別です。" }
+            ],
+            exp: "DPCでは、診療録管理体制加算は包括評価される項目として問われることがあります。"
+          },
+          {
+            q: "DPCにおける包括評価・出来高評価の組み合わせとして、適切なものを1つ選べ。",
+            choices: [
+              { text: "診療録管理体制加算は包括評価、手術は出来高評価。", ok: true, why: "この組み合わせが適切です。" },
+              { text: "診療録管理体制加算は出来高評価、手術は包括評価。", ok: false, why: "逆です。診療録管理体制加算は包括評価、手術は出来高評価として押さえます。" },
+              { text: "診療録管理体制加算も手術も出来高評価。", ok: false, why: "診療録管理体制加算は包括評価側です。" },
+              { text: "診療録管理体制加算も手術も包括評価。", ok: false, why: "手術は出来高評価側です。" },
+              { text: "診療録管理体制加算は調剤報酬で包括評価される。", ok: false, why: "医科診療報酬の入院基本料等加算です。" }
+            ],
+            exp: "DPCの問題では、包括評価されるものと出来高評価されるものの区別が問われます。"
+          },
+          {
+            q: "DPCにおける評価の整理について、正しいものの組み合わせを1つ選べ。\nア 診療録管理体制加算は包括評価される項目として整理される。\nイ 医師事務作業補助体制加算は包括評価される項目として整理される。\nウ 手術は出来高評価される項目として整理される。\nエ 麻酔は包括評価される項目として整理される。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "ア・イは正しいですが、ウも正しいため不足しています。エは誤りです。" },
+              { text: "ア・イ・ウ", ok: true, why: "ア・イ・ウが正しい組み合わせです。麻酔は出来高評価側として押さえます。" },
+              { text: "ア・エ", ok: false, why: "エが誤りです。" },
+              { text: "イ・ウ・エ", ok: false, why: "エが誤りで、アも正しいため不足しています。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "エが誤りです。" }
+            ],
+            exp: "DPCでは、入院基本料や一部加算は包括評価、手術・麻酔などは出来高評価という整理が出題されやすいです。"
+          }
+        ]
+      },
+      {
+        category: "総合確認",
+        items: [
+          {
+            q: "診療録管理体制加算について、正しいものの組み合わせを1つ選べ。\nア 入院初日に算定する。\nイ 外来再診時にも算定できる。\nウ 令和8年度改定後は加算1 100点、加算2 30点である。\nエ 中央病歴管理室等の施設・設備が関係する。",
+            choices: [
+              { text: "ア・ウ・エ", ok: true, why: "ア・ウ・エが正しい組み合わせです。イは誤りです。" },
+              { text: "ア・イ・ウ", ok: false, why: "イが誤りです。診療録管理体制加算は外来再診時に算定できません。" },
+              { text: "イ・ウ・エ", ok: false, why: "イが誤りで、アが正しいため不足しています。" },
+              { text: "ア・イ・エ", ok: false, why: "イが誤りで、ウが正しいため不足しています。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "イが誤りです。" }
+            ],
+            exp: "算定場面、令和8年度改定後の点数、中央病歴管理室等を横断的に確認する問題です。"
+          },
+          {
+            q: "診療録管理体制加算について、適切でないものを1つ選べ。",
+            choices: [
+              { text: "入院基本料等加算である。", ok: false, why: "これは適切です。" },
+              { text: "診療録管理体制加算1では、専従の診療記録管理者の配置が重要である。", ok: false, why: "これは適切です。" },
+              { text: "診療録は過去5年間の保管・管理が必要である。", ok: false, why: "これは適切です。" },
+              { text: "令和8年度改定後も、旧加算3相当の30点区分が加算3として存続している。", ok: true, why: "令和8年度改定後、加算3は廃止され、2区分に再編されています。" },
+              { text: "診療記録の保管・管理の規程が明文化されていることが求められる。", ok: false, why: "これは適切です。" }
+            ],
+            exp: "『適切でないもの』を選ぶ問題では、旧制度の加算3存続など、年度改定前の情報に注意します。"
+          },
+          {
+            q: "診療録管理体制加算と関連論点について、正しいものの組み合わせを1つ選べ。\nア 診療録管理体制加算は外来初診時15点である。\nイ 電子的診療情報連携体制整備加算は初診時・再診時・入院時に評価がある。\nウ 診療録管理体制加算1では電子的な一覧表による検索・抽出体制が重要である。\nエ 診療録管理体制加算は、入院患者について入院初日に算定する。",
+            choices: [
+              { text: "ア・イ", ok: false, why: "アが誤りです。初診時15点は電子的診療情報連携体制整備加算と混同しやすい数値です。" },
+              { text: "イ・ウ・エ", ok: true, why: "イ・ウ・エが正しい組み合わせです。" },
+              { text: "ア・ウ・エ", ok: false, why: "アが誤りです。" },
+              { text: "イ・エ", ok: false, why: "イ・エは正しいですが、ウも正しいため不足しています。" },
+              { text: "ア・イ・ウ・エ", ok: false, why: "アが誤りです。" }
+            ],
+            exp: "診療録管理体制加算と電子的診療情報連携体制整備加算は、点数・算定場面を混同しないようにします。"
+          }
+        ]
+      }
+    ];
+
+    let currentSet = [];
+    let currentIndex = 0;
+    let selected = null;
+    let correctCount = 0;
+    let answeredCount = 0;
+    let review = [];
+    let answeredThis = false;
+
+    function shuffle(array) {
+      const a = [...array];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function makeQuestionSet() {
+      const picked = questionPools.map(pool => {
+        const item = pool.items[Math.floor(Math.random() * pool.items.length)];
+        return { ...item, category: pool.category, choices: shuffle(item.choices) };
+      });
+      return shuffle(picked);
+    }
+
+    function updateStatus() {
+      document.getElementById('now').textContent = `${Math.min(currentIndex + 1, currentSet.length)} / ${currentSet.length}`;
+      document.getElementById('answered').textContent = String(answeredCount);
+      document.getElementById('correct').textContent = String(correctCount);
+      document.getElementById('rate').textContent = answeredCount ? `${Math.round(correctCount / answeredCount * 100)}%` : '0%';
+    }
+
+    function renderQuestion() {
+      const quiz = document.getElementById('quiz');
+      const result = document.getElementById('result');
+      result.classList.remove('show');
+      result.innerHTML = '';
+      selected = null;
+      answeredThis = false;
+      const item = currentSet[currentIndex];
+      quiz.innerHTML = `
+        <div class="q-top">
+          <span class="badge">問${currentIndex + 1}</span>
+          <span class="category">${item.category}</span>
+        </div>
+        <div class="q-title">${item.q.replace(/\n/g, '<br>')}</div>
+        <div class="choices" id="choices"></div>
+        <div class="actions">
+          <button id="answerBtn" disabled>回答</button>
+          <button id="nextBtn" class="secondary" disabled>${currentIndex === currentSet.length - 1 ? '結果を見る' : '次の問題へ'}</button>
+          <button id="restartBtn" class="secondary">最初からやり直す</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+      `;
+      const choices = document.getElementById('choices');
+      item.choices.forEach((choice, idx) => {
+        const id = `choice-${idx}`;
+        const label = document.createElement('label');
+        label.className = 'choice';
+        label.htmlFor = id;
+        label.innerHTML = `<input type="radio" name="choice" id="${id}" value="${idx}"><span class="choice-text">${idx + 1}. ${choice.text}</span>`;
+        label.addEventListener('click', () => {
+          if (answeredThis) return;
+          selected = idx;
+          document.querySelectorAll('label.choice').forEach(el => el.classList.remove('selected'));
+          label.classList.add('selected');
+          document.getElementById('answerBtn').disabled = false;
+        });
+        choices.appendChild(label);
+      });
+      document.getElementById('answerBtn').addEventListener('click', checkAnswer);
+      document.getElementById('nextBtn').addEventListener('click', nextStep);
+      document.getElementById('restartBtn').addEventListener('click', resetQuiz);
+      updateStatus();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function checkAnswer() {
+      if (selected === null || answeredThis) return;
+      answeredThis = true;
+      const item = currentSet[currentIndex];
+      const selectedChoice = item.choices[selected];
+      const correctIndex = item.choices.findIndex(c => c.ok);
+      const correctChoice = item.choices[correctIndex];
+      const labels = document.querySelectorAll('label.choice');
+      labels.forEach((label, idx) => {
+        label.style.cursor = 'default';
+        label.classList.remove('selected');
+        if (idx === correctIndex) label.classList.add('correct');
+        if (idx === selected && idx !== correctIndex) label.classList.add('wrong');
+        label.querySelector('input').disabled = true;
+      });
+      const ok = selectedChoice.ok;
+      if (ok) correctCount++;
+      answeredCount++;
+      review.push({
+        q: item.q,
+        category: item.category,
+        selected: selectedChoice.text,
+        correct: correctChoice.text,
+        ok,
+        reason: selectedChoice.why,
+        exp: item.exp
+      });
+      const fb = document.getElementById('feedback');
+      fb.className = ok ? 'feedback ok' : 'feedback ng';
+      fb.innerHTML = ok
+        ? `<strong>正解！</strong><div class="explain">${item.exp}</div>`
+        : `<strong>不正解。</strong><div class="explain"><b>選んだ選択肢が誤りの理由：</b>${selectedChoice.why}<br><b>正解：</b>${correctIndex + 1}. ${correctChoice.text}<br>${item.exp}</div>`;
+      document.getElementById('answerBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = false;
+      updateStatus();
+    }
+
+    function nextStep() {
+      if (currentIndex < currentSet.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('quiz').innerHTML = '';
+      const result = document.getElementById('result');
+      result.classList.add('show');
+      const rate = Math.round(correctCount / currentSet.length * 100);
+      result.innerHTML = `
+        <h2>結果</h2>
+        <p><strong>${currentSet.length}問中 ${correctCount}問正解</strong>（正答率 ${rate}%）</p>
+        <div class="actions">
+          <button id="retryBtn">再チャレンジ（問題と選択肢をランダム変更）</button>
+        </div>
+        <h3>解答レビュー</h3>
+        ${review.map((r, i) => `
+          <div class="review-item">
+            <div class="mini">問${i + 1}｜${r.category}｜${r.ok ? '正解' : '不正解'}</div>
+            <strong>${r.q.replace(/\n/g, '<br>')}</strong><br>
+            あなたの選択：${r.selected}<br>
+            正解：${r.correct}<br>
+            ${r.ok ? '' : `<span class="mini">誤答理由：${r.reason}</span><br>`}
+            <span class="mini">解説：${r.exp}</span>
+          </div>
+        `).join('')}
+      `;
+      document.getElementById('retryBtn').addEventListener('click', resetQuiz);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+      currentSet = makeQuestionSet();
+      currentIndex = 0;
+      selected = null;
+      correctCount = 0;
+      answeredCount = 0;
+      review = [];
+      answeredThis = false;
+      renderQuestion();
+    }
+
+    resetQuiz();
+  </script>
+</body>
+</html>

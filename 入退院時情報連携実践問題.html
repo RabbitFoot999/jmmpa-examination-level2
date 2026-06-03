@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>入退院時情報連携実践問題</title>
+<style>
+:root {
+  --bg: #0f1720;
+  --panel: #16212c;
+  --panel2: #1c2a36;
+  --text: #edf2f7;
+  --muted: #aebdcc;
+  --line: #2d3e4f;
+  --accent: #8fd3c7;
+  --accent2: #d8b46a;
+  --good: #80d7a4;
+  --bad: #ef9a9a;
+  --shadow: rgba(0,0,0,.28);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #172839 0, var(--bg) 42%, #0b1118 100%);
+  color: var(--text);
+  line-height: 1.75;
+}
+.container {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: 18px 14px 44px;
+}
+header {
+  padding: 18px 0 12px;
+}
+h1 {
+  font-size: clamp(1.45rem, 5vw, 2.2rem);
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: .02em;
+}
+.lead {
+  color: var(--muted);
+  font-size: .96rem;
+  margin: 0;
+}
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)), var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 14px 36px var(--shadow);
+  padding: 18px;
+}
+.meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: var(--panel2);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: .82rem;
+}
+.badge strong { color: var(--accent); font-weight: 700; }
+.progress {
+  height: 10px;
+  border-radius: 999px;
+  background: #0b121a;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin: 14px 0 18px;
+}
+.progress > div {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width .25s ease;
+}
+.question {
+  white-space: pre-wrap;
+  font-weight: 700;
+  font-size: clamp(1.03rem, 4.5vw, 1.22rem);
+  margin: 4px 0 16px;
+}
+.options { display: grid; gap: 10px; }
+.option {
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  background: #111b25;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 14px;
+  min-height: 56px;
+  font-size: 1rem;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.option:hover { border-color: #49677f; }
+.option.selected {
+  outline: 2px solid var(--accent);
+  background: #132630;
+}
+.option.correct { border-color: var(--good); background: rgba(128,215,164,.12); }
+.option.wrong { border-color: var(--bad); background: rgba(239,154,154,.12); }
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+button.action {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 12px;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #071018;
+  background: var(--accent);
+  cursor: pointer;
+}
+button.action.secondary {
+  color: var(--text);
+  background: var(--panel2);
+  border: 1px solid var(--line);
+}
+button.action:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.feedback {
+  margin-top: 18px;
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: #101923;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback .result { font-weight: 900; margin-bottom: 8px; }
+.feedback.good .result { color: var(--good); }
+.feedback.bad .result { color: var(--bad); }
+.explain { color: var(--muted); }
+.summary { display: none; }
+.summary.show { display: block; }
+.score {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+.review { margin-top: 14px; display: grid; gap: 10px; }
+.review-item {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background: #101923;
+}
+.small { color: var(--muted); font-size: .88rem; }
+footer {
+  color: var(--muted);
+  font-size: .82rem;
+  padding: 18px 2px 0;
+}
+@media (max-width: 560px) {
+  .container { padding: 12px 10px 32px; }
+  .card { padding: 14px; border-radius: 16px; }
+  .actions { grid-template-columns: 1fr; }
+  .option { padding: 13px 12px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>入退院時情報連携実践問題</h1>
+<p class="lead">入院時情報連携加算、退院・退所加算、退院時共同指導加算、施設入所者の入退院連携について、医療経営士2級向けに混同しやすい算定主体と連携場面を確認します。</p>
+</header>
+
+<main class="card" id="quizCard">
+  <div class="meta">
+    <span class="badge">全 <strong id="totalCount">0</strong> 問</span>
+    <span class="badge">各カテゴリ3問プールからランダム</span>
+    <span class="badge">選択肢も毎回シャッフル</span>
+  </div>
+  <div class="progress" aria-label="進捗"><div id="bar"></div></div>
+  <section id="quizArea">
+    <div class="meta"><span class="badge" id="countBadge"></span><span class="badge" id="categoryBadge"></span></div>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"><div class="result" id="resultText"></div><div class="explain" id="explainText"></div></div>
+    <div class="actions">
+      <button class="action" id="answerBtn">回答</button>
+      <button class="action secondary" id="nextBtn" disabled>次の問題へ</button>
+    </div>
+  </section>
+  <section class="summary" id="summaryArea">
+    <p class="score" id="scoreText"></p>
+    <p class="small">間違えた問題は、算定主体（誰が算定するか）と情報の向き（誰から誰へ）を中心に復習してください。</p>
+    <div class="review" id="review"></div>
+    <div class="actions"><button class="action" id="restartBtn">もう一度ランダム出題</button></div>
+  </section>
+</main>
+<footer>
+  <p>GitHub Pages用の単一HTMLです。ファイル名を変更して同じリポジトリにアップロードできます。</p>
+</footer>
+</div>
+<script>
+const QUESTION_POOL = [{"category": "入院時情報連携加算", "pool": [{"q": "入院時情報連携加算（介護報酬）の基本的な算定場面として、最も適切なものはどれか。", "options": [{"t": "居宅介護支援事業所の介護支援専門員が、利用者の入院に際して入院先医療機関へ心身状況や生活環境等を提供する。", "c": true, "fb": "正解です。入院時情報連携加算は、居宅介護支援事業所側のケアマネが入院先に必要情報を提供する場面を評価します。"}, {"t": "入院先医療機関が、ケアマネジャーから情報提供を受けたことにより介護報酬を算定する。", "c": false, "fb": "算定主体が逆です。入院先病院は診療報酬側の評価が論点であり、入院時情報連携加算は居宅介護支援事業所側の加算です。"}, {"t": "訪問看護ステーションが、利用者の入院日に病院へ看護記録を送付した場合に算定する。", "c": false, "fb": "訪問看護からの情報提供は重要ですが、入院時情報連携加算の算定主体は居宅介護支援事業所です。"}, {"t": "老健入所中の利用者が入院した場合に、併設の居宅介護支援事業所が通常算定する。", "c": false, "fb": "老健入所中は施設サービスの対象です。原則として居宅介護支援事業所の入院時情報連携加算ではなく、施設側の連携が論点です。"}, {"t": "利用者が外来受診する際にケアマネジャーが診察に同席し、医師と情報共有した場合に算定する。", "c": false, "fb": "これは通院時情報連携加算の論点です。入院時情報連携加算とは場面が異なります。"}]}, {"q": "次の記述のうち、入院時情報連携加算について適切なものの組み合わせはどれか。\n\na　居宅介護支援費に係る加算である。\nb　2024年度改定では、入院当日中の情報提供の評価が重視された。\nc　情報提供の内容には、心身の状況、生活環境、サービス利用状況等が含まれる。\nd　介護老人保健施設の入所者についても、併設居宅介護支援事業所が通常算定する。\ne　病院がケアマネジャーへ情報提供を依頼したこと自体を評価する診療報酬である。", "options": [{"t": "a・b・c", "c": true, "fb": "正解です。居宅介護支援のケアマネが、入院先へ利用者情報を提供することが中心です。"}, {"t": "a・c・d", "c": false, "fb": "dが誤りです。老健等の施設入所中は施設サービスの対象であり、通常は施設側の情報連携が論点です。"}, {"t": "b・d・e", "c": false, "fb": "d・eが誤りです。病院側の診療報酬ではなく、居宅介護支援事業所側の介護報酬です。"}, {"t": "a・b・e", "c": false, "fb": "eが誤りです。入院時情報連携加算は、病院が算定する評価ではありません。"}, {"t": "c・d・e", "c": false, "fb": "d・eが誤りです。算定主体と対象場面を取り違えています。"}]}, {"q": "入院時情報連携加算に関する説明として、誤っているものはどれか。", "options": [{"t": "居宅介護支援事業所のケアマネジャーが、入院先医療機関へ利用者情報を提供する場面で論点となる。", "c": false, "fb": "この記述は正しいです。"}, {"t": "情報提供には、入院前のADL、服薬、家族支援、利用中サービス等が含まれ得る。", "c": false, "fb": "この記述は正しいです。病院の退院支援にも役立つ情報です。"}, {"t": "2024年度改定では、入院時の迅速な情報連携を促す方向で見直された。", "c": false, "fb": "この記述は正しいです。入院当日中または入院後早期の情報提供が重要です。"}, {"t": "居宅サービス事業所が得た情報をケアマネジャーが集約し、病院へ提供することがある。", "c": false, "fb": "この記述は正しいです。情報源はケアマネ自身の把握情報に限りません。"}, {"t": "施設入所者の入院では、施設職員が情報提供しても居宅介護支援事業所が入院時情報連携加算を算定するのが原則である。", "c": true, "fb": "これが誤りです。施設入所中は施設サービスの対象であり、居宅介護支援事業所の加算として整理しないのが原則です。"}]}]}, {"category": "居宅介護支援・居宅サービス・施設サービスの区別", "pool": [{"q": "居宅介護支援事業所と居宅サービス事業所の関係について、最も適切なものはどれか。", "options": [{"t": "居宅介護支援事業所は、ケアプラン作成やサービス調整を行う事業所であり、訪問介護や通所介護そのものを提供する事業所とは区別される。", "c": true, "fb": "正解です。居宅介護支援はケアマネジメント、居宅サービス事業所は実際のサービス提供が中心です。"}, {"t": "居宅介護支援事業所は、訪問看護、訪問リハ、デイサービス、ショートステイを一体的に提供する事業所を指す。", "c": false, "fb": "居宅介護支援事業所はサービス提供事業所ではなく、ケアマネがケアプラン作成・調整を行う事業所です。"}, {"t": "居宅サービス事業所は、ケアプラン作成を専門に行い、実際の介護サービスは行わない。", "c": false, "fb": "逆です。居宅サービス事業所は訪問・通所・短期入所などの実サービスを提供します。"}, {"t": "介護老人保健施設は居宅介護支援事業所に含まれるため、入所中も居宅介護支援費を算定する。", "c": false, "fb": "老健は介護保険施設です。居宅介護支援事業所とは別区分です。"}, {"t": "有料老人ホームに入居している場合、居宅介護支援事業所の関与は制度上常に排除される。", "c": false, "fb": "有料老人ホームは住まいの性格を持つものもあり、外部サービス利用型などでは居宅介護支援が関与する場合があります。老健等の施設サービスとは区別します。"}]}, {"q": "次のうち、制度上の区分として最も適切な組み合わせはどれか。", "options": [{"t": "居宅介護支援事業所＝ケアプラン作成・給付管理、居宅サービス事業所＝訪問介護・通所介護等の提供、介護保険施設＝老健・特養・介護医療院等", "c": true, "fb": "正解です。この3区分を押さえると、入院時情報連携加算の算定主体を間違えにくくなります。"}, {"t": "居宅介護支援事業所＝訪問介護の提供、居宅サービス事業所＝ケアプラン作成、介護保険施設＝病院の入院基本料の算定", "c": false, "fb": "各区分が入れ替わっています。ケアプラン作成は居宅介護支援事業所、実サービス提供は居宅サービス事業所です。"}, {"t": "居宅介護支援事業所＝老健・特養の総称、居宅サービス事業所＝病院の退院支援部門、介護保険施設＝訪問看護ステーション", "c": false, "fb": "老健・特養は介護保険施設であり、居宅介護支援事業所ではありません。"}, {"t": "居宅介護支援事業所＝医療機関の地域連携室、居宅サービス事業所＝介護保険施設、介護保険施設＝居宅療養管理指導の事業所", "c": false, "fb": "医療機関の地域連携室と居宅介護支援事業所は別です。介護保険上の事業区分を確認しましょう。"}, {"t": "居宅介護支援事業所＝訪問看護ステーション、居宅サービス事業所＝介護支援専門員、介護保険施設＝通所介護事業所", "c": false, "fb": "訪問看護ステーションは居宅サービス等の提供側です。居宅介護支援事業所とは異なります。"}]}, {"q": "在宅でデイサービスと訪問看護を利用している要介護者が入院した。入院時情報連携加算の理解として最も適切なものはどれか。", "options": [{"t": "居宅介護支援事業所のケアマネジャーが、サービス利用状況や生活課題を整理して入院先へ提供した場合に算定が論点となる。", "c": true, "fb": "正解です。デイサービスや訪問看護で得られた情報も、ケアマネが集約して病院へ連携することがあります。"}, {"t": "デイサービス事業所が利用者情報を病院へ提供した場合、居宅介護支援事業所ではなくデイサービス側が入院時情報連携加算を算定する。", "c": false, "fb": "入院時情報連携加算は居宅介護支援事業所側の加算です。"}, {"t": "訪問看護ステーションが病院へ情報提供した場合、居宅介護支援事業所の関与がなくても同加算を算定できる。", "c": false, "fb": "訪問看護からの情報提供は重要ですが、居宅介護支援の加算とは算定主体が異なります。"}, {"t": "利用中のサービスが複数ある場合は、情報提供先が病院ではなく市町村に限られる。", "c": false, "fb": "入院時情報連携加算では、入院先の病院・診療所への情報提供が中心です。"}, {"t": "介護保険の情報であるため、入院先医療機関に生活環境や家族支援の情報を提供することは評価の対象になりにくい。", "c": false, "fb": "生活環境や家族支援は退院支援に重要な情報であり、情報提供の中心的内容になり得ます。"}]}]}, {"category": "介護保険施設入所者の入院時連携", "pool": [{"q": "老健入所中の利用者が病院へ入院する場合の整理として、最も適切なものはどれか。", "options": [{"t": "老健側の施設職員・施設ケアマネ・支援相談員等が入院先へ情報提供する場面であり、居宅介護支援事業所の入院時情報連携加算とは区別する。", "c": true, "fb": "正解です。施設入所中は施設サービスの対象であり、居宅介護支援の加算とは切り分けます。"}, {"t": "併設居宅介護支援事業所がある場合は、老健入所中でも居宅介護支援事業所が入院時情報連携加算を算定するのが標準である。", "c": false, "fb": "併設されていても制度上は別事業です。老健入所中は施設サービスの対象です。"}, {"t": "老健入所中の入院では、施設側が病院へ情報提供しても介護報酬上の連携評価は一切ない。", "c": false, "fb": "一切ないとはいえません。施設側では退所時情報提供加算などが論点になり得ます。"}, {"t": "老健から病院へ入院した場合、入院後の診療報酬は老健が代理して算定する。", "c": false, "fb": "入院後の診療報酬は入院先の医療機関が算定します。"}, {"t": "施設サービスから医療機関への移行では、医療機関への情報提供は原則不要である。", "c": false, "fb": "高齢者施設と医療機関の連携は重要であり、情報提供・入退院支援が重視されています。"}]}, {"q": "介護保険施設入所者が入院する場面に関する説明として、誤っているものはどれか。", "options": [{"t": "老健、特養、介護医療院などの入所者が入院する場合、施設側から病院への情報提供が重要となる。", "c": false, "fb": "この記述は正しいです。"}, {"t": "居宅介護支援事業所の入院時情報連携加算は、在宅で居宅サービスを利用している利用者の入院場面で理解するとよい。", "c": false, "fb": "この記述は正しいです。"}, {"t": "施設入所中の入院であっても、併設居宅介護支援事業所のケアマネが施設から情報を得て病院へ提供すれば、入院時情報連携加算の算定対象として整理する。", "c": true, "fb": "これが誤りです。施設入所中は施設サービスの対象であり、居宅介護支援の入院時情報連携加算ではなく、施設側の連携評価として整理します。"}, {"t": "入院を受け入れた病院側では、診療報酬上の入院料や初期加算等が論点になる場合がある。", "c": false, "fb": "この記述は正しいです。医療機関側は診療報酬の評価が論点です。"}, {"t": "同じ法人内に施設と居宅介護支援事業所があっても、制度上の事業区分は分けて考える。", "c": false, "fb": "この記述は正しいです。併設と算定主体は別問題です。"}]}, {"q": "次の記述のうち、介護保険施設と医療機関の入院連携について適切なものの組み合わせはどれか。\n\na　施設入所中の利用者が入院する場合、施設側から入院先へ情報提供することがある。\nb　施設入所中の入院については、居宅介護支援事業所の入院時情報連携加算として整理するのが原則である。\nc　高齢者施設と医療機関の連携強化は、2024年度介護報酬改定・診療報酬改定の双方で重視された。\nd　入院後の診療報酬は、入院先医療機関側の評価として整理する。\ne　老健入所者の入院では、入院前の介護保険施設サービスの算定と入院後の診療報酬を同一事業所が算定する。", "options": [{"t": "a・c・d", "c": true, "fb": "正解です。施設入所中は施設側の情報提供と、入院先医療機関側の診療報酬を分けて整理します。"}, {"t": "a・b・c", "c": false, "fb": "bが誤りです。施設入所中の入院を居宅介護支援の入院時情報連携加算として整理するのは原則ではありません。"}, {"t": "b・c・e", "c": false, "fb": "b・eが誤りです。施設サービスと入院医療は算定主体が異なります。"}, {"t": "a・d・e", "c": false, "fb": "eが誤りです。入院後は入院先医療機関の診療報酬です。"}, {"t": "b・d・e", "c": false, "fb": "b・eが誤りです。居宅介護支援の加算とは区別します。"}]}]}, {"category": "退院・退所時の情報連携", "pool": [{"q": "居宅介護支援における退院・退所加算の理解として、最も適切なものはどれか。", "options": [{"t": "病院・診療所・施設等から退院・退所する利用者について、職員と面談して必要情報を得たうえでケアプラン作成等につなげる評価である。", "c": true, "fb": "正解です。入院時情報連携加算が『入院時に病院へ情報を渡す』のに対し、退院・退所加算は『退院・退所に向けて情報を得て在宅支援につなげる』場面です。"}, {"t": "利用者が入院した当日に、居宅介護支援事業所が病院へ在宅情報を提供する評価である。", "c": false, "fb": "これは入院時情報連携加算の説明です。"}, {"t": "施設入所者が病院へ入院する際、施設側が入院先へ情報提供した場合に必ず居宅介護支援で算定する評価である。", "c": false, "fb": "施設入所中の入院は施設側の連携評価として整理します。居宅介護支援の退院・退所加算とは場面が異なります。"}, {"t": "退院・退所時に病院職員と面談せず、利用者から聞き取った情報だけでケアプランを作成することを評価する。", "c": false, "fb": "病院等の職員との面談・情報収集が重要な要素です。"}, {"t": "医療機関側が、退院時に介護支援専門員へ情報提供したことのみを評価する診療報酬である。", "c": false, "fb": "退院・退所加算は居宅介護支援側の介護報酬です。医療機関側の評価とは区別します。"}]}, {"q": "入院時情報連携加算と退院・退所加算の違いとして、最も適切なものはどれか。", "options": [{"t": "入院時情報連携加算は入院時に在宅側から病院へ情報を提供する評価であり、退院・退所加算は退院・退所時に病院等から情報を得てケアプラン作成につなげる評価である。", "c": true, "fb": "正解です。情報の向きとタイミングで整理すると混同しにくくなります。"}, {"t": "入院時情報連携加算は病院が算定し、退院・退所加算は居宅サービス事業所が算定する。", "c": false, "fb": "どちらも居宅介護支援側で論点となる介護報酬です。"}, {"t": "入院時情報連携加算は施設入所者、退院・退所加算は在宅サービス利用者に限定して整理する。", "c": false, "fb": "入院時情報連携加算は居宅介護支援の利用者の入院場面が中心です。施設入所者とは分けて考えます。"}, {"t": "入院時情報連携加算は退院前カンファレンスへの参加、退院・退所加算は通院時の医師同席を評価する。", "c": false, "fb": "退院前カンファレンスや通院時情報連携とは別の論点です。"}, {"t": "両者はいずれも、訪問看護ステーションが病院と共同指導を行ったときに算定する。", "c": false, "fb": "訪問看護の退院時共同指導加算とは異なります。"}]}, {"q": "次の事例のうち、居宅介護支援の退院・退所加算として最も整理しやすいものはどれか。", "options": [{"t": "入院中の利用者について、ケアマネジャーが病院職員と面談して退院後に必要な介護サービスの情報を得て、ケアプランを作成した。", "c": true, "fb": "正解です。退院・退所に向けて病院等から情報を得て、居宅サービス計画につなげる場面です。"}, {"t": "在宅利用者が入院した日に、ケアマネジャーが病院へ在宅サービス利用状況を提供した。", "c": false, "fb": "これは入院時情報連携加算の場面です。"}, {"t": "訪問看護師が退院前に主治医と共同で在宅療養上の指導を行い、退院後に初回訪問看護を実施した。", "c": false, "fb": "これは訪問看護の退院時共同指導加算の場面です。"}, {"t": "通所リハの理学療法士が退院前カンファレンスに参加し、共同指導を行った。", "c": false, "fb": "これはリハビリテーション事業所の退院時共同指導加算の場面です。"}, {"t": "老健入所者が急変して病院へ入院し、老健の支援相談員が診療情報を病院へ提供した。", "c": false, "fb": "これは施設側の退所時情報提供等が論点となる場面です。居宅介護支援の退院・退所加算ではありません。"}]}]}, {"category": "退院時共同指導加算", "pool": [{"q": "退院時共同指導加算（介護報酬）の理解として、最も適切なものはどれか。", "options": [{"t": "退院前に医療機関の職員と在宅・介護側の職員が共同して、本人・家族等へ退院後の療養・リハビリ等に必要な指導を行う場面で論点となる。", "c": true, "fb": "正解です。単なる書類提供ではなく、退院前カンファレンス等で共同して指導する点が重要です。"}, {"t": "利用者が入院した当日に、ケアマネジャーが病院へ在宅情報を送る評価である。", "c": false, "fb": "これは入院時情報連携加算の場面です。"}, {"t": "病院から退院する際に、介護保険施設が空床情報をウェブサイトに掲載したことだけを評価する。", "c": false, "fb": "空床情報の共有は老健の初期加算等で論点となりますが、退院時共同指導加算の中心ではありません。"}, {"t": "居宅介護支援事業所が病院職員と面談してケアプランを作成する評価であり、共同指導は不要である。", "c": false, "fb": "これは退院・退所加算に近い説明です。退院時共同指導加算では共同指導が中心です。"}, {"t": "入院先病院が介護サービス事業所から情報提供を受けた場合に、介護サービス事業所を介さず診療報酬のみで評価する。", "c": false, "fb": "介護報酬側にも、訪問看護やリハビリテーション事業所等で退院時共同指導の評価があります。"}]}, {"q": "2024年度介護報酬改定で新たに評価された、リハビリテーション事業所における退院時共同指導加算の説明として、最も適切なものはどれか。", "options": [{"t": "訪問・通所リハビリテーション事業所の理学療法士等が、医療機関の退院前カンファレンスに参加し、共同指導を行うことを評価する。", "c": true, "fb": "正解です。退院後早期に連続的で質の高いリハビリテーションへつなげるための評価です。"}, {"t": "介護支援専門員が外来受診に同席し、歯科医師と情報共有した場合に評価する。", "c": false, "fb": "これは通院時情報連携加算の論点です。"}, {"t": "訪問介護員が退院前カンファレンスに参加した場合、訪問介護の退院時共同指導加算として評価する。", "c": false, "fb": "2024年度改定で新たに評価された中心は訪問・通所リハビリテーション事業所の医師・理学療法士等です。訪問介護と混同しないようにします。"}, {"t": "居宅介護支援事業所が入院当日に病院へ情報提供した場合に、退院後のリハビリ計画作成を不要とする評価である。", "c": false, "fb": "入院時情報連携加算とリハビリ計画の情報連携が混ざっています。"}, {"t": "退院後にリハビリを行わない利用者について、退院前カンファレンスの議事録を受け取ることを評価する。", "c": false, "fb": "退院後に介護保険のリハビリテーションを行う際の連携・共同指導が中心です。"}]}, {"q": "次の記述のうち、退院時共同指導加算に関する適切なものの組み合わせはどれか。\n\na　訪問看護では、退院・退所時に主治医等と共同して在宅療養上必要な指導を行う場面がある。\nb　リハビリテーション事業所では、退院前カンファレンスに参加して共同指導を行う評価が設けられた。\nc　居宅介護支援の入院時情報連携加算と同じく、入院当日の情報提供のみを評価する。\nd　共同指導は、退院後の在宅療養・リハビリを切れ目なく進めるための連携として理解できる。\ne　退院時共同指導加算は、老健入所中の利用者が病院へ入院する際に施設側が病院へ情報提供する評価である。", "options": [{"t": "a・b・d", "c": true, "fb": "正解です。共同指導は、退院前に医療機関と在宅・介護側が共同して指導する点が中心です。"}, {"t": "a・c・d", "c": false, "fb": "cが誤りです。入院当日の情報提供は入院時情報連携加算の論点です。"}, {"t": "b・c・e", "c": false, "fb": "c・eが誤りです。施設入所者の入院時情報提供や入院時情報連携とは異なります。"}, {"t": "a・d・e", "c": false, "fb": "eが誤りです。施設側から病院への入院時情報提供とは別です。"}, {"t": "c・d・e", "c": false, "fb": "c・eが誤りです。共同指導は退院前の多職種連携・指導の評価です。"}]}]}, {"category": "診療報酬側の入退院支援", "pool": [{"q": "医療機関側の入退院支援・介護連携に関する診療報酬の整理として、最も適切なものはどれか。", "options": [{"t": "退院元医療機関では、入退院支援加算、介護支援等連携指導料、退院時共同指導料等が、退院後の生活や介護サービスとの連携で論点となる。", "c": true, "fb": "正解です。介護報酬側の加算と、医療機関側の診療報酬を分けて整理します。"}, {"t": "退院元医療機関がケアマネジャーと連携した場合、算定するのは常に居宅介護支援の退院・退所加算である。", "c": false, "fb": "退院元医療機関側には診療報酬の評価があります。居宅介護支援の加算とは算定主体が異なります。"}, {"t": "入退院支援加算は、老健や特養が病院へ情報提供した場合に施設側で算定する介護報酬である。", "c": false, "fb": "入退院支援加算は医療機関側の診療報酬です。"}, {"t": "介護支援等連携指導料は、居宅介護支援事業所が入院当日に病院へ情報提供したことを評価する介護報酬である。", "c": false, "fb": "入院当日の情報提供は居宅介護支援の入院時情報連携加算です。介護支援等連携指導料は診療報酬側の論点です。"}, {"t": "退院時共同指導料は、退院前カンファレンスではなく、退院後に病院が外来で再診した場合のみ評価する。", "c": false, "fb": "退院時共同指導料は、退院後の療養に向けて関係者と共同して指導する場面で論点となります。"}]}, {"q": "令和8年度診療報酬改定の方向性として、包括期入院医療における入退院支援・介護連携に関する説明で最も適切なものはどれか。", "options": [{"t": "在宅患者・施設入所者の後方支援や円滑な入退院支援を進める観点から、入退院支援加算1の充実や介護支援等連携指導料2の新設等が示された。", "c": true, "fb": "正解です。2026年度改定では、包括期入院医療の中で円滑な入退院支援や介護連携が重視されています。"}, {"t": "介護保険施設との連携は診療報酬では評価せず、居宅介護支援事業所の入院時情報連携加算に一本化された。", "c": false, "fb": "診療報酬側でも後方支援や入退院支援の評価が示されています。一本化ではありません。"}, {"t": "包括期入院医療では、退院時共同指導料2や介護支援等連携指導料の評価は縮小される方向が示された。", "c": false, "fb": "資料上は、包括期入院医療での入退院支援や介護連携の充実が示されています。"}, {"t": "入退院支援加算1は、病院の空床情報を介護老人保健施設が公表した場合に算定する介護報酬である。", "c": false, "fb": "入退院支援加算1は医療機関側の診療報酬です。空床情報の共有は老健の初期加算等の論点です。"}, {"t": "介護支援等連携指導料は、訪問介護員が退院前カンファレンスに参加した場合の訪問介護報酬である。", "c": false, "fb": "介護支援等連携指導料は医療機関側の診療報酬です。訪問介護報酬ではありません。"}]}, {"q": "医療機関を退院して老健へ入所する場面の整理として、最も適切なものはどれか。", "options": [{"t": "退院元医療機関では入退院支援・介護連携の診療報酬が論点となり、老健側では急性期医療機関との連携や空床情報共有等を伴う初期加算（Ⅰ）などが論点となる。", "c": true, "fb": "正解です。退院元医療機関側と老健側で、評価される制度・報酬が異なります。"}, {"t": "医療機関から老健へ退院・入所する場合、居宅介護支援事業所の入院時情報連携加算を算定する。", "c": false, "fb": "入院時情報連携加算は、居宅介護支援の利用者が入院する際に病院へ情報提供する場面です。病院から老健への退院とは逆方向です。"}, {"t": "老健側の初期加算（Ⅰ）は、在宅サービス利用者が病院に入院した当日にケアマネジャーが情報提供した場合の加算である。", "c": false, "fb": "それは居宅介護支援の入院時情報連携加算の説明です。老健の初期加算（Ⅰ）とは異なります。"}, {"t": "退院元医療機関が介護支援専門員等と連携しても、診療報酬上の評価は設けられていない。", "c": false, "fb": "入退院支援加算、介護支援等連携指導料、退院時共同指導料などが論点となります。"}, {"t": "老健に入所した後の介護保険施設サービスと、退院元病院の診療報酬は、同じ請求単位として国保連へまとめて請求する。", "c": false, "fb": "医療保険の診療報酬と介護保険の介護報酬は請求・算定主体が異なります。"}]}]}];
+
+function shuffle(array) {
+  const a = array.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let quiz = [];
+let index = 0;
+let selected = null;
+let answered = false;
+let score = 0;
+let history = [];
+
+const el = (id) => document.getElementById(id);
+
+function buildQuiz() {
+  quiz = QUESTION_POOL.map(cat => {
+    const picked = shuffle(cat.pool)[0];
+    return { category: cat.category, q: picked.q, options: shuffle(picked.options) };
+  });
+  quiz = shuffle(quiz);
+  index = 0;
+  selected = null;
+  answered = false;
+  score = 0;
+  history = [];
+  el('totalCount').textContent = quiz.length;
+  el('summaryArea').classList.remove('show');
+  el('quizArea').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const item = quiz[index];
+  selected = null;
+  answered = false;
+  el('bar').style.width = `${(index / quiz.length) * 100}%`;
+  el('countBadge').textContent = `第${index + 1}問 / ${quiz.length}問`;
+  el('categoryBadge').textContent = item.category;
+  el('questionText').textContent = item.q;
+  el('feedback').className = 'feedback';
+  el('resultText').textContent = '';
+  el('explainText').textContent = '';
+  el('answerBtn').disabled = false;
+  el('nextBtn').disabled = true;
+  el('nextBtn').textContent = index === quiz.length - 1 ? '結果を見る' : '次の問題へ';
+  const options = el('options');
+  options.innerHTML = '';
+  item.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.type = 'button';
+    btn.textContent = `${i + 1}．${opt.t}`;
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      selected = i;
+      document.querySelectorAll('.option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    options.appendChild(btn);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function checkAnswer() {
+  if (selected === null || answered) return;
+  answered = true;
+  const item = quiz[index];
+  const opt = item.options[selected];
+  const correctIndex = item.options.findIndex(o => o.c);
+  const buttons = document.querySelectorAll('.option');
+  buttons.forEach((b, i) => {
+    if (item.options[i].c) b.classList.add('correct');
+  });
+  if (!opt.c) buttons[selected].classList.add('wrong');
+  const isCorrect = !!opt.c;
+  if (isCorrect) score++;
+  const correctText = item.options[correctIndex].t;
+  const fb = el('feedback');
+  fb.className = 'feedback show ' + (isCorrect ? 'good' : 'bad');
+  el('resultText').textContent = isCorrect ? '正解です' : '不正解です';
+  el('explainText').textContent = isCorrect ? opt.fb : `${opt.fb}
+
+正答：${correctText}`;
+  el('answerBtn').disabled = true;
+  el('nextBtn').disabled = false;
+  history.push({
+    category: item.category,
+    question: item.q,
+    selected: opt.t,
+    correct: correctText,
+    ok: isCorrect
+  });
+}
+
+function nextQuestion() {
+  if (index < quiz.length - 1) {
+    index++;
+    renderQuestion();
+  } else {
+    showSummary();
+  }
+}
+
+function showSummary() {
+  el('bar').style.width = '100%';
+  el('quizArea').style.display = 'none';
+  el('summaryArea').classList.add('show');
+  el('scoreText').textContent = `${quiz.length}問中 ${score}問 正解`;
+  const review = el('review');
+  review.innerHTML = '';
+  history.forEach((h, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `<strong>${i + 1}．${h.category}：${h.ok ? '○' : '×'}</strong><br><span class="small">${escapeHtml(h.question).replace(/
+/g, '<br>')}</span><br><br>あなたの回答：${escapeHtml(h.selected)}<br>正答：${escapeHtml(h.correct)}`;
+    review.appendChild(div);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));
+}
+
+el('answerBtn').addEventListener('click', checkAnswer);
+el('nextBtn').addEventListener('click', nextQuestion);
+el('restartBtn').addEventListener('click', buildQuiz);
+buildQuiz();
+</script>
+</body>
+</html>

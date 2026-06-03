@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>介護職員等処遇改善加算実践問題</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f141a;
+      --bg2: #141b23;
+      --card: #1a222c;
+      --card2: #202a35;
+      --text: #edf2f7;
+      --muted: #aab6c3;
+      --line: #334155;
+      --accent: #7dd3fc;
+      --accent2: #a7f3d0;
+      --accent-dark: #0f3b4d;
+      --good-bg: #102d25;
+      --good-line: #2dd4bf;
+      --bad-bg: #321c24;
+      --bad-line: #fb7185;
+      --warn-bg: #2f2918;
+      --warn-line: #facc15;
+      --shadow: rgba(0, 0, 0, .35);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, .12), transparent 28rem),
+        linear-gradient(180deg, var(--bg), #0b1016 68%);
+      color: var(--text);
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(940px, 100%);
+      margin: 0 auto;
+      padding: 18px 14px 42px;
+    }
+
+    header {
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: 22px;
+      padding: 20px 18px;
+      background: linear-gradient(135deg, rgba(32, 42, 53, .96), rgba(20, 27, 35, .96));
+      box-shadow: 0 18px 38px var(--shadow);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.35rem, 5vw, 2.15rem);
+      line-height: 1.25;
+      letter-spacing: .02em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: .96rem;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: 12px 0;
+      padding: 10px 0;
+      background: linear-gradient(180deg, rgba(15,20,26,.98), rgba(15,20,26,.82));
+      backdrop-filter: blur(12px);
+    }
+
+    .status {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+
+    .status::-webkit-scrollbar { display: none; }
+
+    .pill {
+      flex: 0 0 auto;
+      border: 1px solid rgba(148, 163, 184, .25);
+      background: rgba(26, 34, 44, .94);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: .86rem;
+      white-space: nowrap;
+    }
+
+    .pill strong { color: var(--accent); }
+
+    .card {
+      border: 1px solid rgba(148, 163, 184, .25);
+      border-radius: 22px;
+      background: rgba(26, 34, 44, .98);
+      box-shadow: 0 18px 38px var(--shadow);
+      padding: 18px;
+    }
+
+    .category {
+      display: inline-flex;
+      color: var(--accent);
+      background: rgba(14, 165, 233, .12);
+      border: 1px solid rgba(125, 211, 252, .25);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: .85rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .question {
+      font-weight: 760;
+      font-size: clamp(1.04rem, 4vw, 1.25rem);
+      line-height: 1.75;
+      white-space: pre-wrap;
+      margin-bottom: 16px;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      min-height: 54px;
+      padding: 13px 13px;
+      border: 1px solid rgba(148, 163, 184, .25);
+      border-radius: 15px;
+      background: rgba(32, 42, 53, .92);
+      color: var(--text);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+
+    .option:active { transform: scale(.992); }
+
+    .option.selected {
+      border-color: var(--accent);
+      background: rgba(15, 59, 77, .72);
+      box-shadow: 0 0 0 2px rgba(125, 211, 252, .11) inset;
+    }
+
+    .option.correct-mark {
+      border-color: var(--good-line);
+      background: rgba(16, 45, 37, .9);
+    }
+
+    .option.wrong-mark {
+      border-color: var(--bad-line);
+      background: rgba(50, 28, 36, .9);
+    }
+
+    input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 5px;
+      accent-color: var(--accent);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 560px) {
+      .actions { grid-template-columns: auto auto; justify-content: start; }
+      .wrap { padding-top: 24px; }
+      .card { padding: 22px; }
+      header { padding: 24px; }
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      min-height: 48px;
+      padding: 12px 18px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform .12s ease, opacity .12s ease, background .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active { transform: scale(.985); }
+
+    .primary {
+      color: #071018;
+      background: linear-gradient(135deg, var(--accent), #bae6fd);
+    }
+
+    .secondary {
+      color: #071018;
+      background: linear-gradient(135deg, var(--accent2), #d1fae5);
+    }
+
+    .ghost {
+      color: var(--text);
+      background: #293442;
+      border: 1px solid rgba(148, 163, 184, .25);
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, .25);
+      background: var(--card2);
+    }
+
+    .result.correct { background: var(--good-bg); border-color: rgba(45, 212, 191, .55); }
+    .result.incorrect { background: var(--bad-bg); border-color: rgba(251, 113, 133, .55); }
+    .result.finish { background: var(--warn-bg); border-color: rgba(250, 204, 21, .55); }
+
+    .result h2 {
+      margin: 0 0 8px;
+      font-size: 1.12rem;
+      line-height: 1.4;
+    }
+
+    .result.correct h2 { color: #5eead4; }
+    .result.incorrect h2 { color: #fda4af; }
+    .result.finish h2 { color: #fde68a; }
+
+    .result p { margin: 8px 0; }
+
+    .explain-list {
+      margin: 10px 0 0;
+      padding-left: 1.2em;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .hidden { display: none !important; }
+
+    .small {
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .footer-note {
+      color: #8492a6;
+      font-size: .82rem;
+      margin-top: 16px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>介護職員等処遇改善加算実践問題</h1>
+      <p class="lead">介護職員等処遇改善加算について、旧3加算の一本化、対象職員、月額賃金改善、キャリアパス要件、職場環境等要件、計画・実績報告の基本を確認します。5カテゴリから各1問、合計5問をランダムに出題します。</p>
+    </header>
+
+    <div class="topbar">
+      <div class="status" aria-label="進捗">
+        <span class="pill" id="progress"><strong>1</strong> / 5</span>
+        <span class="pill" id="scorePill">正解 <strong>0</strong> 問</span>
+        <span class="pill">五者択一</span>
+        <span class="pill">カテゴリ別ランダム</span>
+      </div>
+    </div>
+
+    <section class="card" id="quizCard" aria-live="polite">
+      <div class="category" id="category"></div>
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <div class="actions">
+        <button class="primary" id="answerBtn" disabled>回答する</button>
+        <button class="secondary hidden" id="nextBtn">次の問題へ</button>
+      </div>
+      <div id="result"></div>
+    </section>
+
+    <section class="card result finish hidden" id="finalScore"></section>
+    <p class="footer-note">GitHub Pagesにそのまま配置できる単独HTMLファイルです。</p>
+  </main>
+
+  <script>
+    const pools = [
+      {
+        category: "制度の位置づけ",
+        questions: [
+          {
+            q: "介護職員等処遇改善加算に関する説明として、最も適切なものはどれか。",
+            options: [
+              { text: "介護人材の確保・定着に向け、介護職員等の賃金改善を行う事業所を評価する加算である。", correct: true, feedback: "介護職員等処遇改善加算は、介護現場で働く職員の処遇改善、特に賃金改善を支える仕組みです。" },
+              { text: "利用者負担を軽減するため、介護報酬の利用者負担分を公費で補填する加算である。", correct: false, feedback: "利用者負担の軽減ではなく、職員の賃金改善を目的とする加算です。" },
+              { text: "介護施設の建物改修や設備投資を主目的として、事業所の固定資産取得を評価する加算である。", correct: false, feedback: "設備投資そのものを目的とする加算ではありません。ICT活用など職場環境改善は要件に関係しますが、中心は賃金改善です。" },
+              { text: "介護職員の資格取得費用を支出した場合に、その費用相当額を個別に補填する加算である。", correct: false, feedback: "研修やキャリア形成は要件に関係しますが、資格取得費用を個別補填する加算ではありません。" },
+              { text: "医療保険の診療報酬で、病院に勤務する看護職員の賃金改善を評価する加算である。", correct: false, feedback: "介護報酬上の加算です。診療報酬のベースアップ評価料や看護職員処遇改善評価料とは制度が異なります。" }
+            ]
+          },
+          {
+            q: "令和6年度介護報酬改定における処遇改善関係加算の再編として、最も適切なものはどれか。",
+            options: [
+              { text: "介護職員処遇改善加算、介護職員等特定処遇改善加算、介護職員等ベースアップ等支援加算が一本化された。", correct: true, feedback: "令和6年度改定では、従前の3つの処遇改善関係加算が介護職員等処遇改善加算に一本化されました。" },
+              { text: "介護職員処遇改善加算は廃止され、特定処遇改善加算とベースアップ等支援加算の2加算体制に整理された。", correct: false, feedback: "2加算体制ではなく、旧3加算を一本化する方向で再編されています。" },
+              { text: "ベースアップ等支援加算が独立加算として拡充され、処遇改善加算と特定処遇改善加算は対象外となった。", correct: false, feedback: "ベースアップ等支援加算も一本化の対象です。" },
+              { text: "処遇改善関係加算は基本報酬に完全に包括され、届出を伴う加算としては残らなかった。", correct: false, feedback: "基本報酬に完全包括されたわけではなく、介護職員等処遇改善加算として再編されています。" },
+              { text: "訪問介護と通所介護に限って処遇改善関係加算が一本化され、施設サービスでは従前の加算が維持された。", correct: false, feedback: "一部サービスだけの再編ではなく、幅広い介護サービスに関係する処遇改善加算の再編です。" }
+            ]
+          },
+          {
+            q: "次の記述のうち、介護職員等処遇改善加算の説明として適切なものの組み合わせはどれか。\n\nア　介護人材の確保・定着に関係する。\nイ　令和6年度改定で処遇改善関係の旧3加算が一本化された。\nウ　加算収入は、原則として利用者への現金給付に用いる。\nエ　賃金改善に関する計画や実績の確認が関係する。",
+            options: [
+              { text: "ア・イ・エ", correct: true, feedback: "ア・イ・エが適切です。ウは利用者への給付ではなく、職員の賃金改善に関する説明に直す必要があります。" },
+              { text: "ア・イ・ウ", correct: false, feedback: "ウが不適切です。加算収入は利用者への現金給付を目的とするものではありません。" },
+              { text: "ア・ウ・エ", correct: false, feedback: "ウが不適切で、イは旧3加算の一本化に関する重要な説明です。" },
+              { text: "イ・ウ・エ", correct: false, feedback: "ウが不適切です。また、介護人材の確保・定着に関係するアも適切です。" },
+              { text: "ア・イ・ウ・エ", correct: false, feedback: "ウを含むため不適切です。正しい組み合わせはア・イ・エです。" }
+            ]
+          }
+        ]
+      },
+      {
+        category: "対象職員と配分",
+        questions: [
+          {
+            q: "介護職員等処遇改善加算の配分に関する説明として、最も適切なものはどれか。",
+            options: [
+              { text: "介護職員を中心としつつ、事業所の判断により一定の範囲で他職種にも配分できる。", correct: true, feedback: "処遇改善の中心は介護職員ですが、『介護職員等』として、一定のルールのもとで他職種への配分も可能です。" },
+              { text: "加算収入は、介護福祉士資格を持つ常勤職員に限定して配分しなければならない。", correct: false, feedback: "介護福祉士資格者だけに限定されるものではありません。" },
+              { text: "加算収入は、管理者や法人役員の役職手当の増額に優先して充てることが想定されている。", correct: false, feedback: "介護現場で働く職員の処遇改善が趣旨です。役員等への配分を中心に考えるものではありません。" },
+              { text: "加算収入は、看護職員や事務職員に配分する場合には介護職員への配分を行えない。", correct: false, feedback: "他職種への配分が可能な場合でも、介護職員の処遇改善が中心である点は変わりません。" },
+              { text: "加算収入は、賃金改善よりも事業所の運転資金や赤字補填に充てることが基本である。", correct: false, feedback: "事業所運営の一般財源ではなく、職員の賃金改善に充てることが基本です。" }
+            ]
+          },
+          {
+            q: "処遇改善加算による賃金改善額として扱うものとして、最も適切なものはどれか。",
+            options: [
+              { text: "基本給または毎月決まって支払われる手当の引上げによる改善額。", correct: true, feedback: "月額賃金改善の趣旨に沿った賃金改善額です。" },
+              { text: "職場環境改善のために購入したタブレット端末の費用。", correct: false, feedback: "ICT活用は職場環境等要件に関係し得ますが、購入費用を賃金改善額として扱うことはできません。" },
+              { text: "研修実施のために外部講師へ支払った謝金。", correct: false, feedback: "研修はキャリアパスや職場環境改善に関係し得ますが、職員への賃金改善額ではありません。" },
+              { text: "利用者に対して実施した利用料減免の総額。", correct: false, feedback: "利用者負担の減免は、処遇改善加算による職員の賃金改善額ではありません。" },
+              { text: "事業所の光熱水費や委託費の上昇分に充てた金額。", correct: false, feedback: "物件費への充当は、職員の賃金改善額には該当しません。" }
+            ]
+          },
+          {
+            q: "次の記述のうち、介護職員等処遇改善加算の対象職員・配分に関する説明として適切なものの組み合わせはどれか。\n\nア　介護職員の賃金改善が中心となる。\nイ　一定の範囲で介護職員以外の職種にも配分できる。\nウ　職場環境改善に要した費用を賃金改善額として計上できる。\nエ　賃金改善の内容は、計画・実績として確認される。",
+            options: [
+              { text: "ア・イ・エ", correct: true, feedback: "ア・イ・エが適切です。職場環境改善費用は取組として重要ですが、賃金改善額そのものではありません。" },
+              { text: "ア・イ・ウ", correct: false, feedback: "ウが不適切です。ICT機器や研修費などの費用は、賃金改善額としては扱いません。" },
+              { text: "ア・ウ・エ", correct: false, feedback: "ウが不適切です。イのように一定範囲で他職種への配分も可能です。" },
+              { text: "イ・ウ・エ", correct: false, feedback: "ウが不適切です。また、介護職員の賃金改善が中心であるアも適切です。" },
+              { text: "ア・イ・ウ・エ", correct: false, feedback: "ウを含むため不適切です。正しい組み合わせはア・イ・エです。" }
+            ]
+          }
+        ]
+      },
+      {
+        category: "算定要件",
+        questions: [
+          {
+            q: "介護職員等処遇改善加算の算定要件の整理として、最も適切なものはどれか。",
+            options: [
+              { text: "キャリアパス要件、月額賃金改善要件、職場環境等要件。", correct: true, feedback: "新加算の算定要件は、大きくキャリアパス要件、月額賃金改善要件、職場環境等要件で整理されます。" },
+              { text: "紹介率要件、逆紹介率要件、救急搬送件数要件。", correct: false, feedback: "医療機関の機能評価で出るような要件であり、介護職員等処遇改善加算の要件整理ではありません。" },
+              { text: "平均在院日数要件、重症度割合要件、在宅復帰率要件。", correct: false, feedback: "医療機関の入院料等で用いられる指標であり、介護職員等処遇改善加算の要件ではありません。" },
+              { text: "食費要件、居住費要件、利用者負担割合要件。", correct: false, feedback: "利用者負担や補足給付に関する論点であり、処遇改善加算の要件整理ではありません。" },
+              { text: "収益率要件、自己資本比率要件、流動比率要件。", correct: false, feedback: "経営分析上の指標であり、処遇改善加算の算定要件ではありません。" }
+            ]
+          },
+          {
+            q: "キャリアパス要件に関する説明として、最も適切なものはどれか。",
+            options: [
+              { text: "任用要件、賃金体系、研修、昇給の仕組みなど、職員のキャリア形成に関する整備を求める要件である。", correct: true, feedback: "キャリアパス要件は、職員が将来の処遇や成長の見通しを持てる仕組みづくりに関係します。" },
+              { text: "利用者の要介護度が前年度より改善した場合に、職員のキャリア評価を省略できる要件である。", correct: false, feedback: "利用者の要介護度改善を直接の要件とするものではありません。" },
+              { text: "事業所の収支差率が一定水準を下回る場合に、賃金改善を免除する要件である。", correct: false, feedback: "経営状況により賃金改善を免除する要件ではありません。" },
+              { text: "事業所が地域医療構想調整会議へ参加することを求める要件である。", correct: false, feedback: "地域医療構想調整会議は医療提供体制の議論であり、キャリアパス要件とは別の論点です。" },
+              { text: "入所者への栄養管理計画を作成することを中心とする要件である。", correct: false, feedback: "栄養管理計画ではなく、職員の任用・研修・昇給等のキャリア形成が中心です。" }
+            ]
+          },
+          {
+            q: "次の記述のうち、介護職員等処遇改善加算の要件に関する説明として適切なものの組み合わせはどれか。\n\nア　月額賃金改善要件は、基本給等または毎月支払われる手当による賃金改善に関係する。\nイ　職場環境等要件は、入職促進、資質向上、ICT活用、業務改善などに関係する。\nウ　キャリアパス要件は、任用要件や昇給の仕組みなどに関係する。\nエ　職場環境等要件を満たせば、賃金改善を行わなくても加算の趣旨を満たす。",
+            options: [
+              { text: "ア・イ・ウ", correct: true, feedback: "ア・イ・ウが適切です。エは、職場環境の取組だけで賃金改善を不要にする説明となっており不適切です。" },
+              { text: "ア・イ・エ", correct: false, feedback: "エが不適切です。処遇改善加算では賃金改善が中心です。" },
+              { text: "ア・ウ・エ", correct: false, feedback: "エが不適切です。イの職場環境等要件の説明も適切です。" },
+              { text: "イ・ウ・エ", correct: false, feedback: "エが不適切です。また、月額賃金改善要件に関するアも適切です。" },
+              { text: "ア・イ・ウ・エ", correct: false, feedback: "エを含むため不適切です。正しい組み合わせはア・イ・ウです。" }
+            ]
+          }
+        ]
+      },
+      {
+        category: "月額賃金改善とベースアップ",
+        questions: [
+          {
+            q: "月額賃金改善要件に関する説明として、最も適切なものはどれか。",
+            options: [
+              { text: "加算の一部を、基本給または毎月決まって支払われる手当による賃金改善に充てる趣旨の要件である。", correct: true, feedback: "月額賃金改善要件は、一時金だけではなく、継続的な月額賃金の改善を重視する要件です。" },
+              { text: "賞与の支給額だけを増やせば、基本給等の改善を行わなくても常に満たされる要件である。", correct: false, feedback: "賞与だけでなく、基本給等または毎月支払われる手当による改善が重要です。" },
+              { text: "定期昇給による年齢・勤続年数に応じた昇給を、すべて月額賃金改善として扱う要件である。", correct: false, feedback: "定期昇給とベースアップは区別して理解する必要があります。" },
+              { text: "利用者の月額負担を引き下げるための要件である。", correct: false, feedback: "利用者負担ではなく、職員の月額賃金改善に関する要件です。" },
+              { text: "事業所の月次収支が黒字であることを確認する要件である。", correct: false, feedback: "経営収支の黒字確認ではなく、職員の賃金改善に関する要件です。" }
+            ]
+          },
+          {
+            q: "ベースアップの説明として、最も適切なものはどれか。",
+            options: [
+              { text: "賃金表や給与規程等を改定し、職員の賃金水準そのものを引き上げること。", correct: true, feedback: "ベースアップは、年齢や勤続による個別の定期昇給ではなく、賃金水準そのものの引上げとして理解します。" },
+              { text: "勤続年数が1年増えたことによる号俸上昇を、常にベースアップと呼ぶ。", correct: false, feedback: "定期昇給は、ベースアップとは区別されます。" },
+              { text: "利用者1人あたりの介護報酬単価を事業所が自由に引き上げること。", correct: false, feedback: "ベースアップは職員の賃金水準の引上げであり、利用者への請求単価を自由に上げることではありません。" },
+              { text: "設備投資を行って、事業所の固定資産額を増やすこと。", correct: false, feedback: "固定資産の増加ではなく、賃金水準の引上げです。" },
+              { text: "介護保険外サービスの料金を改定して、売上を増やすこと。", correct: false, feedback: "売上増加ではなく、職員の賃金水準の引上げを指します。" }
+            ]
+          },
+          {
+            q: "次の記述のうち、月額賃金改善・ベースアップに関する説明として適切なものの組み合わせはどれか。\n\nア　基本給の引上げは、ベースアップに該当し得る。\nイ　毎月決まって支払われる手当の引上げは、月額賃金改善に該当し得る。\nウ　年齢や勤続年数による定期昇給は、ベースアップと区別して考える。\nエ　ベースアップは、利用者負担割合を引き上げることを意味する。",
+            options: [
+              { text: "ア・イ・ウ", correct: true, feedback: "ア・イ・ウが適切です。エは、利用者負担割合と職員の賃金改善を混同しています。" },
+              { text: "ア・イ・エ", correct: false, feedback: "エが不適切です。ベースアップは職員の賃金水準の引上げです。" },
+              { text: "ア・ウ・エ", correct: false, feedback: "エが不適切です。イも月額賃金改善の説明として適切です。" },
+              { text: "イ・ウ・エ", correct: false, feedback: "エが不適切です。また、基本給引上げに関するアも適切です。" },
+              { text: "ア・イ・ウ・エ", correct: false, feedback: "エを含むため不適切です。正しい組み合わせはア・イ・ウです。" }
+            ]
+          }
+        ]
+      },
+      {
+        category: "届出・計画・実績報告",
+        questions: [
+          {
+            q: "介護職員等処遇改善加算を算定する事業所の対応として、最も適切なものはどれか。",
+            options: [
+              { text: "賃金改善の内容や要件への対応を整理し、所定の届出や実績報告を行う。", correct: true, feedback: "処遇改善加算では、賃金改善の計画・実績管理、届出、報告が実務上重要です。" },
+              { text: "加算収入の使途は記録せず、年度末に余った金額だけを職員へ配分する。", correct: false, feedback: "賃金改善の計画と実績を適切に管理する必要があります。" },
+              { text: "加算の届出を行えば、賃金改善の実績確認は不要となる。", correct: false, feedback: "届出だけで終わらず、実績報告による確認が関係します。" },
+              { text: "職場環境等要件に関する取組は、加算区分にかかわらず確認しなくてよい。", correct: false, feedback: "職場環境等要件は、処遇改善加算の重要な要件の一つです。" },
+              { text: "事業所の平均利用者数が増加していれば、賃金改善の計画は作成しなくてよい。", correct: false, feedback: "利用者数の増加と賃金改善計画は別の論点です。" }
+            ]
+          },
+          {
+            q: "介護職員等処遇改善加算の上位区分を取得するための対応として、最も適切なものはどれか。",
+            options: [
+              { text: "賃金改善に加え、キャリアパス要件や職場環境等要件の整備状況を確認する。", correct: true, feedback: "上位区分ほど、賃金改善だけでなく、キャリアパスや職場環境改善の要件整備が重要になります。" },
+              { text: "職員への配分内容を検討せず、加算収入を事業所の経費削減に充てる。", correct: false, feedback: "加算の中心は職員の賃金改善です。" },
+              { text: "キャリアパス要件を満たさない場合でも、利用者数が増えていれば上位区分を算定できる。", correct: false, feedback: "利用者数の増加でキャリアパス要件を代替することはできません。" },
+              { text: "職場環境等要件の取組を行った場合、賃金改善額の確認は省略できる。", correct: false, feedback: "職場環境等要件と賃金改善は別に確認すべき論点です。" },
+              { text: "事業所の建物面積を拡大すれば、キャリアパス要件と月額賃金改善要件を満たしたものと扱われる。", correct: false, feedback: "建物面積の拡大だけで、キャリアパス要件や月額賃金改善要件を満たすわけではありません。" }
+            ]
+          },
+          {
+            q: "次の記述のうち、届出・計画・実績報告に関する説明として適切なものの組み合わせはどれか。\n\nア　加算を算定するには、要件を満たすための届出が関係する。\nイ　賃金改善については、計画と実績の管理が求められる。\nウ　職場環境等要件の取組も確認対象となる。\nエ　加算収入を内部留保に回せば、賃金改善の実績報告は不要となる。",
+            options: [
+              { text: "ア・イ・ウ", correct: true, feedback: "ア・イ・ウが適切です。エは、加算の趣旨と実績報告の考え方に反します。" },
+              { text: "ア・イ・エ", correct: false, feedback: "エが不適切です。加算収入は職員の賃金改善に充てることが基本であり、実績確認も関係します。" },
+              { text: "ア・ウ・エ", correct: false, feedback: "エが不適切です。賃金改善の計画・実績管理に関するイも適切です。" },
+              { text: "イ・ウ・エ", correct: false, feedback: "エが不適切です。また、届出に関するアも適切です。" },
+              { text: "ア・イ・ウ・エ", correct: false, feedback: "エを含むため不適切です。正しい組み合わせはア・イ・ウです。" }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const totalQuestions = pools.length;
+    let quizSet = [];
+    let currentIndex = 0;
+    let score = 0;
+    let selectedIndex = null;
+    let answered = false;
+
+    const progressEl = document.getElementById("progress");
+    const scorePillEl = document.getElementById("scorePill");
+    const categoryEl = document.getElementById("category");
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const answerBtn = document.getElementById("answerBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resultEl = document.getElementById("result");
+    const quizCard = document.getElementById("quizCard");
+    const finalScoreEl = document.getElementById("finalScore");
+
+    function shuffle(array) {
+      const copied = [...array];
+      for (let i = copied.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copied[i], copied[j]] = [copied[j], copied[i]];
+      }
+      return copied;
+    }
+
+    function buildQuiz() {
+      quizSet = shuffle(pools.map(pool => {
+        const picked = shuffle(pool.questions)[0];
+        return {
+          category: pool.category,
+          q: picked.q,
+          options: shuffle(picked.options)
+        };
+      }));
+      currentIndex = 0;
+      score = 0;
+      selectedIndex = null;
+      answered = false;
+      finalScoreEl.classList.add("hidden");
+      quizCard.classList.remove("hidden");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const item = quizSet[currentIndex];
+      selectedIndex = null;
+      answered = false;
+
+      progressEl.innerHTML = `<strong>${currentIndex + 1}</strong> / ${totalQuestions}`;
+      scorePillEl.innerHTML = `正解 <strong>${score}</strong> 問`;
+      categoryEl.textContent = `カテゴリ：${item.category}`;
+      questionEl.textContent = item.q;
+      resultEl.innerHTML = "";
+      resultEl.className = "";
+      answerBtn.disabled = true;
+      answerBtn.classList.remove("hidden");
+      nextBtn.classList.add("hidden");
+
+      optionsEl.innerHTML = "";
+      item.options.forEach((opt, idx) => {
+        const label = document.createElement("label");
+        label.className = "option";
+        label.setAttribute("data-index", String(idx));
+        label.innerHTML = `
+          <input type="radio" name="answer" value="${idx}" aria-label="選択肢${idx + 1}">
+          <span>${opt.text}</span>
+        `;
+        label.addEventListener("click", () => selectOption(idx));
+        optionsEl.appendChild(label);
+      });
+
+      setTimeout(() => quizCard.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+    }
+
+    function selectOption(idx) {
+      if (answered) return;
+      selectedIndex = idx;
+      document.querySelectorAll(".option").forEach(el => el.classList.remove("selected"));
+      const selectedLabel = document.querySelector(`.option[data-index="${idx}"]`);
+      if (selectedLabel) selectedLabel.classList.add("selected");
+      answerBtn.disabled = false;
+    }
+
+    function showAnswer() {
+      if (selectedIndex === null || answered) return;
+      answered = true;
+
+      const item = quizSet[currentIndex];
+      const chosen = item.options[selectedIndex];
+      const correctIndex = item.options.findIndex(opt => opt.correct);
+      const correct = item.options[correctIndex];
+
+      document.querySelectorAll(".option").forEach((el, idx) => {
+        el.style.cursor = "default";
+        const radio = el.querySelector("input");
+        radio.disabled = true;
+        if (idx === correctIndex) el.classList.add("correct-mark");
+        if (idx === selectedIndex && !chosen.correct) el.classList.add("wrong-mark");
+      });
+
+      if (chosen.correct) score++;
+      scorePillEl.innerHTML = `正解 <strong>${score}</strong> 問`;
+      answerBtn.classList.add("hidden");
+      nextBtn.classList.remove("hidden");
+      nextBtn.textContent = currentIndex === totalQuestions - 1 ? "結果を見る" : "次の問題へ";
+
+      resultEl.className = `result ${chosen.correct ? "correct" : "incorrect"}`;
+      resultEl.innerHTML = `
+        <h2>${chosen.correct ? "正解です" : "不正解です"}</h2>
+        <p><strong>選択した回答：</strong>${chosen.text}</p>
+        <p><strong>${chosen.correct ? "解説" : "誤答の理由"}：</strong>${chosen.feedback}</p>
+        ${chosen.correct ? "" : `<p><strong>正答：</strong>${correct.text}</p><p><strong>正答の解説：</strong>${correct.feedback}</p>`}
+      `;
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function nextQuestion() {
+      if (currentIndex < totalQuestions - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        showFinalScore();
+      }
+    }
+
+    function showFinalScore() {
+      quizCard.classList.add("hidden");
+      const percent = Math.round((score / totalQuestions) * 100);
+      let comment = "";
+      if (score === totalQuestions) {
+        comment = "満点です。旧3加算の一本化、3要件、月額賃金改善の区別まで整理できています。";
+      } else if (score >= 4) {
+        comment = "よくできています。ベースアップと定期昇給、職場環境改善費用と賃金改善額の区別を確認するとさらに安定します。";
+      } else if (score >= 3) {
+        comment = "基本は押さえられています。旧3加算の一本化、対象職員、3つの要件を再確認しましょう。";
+      } else {
+        comment = "まずは『職員の賃金改善を目的とする加算』『旧3加算の一本化』『キャリアパス・月額賃金改善・職場環境等要件』を押さえましょう。";
+      }
+
+      finalScoreEl.classList.remove("hidden");
+      finalScoreEl.innerHTML = `
+        <h2>結果</h2>
+        <p><strong>${score} / ${totalQuestions} 問正解</strong>（正答率 ${percent}%）</p>
+        <p>${comment}</p>
+        <div class="actions">
+          <button class="primary" id="retryBtn">もう一度解く</button>
+          <button class="ghost" id="reviewBtn">最初の画面へ戻る</button>
+        </div>
+        <p class="small">再チャレンジすると、出題される問題と選択肢の順番が変わります。</p>
+      `;
+      document.getElementById("retryBtn").addEventListener("click", buildQuiz);
+      document.getElementById("reviewBtn").addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+      finalScoreEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    answerBtn.addEventListener("click", showAnswer);
+    nextBtn.addEventListener("click", nextQuestion);
+    buildQuiz();
+  </script>
+</body>
+</html>

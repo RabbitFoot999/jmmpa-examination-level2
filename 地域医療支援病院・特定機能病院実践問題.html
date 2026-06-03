@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地域医療支援病院・特定機能病院実践問題</title>
+  <style>
+    :root {
+      --bg:#0f172a;
+      --bg2:#111827;
+      --card:#172033;
+      --card2:#1f2a44;
+      --ink:#e5e7eb;
+      --muted:#aab6ca;
+      --line:#334155;
+      --primary:#60a5fa;
+      --primary2:#5eead4;
+      --ok:#86efac;
+      --ok-bg:#123524;
+      --ng:#fca5a5;
+      --ng-bg:#3b171b;
+      --warn:#facc15;
+      --shadow:0 18px 48px rgba(0,0,0,.36);
+      --radius:20px;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Yu Gothic UI",Meiryo,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(96,165,250,.18), transparent 34%),
+        radial-gradient(circle at 95% 8%, rgba(94,234,212,.12), transparent 32%),
+        linear-gradient(180deg, var(--bg), #0b1120 60%, #090f1e);
+      line-height:1.75;
+      min-height:100vh;
+    }
+    .wrap { width:min(920px, calc(100% - 28px)); margin:0 auto; padding:22px 0 48px; }
+    header {
+      padding:24px 20px;
+      border:1px solid rgba(148,163,184,.25);
+      border-radius:26px;
+      background:linear-gradient(135deg, rgba(30,64,175,.76), rgba(15,118,110,.64));
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    h1 { margin:0 0 8px; font-size:clamp(1.35rem, 5vw, 2.2rem); letter-spacing:.02em; line-height:1.35; }
+    .lead { margin:0; color:#dbeafe; font-size:.96rem; }
+    .panel,.question-card,.result {
+      border:1px solid rgba(148,163,184,.24);
+      background:rgba(23,32,51,.92);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .panel { padding:16px; margin-bottom:14px; }
+    .status-row { display:grid; gap:12px; grid-template-columns:1fr auto; align-items:center; }
+    .progress-label { display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-size:.9rem; margin-bottom:7px; }
+    .bar { height:12px; border-radius:999px; background:#0b1220; overflow:hidden; border:1px solid rgba(148,163,184,.18); }
+    .bar > div { height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--primary2)); transition:width .25s ease; }
+    .memo {
+      margin-top:12px; padding:12px 13px; border-radius:15px;
+      background:rgba(250,204,21,.09); border:1px solid rgba(250,204,21,.22); color:#fde68a; font-size:.9rem;
+    }
+    button { font:inherit; }
+    .main-btn {
+      border:0; border-radius:999px; padding:11px 18px; min-height:44px;
+      background:linear-gradient(135deg,#2563eb,#0f766e); color:white; font-weight:800; cursor:pointer;
+      box-shadow:0 10px 22px rgba(37,99,235,.22);
+    }
+    .main-btn:disabled { background:#475569; color:#cbd5e1; cursor:not-allowed; box-shadow:none; }
+    .ghost-btn { background:#111827; color:#bfdbfe; border:1px solid #334155; box-shadow:none; }
+    .question-card { position:relative; overflow:hidden; padding:18px; margin:14px 0; }
+    .question-card:before { content:""; position:absolute; inset:0 0 auto 0; height:5px; background:linear-gradient(90deg,var(--primary),var(--primary2)); }
+    .q-meta { display:flex; flex-wrap:wrap; gap:8px; align-items:center; color:var(--muted); font-size:.88rem; font-weight:700; margin:2px 0 10px; }
+    .tag { display:inline-flex; border-radius:999px; padding:3px 10px; background:rgba(96,165,250,.14); color:#bfdbfe; border:1px solid rgba(96,165,250,.22); }
+    .question { font-size:1.05rem; font-weight:850; margin:0 0 15px; white-space:normal; }
+    .options { display:grid; gap:10px; margin-bottom:16px; }
+    .option {
+      width:100%; display:grid; grid-template-columns:32px 1fr; gap:10px; align-items:start; text-align:left;
+      color:var(--ink); background:rgba(15,23,42,.76); border:1px solid var(--line); border-radius:15px;
+      padding:12px; min-height:52px; cursor:pointer;
+    }
+    .option:hover:not(:disabled), .option.selected { border-color:#60a5fa; background:rgba(37,99,235,.16); }
+    .option:disabled { cursor:default; }
+    .option.correct { border-color:rgba(134,239,172,.8); background:var(--ok-bg); }
+    .option.incorrect { border-color:rgba(252,165,165,.82); background:var(--ng-bg); }
+    .mark {
+      width:28px; height:28px; border-radius:50%; display:grid; place-items:center; background:#0b1220;
+      border:1px solid #475569; color:#cbd5e1; font-weight:900; line-height:1;
+    }
+    .correct .mark { background:#15803d; border-color:#86efac; color:white; }
+    .incorrect .mark { background:#b91c1c; border-color:#fca5a5; color:white; }
+    .actions { display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+    .explanation { display:none; margin-top:14px; padding:14px; border-radius:16px; background:rgba(15,23,42,.65); border:1px solid var(--line); }
+    .explanation.show { display:block; }
+    .judge { font-weight:900; margin-bottom:8px; }
+    .judge.ok { color:var(--ok); } .judge.ng { color:var(--ng); }
+    .why { margin-top:10px; padding:11px 12px; border-radius:12px; background:rgba(255,255,255,.035); border:1px solid rgba(148,163,184,.2); }
+    .source-note { margin-top:10px; color:var(--muted); font-size:.86rem; }
+    .result { display:none; text-align:center; padding:22px 16px; margin-top:16px; }
+    .result.show { display:block; }
+    .score { font-size:2.25rem; font-weight:950; color:#93c5fd; margin:2px 0 6px; }
+    .review-list { list-style:none; padding:0; margin:16px auto 0; display:grid; gap:8px; max-width:760px; text-align:left; }
+    .review-list li { border:1px solid rgba(148,163,184,.22); background:rgba(15,23,42,.68); border-radius:13px; padding:10px 12px; }
+    .small { font-size:.84rem; color:var(--muted); }
+    @media (max-width:720px) {
+      .wrap { width:min(100% - 20px, 920px); padding-top:14px; }
+      header { padding:20px 16px; border-radius:22px; }
+      .status-row { grid-template-columns:1fr; }
+      .question-card { padding:16px 13px; border-radius:18px; }
+      .option { grid-template-columns:30px 1fr; padding:12px 10px; }
+      .main-btn { width:100%; }
+      .actions { gap:8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>地域医療支援病院・特定機能病院実践問題</h1>
+      <p class="lead">役割、承認者、病床数・人員配置、紹介率・逆紹介率、診療報酬上の外来機能分化を整理する五者択一問題です。</p>
+    </header>
+
+    <section class="panel">
+      <div class="status-row">
+        <div>
+          <div class="progress-label"><span id="progressText">0 / 8 問解答済み</span><span id="scoreText">正答 0 問</span></div>
+          <div class="bar" aria-label="進捗"><div id="progressBar"></div></div>
+        </div>
+        <button class="main-btn ghost-btn" id="restartTop" type="button">最初からやり直す</button>
+      </div>
+      <div class="memo">1回につき8問です。8カテゴリそれぞれに3問ずつ問題を用意し、毎回ランダムに1問ずつ抽出します。問題順と選択肢順も毎回変わります。</div>
+      <div class="small" id="testStatus">起動チェック中...</div>
+    </section>
+
+    <main id="quiz"></main>
+
+    <section id="result" class="result" aria-live="polite">
+      <div>今回の結果</div>
+      <div class="score" id="finalScore">0 / 8</div>
+      <p id="resultMessage"></p>
+      <button class="main-btn" id="retryBtn" type="button">再チャレンジする</button>
+      <ul class="review-list" id="reviewList"></ul>
+    </section>
+  </div>
+
+  <script>
+    const categories = [{"name":"役割と承認者","pool":[{"q":"地域医療支援病院と特定機能病院の役割の組合せとして、最も適切なものはどれか。","choices":[{"t":"地域医療支援病院は地域の医療機関を支援する機能を重視し、特定機能病院は高度医療の提供・開発・研修を重視する。","c":true,"r":"地域医療支援病院は紹介患者への医療提供、救急医療、共同利用、地域医療従事者研修などを担う。特定機能病院は高度医療の提供、高度医療技術の開発・評価、高度医療に関する研修を担う。"},{"t":"地域医療支援病院は高度医療技術の開発を中心に承認され、特定機能病院は地域の医療機器共同利用を中心に承認される。","c":false,"r":"高度医療技術の開発・評価は特定機能病院側、医療機器等の共同利用は地域医療支援病院側の代表的機能である。"},{"t":"地域医療支援病院は介護保険法上の施設区分であり、特定機能病院は診療報酬上の加算区分である。","c":false,"r":"どちらも医療法上の病院機能に関する承認制度として整理される。"},{"t":"地域医療支援病院は大学病院本院に限られ、特定機能病院は市町村立病院に限られる。","c":false,"r":"大学病院本院が多いのは特定機能病院である。地域医療支援病院は地域の中核病院等が承認される。"},{"t":"地域医療支援病院も特定機能病院も、在宅医療を主たる単独目的として承認される。","c":false,"r":"在宅医療との連携は重要だが、両制度の主たる単独目的ではない。"}],"source":"予想問題集・厚労省資料"},{"q":"承認者の組合せとして、正しいものはどれか。","choices":[{"t":"地域医療支援病院：都道府県知事、特定機能病院：厚生労働大臣","c":true,"r":"地域医療支援病院は都道府県知事が個別に承認し、特定機能病院は厚生労働大臣が個別に承認する。"},{"t":"地域医療支援病院：厚生労働大臣、特定機能病院：都道府県知事","c":false,"r":"承認者が逆である。"},{"t":"地域医療支援病院：市町村長、特定機能病院：都道府県知事","c":false,"r":"地域医療支援病院は市町村長ではなく都道府県知事、特定機能病院は都道府県知事ではなく厚生労働大臣である。"},{"t":"地域医療支援病院：地方厚生局長、特定機能病院：医療審議会","c":false,"r":"診療報酬上の届出や審議会の関与と、病院機能の承認者を混同しない。"},{"t":"地域医療支援病院：都道府県医師会長、特定機能病院：社会保障審議会","c":false,"r":"医師会長や社会保障審議会が直接の承認者となる制度ではない。"}],"source":"厚労省資料"},{"q":"次のア〜ウのうち、特定機能病院の役割として正しいものの組合せはどれか。\nア 高度医療の提供\nイ 高度医療技術の開発・評価\nウ 地域の医師等による医療機器共同利用を主目的とすること","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イも特定機能病院の役割である。"},{"t":"イのみ","c":false,"r":"イは正しいが、アも特定機能病院の役割である。"},{"t":"ア・イ","c":true,"r":"特定機能病院は高度医療の提供、高度医療技術の開発・評価、高度医療に関する研修を担う。ウの共同利用は地域医療支援病院側の機能として整理する。"},{"t":"ア・ウ","c":false,"r":"アは正しいが、ウは地域医療支援病院側の機能である。"},{"t":"ア・イ・ウ","c":false,"r":"ウが不適切である。"}],"source":"厚労省資料・予想問題集"}]},{"name":"病床数・人員配置","pool":[{"q":"病床数に関する承認要件の説明として、最も適切なものはどれか。","choices":[{"t":"地域医療支援病院は原則200床以上、特定機能病院は400床以上が基本である。","c":true,"r":"地域医療支援病院は200床以上、特定機能病院は400床以上という整理が基本である。"},{"t":"地域医療支援病院は400床以上、特定機能病院は200床以上が基本である。","c":false,"r":"両者の病床数が逆である。"},{"t":"地域医療支援病院も特定機能病院も、20床以上で同じ基準となる。","c":false,"r":"20床以上は病院の一般的な区分と混同しやすい。承認要件では地域医療支援病院200床以上、特定機能病院400床以上が基本である。"},{"t":"特定機能病院は高度医療を担うため、病床数の基準は設けられていない。","c":false,"r":"特定機能病院には400床以上という病床数の基準がある。"},{"t":"地域医療支援病院は紹介率の基準を満たせば、病床数の基準は不要となる。","c":false,"r":"紹介率・逆紹介率の基準と病床数の基準は別の論点である。"}],"source":"予想問題集・厚労省資料"},{"q":"特定機能病院の人員配置に関する記述として、最も適切なものはどれか。","choices":[{"t":"医師は通常の病院の2倍程度、薬剤師は入院患者数÷30、看護師等は入院患者数÷2が最低基準として整理される。","c":true,"r":"特定機能病院は高度医療を担うため、通常の病院より手厚い人員配置が求められる。薬剤師の入院患者数÷30、看護師等の入院患者数÷2は一般病院の基準と混同しやすい。"},{"t":"医師は通常の病院と同じ配置でよく、薬剤師や看護師等の基準も一般病院と同じである。","c":false,"r":"特定機能病院では通常の病院より手厚い人員配置が求められる。"},{"t":"薬剤師は入院患者数÷70、看護師等は入院患者数÷3が最低基準として整理される。","c":false,"r":"これは一般病院側の水準として混同しやすい。特定機能病院では薬剤師は入院患者数÷30、看護師等は入院患者数÷2で整理される。"},{"t":"薬剤師は入院患者数÷30だが、看護師等は入院患者数÷3で一般病院と同じである。","c":false,"r":"薬剤師だけでなく、看護師等も入院患者数÷2という手厚い配置が求められる。"},{"t":"特定機能病院では管理栄養士の配置が認められていない。","c":false,"r":"管理栄養士1名以上の配置も要件として整理される。"}],"source":"厚労省資料"},{"q":"次のア〜ウのうち、特定機能病院の承認要件として正しいものの組合せはどれか。\nア 400床以上の病床\nイ 集中治療室・無菌病室・医薬品情報管理室\nウ 地域の医師等による設備共同利用のみで足りること","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イも特定機能病院の構造設備として正しい。"},{"t":"イのみ","c":false,"r":"イは正しいが、アも特定機能病院の要件として正しい。"},{"t":"ア・イ","c":true,"r":"400床以上、集中治療室・無菌病室・医薬品情報管理室などは特定機能病院の要件として整理される。ウの共同利用は地域医療支援病院の機能であり、特定機能病院の要件を表すものではない。"},{"t":"ア・ウ","c":false,"r":"アは正しいが、ウは不適切である。"},{"t":"ア・イ・ウ","c":false,"r":"ウが不適切である。"}],"source":"厚労省資料・予想問題集"}]},{"name":"紹介率・逆紹介率（承認要件）","pool":[{"q":"特定機能病院の医療法上の承認要件における紹介率・逆紹介率の原則的な基準として、正しいものはどれか。","choices":[{"t":"紹介率50％以上かつ逆紹介率40％以上","c":true,"r":"特定機能病院の承認要件では、原則として紹介率50％以上かつ逆紹介率40％以上と整理される。"},{"t":"紹介率80％以上であれば逆紹介率は問われない","c":false,"r":"これは地域医療支援病院の基準の一部と混同しやすい。"},{"t":"紹介率65％以上かつ逆紹介率40％以上","c":false,"r":"これは地域医療支援病院の3パターンの一部であり、特定機能病院の原則基準ではない。"},{"t":"紹介率50％以上かつ逆紹介率70％以上","c":false,"r":"これは地域医療支援病院で紹介率50％の場合に求められる基準と混同しやすい。"},{"t":"紹介割合50％未満かつ逆紹介割合50‰未満","c":false,"r":"これは診療報酬上の外来診療料等の減算に関する基準であり、医療法上の承認要件ではない。"}],"source":"厚労省資料"},{"q":"地域医療支援病院の紹介率・逆紹介率の基準として、正しいものはどれか。","choices":[{"t":"紹介率80％以上、または紹介率65％以上かつ逆紹介率40％以上、または紹介率50％以上かつ逆紹介率70％以上","c":true,"r":"地域医療支援病院は3パターンで整理する。特定機能病院の50％・40％とは異なる。"},{"t":"紹介率50％以上かつ逆紹介率40％以上","c":false,"r":"これは特定機能病院の原則的な承認要件であり、地域医療支援病院では紹介率50％の場合は逆紹介率70％以上が必要である。"},{"t":"紹介割合50％未満かつ逆紹介割合50‰未満","c":false,"r":"これは診療報酬上の外来機能分化・減算基準の文脈であり、地域医療支援病院の承認要件ではない。"},{"t":"紹介率80％以上かつ逆紹介率60％以上","c":false,"r":"特定領域型の特定機能病院の基準として混同しやすい数値である。"},{"t":"紹介率40％以上かつ逆紹介率40‰以上","c":false,"r":"百分率と千分率が混在しており、承認要件と診療報酬上の基準を混同している。"}],"source":"予想問題集・厚労省資料"},{"q":"次のア〜ウのうち、地域医療支援病院の紹介率・逆紹介率の基準として正しいものの組合せはどれか。\nア 紹介率80％以上\nイ 紹介率65％以上かつ逆紹介率40％以上\nウ 紹介率50％以上かつ逆紹介率40％以上","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イも地域医療支援病院の基準である。"},{"t":"イのみ","c":false,"r":"イは正しいが、アも地域医療支援病院の基準である。"},{"t":"ア・イ","c":true,"r":"地域医療支援病院の基準には、紹介率80％以上、紹介率65％以上かつ逆紹介率40％以上が含まれる。ウの50％・40％は特定機能病院の原則基準である。"},{"t":"ア・ウ","c":false,"r":"ウは特定機能病院の原則基準であり、地域医療支援病院で紹介率50％の場合は逆紹介率70％以上が必要である。"},{"t":"ア・イ・ウ","c":false,"r":"ウが不適切である。"}],"source":"厚労省資料・予想問題集"}]},{"name":"診療報酬上の外来機能分化","pool":[{"q":"令和8年度診療報酬改定における、特定機能病院等の外来診療料等の減算に係る基準として、正しいものはどれか。","choices":[{"t":"紹介割合50％未満、逆紹介割合50‰未満","c":true,"r":"特定機能病院、一般病床200床以上の地域医療支援病院、一般病床200床以上の紹介受診重点医療機関では、紹介割合50％未満、逆紹介割合50‰未満が基準として示される。50‰は1000分の50である。"},{"t":"紹介割合50％未満、逆紹介割合40％未満","c":false,"r":"逆紹介割合は診療報酬上の外来機能分化では‰で扱われる。40％は特定機能病院の承認要件と混同しやすい。"},{"t":"紹介割合80％未満、逆紹介割合60％未満","c":false,"r":"80％・60％は特定領域型の特定機能病院等と混同しやすい数値である。"},{"t":"紹介割合40％未満、逆紹介割合40‰未満","c":false,"r":"これは許可病床400床以上の病院等の基準と混同しやすい。特定機能病院等では50％未満・50‰未満である。"},{"t":"紹介割合65％未満、逆紹介割合40％未満","c":false,"r":"地域医療支援病院の承認要件の一部と診療報酬上の基準を混同している。"}],"source":"令和8年度診療報酬改定資料"},{"q":"1000分の50に相当する規定について、最も適切な説明はどれか。","choices":[{"t":"診療報酬上の外来診療料等の減算に関する逆紹介割合50‰の基準であり、医療法上の特定機能病院の逆紹介率40％とは別の文脈である。","c":true,"r":"1000分の50は50‰である。これは外来機能分化に関する診療報酬上の基準で、承認要件の逆紹介率40％とは区別する。"},{"t":"特定機能病院の承認要件における逆紹介率50％の基準である。","c":false,"r":"特定機能病院の承認要件は逆紹介率40％以上である。1000分の50は診療報酬上の逆紹介割合50‰の基準である。"},{"t":"地域医療支援病院の承認要件における紹介率50％の基準である。","c":false,"r":"地域医療支援病院では紹介率50％の場合、逆紹介率70％以上が必要である。1000分の50とは別である。"},{"t":"紹介状なし受診時の定額負担7,000円を示す単位である。","c":false,"r":"50‰は逆紹介割合の基準であり、定額負担額そのものではない。"},{"t":"薬価改定率を表す診療報酬上の単位である。","c":false,"r":"薬価改定率ではなく、外来機能分化に関する逆紹介割合の基準である。"}],"source":"令和8年度診療報酬改定資料"},{"q":"紹介状なし受診等の定額負担の対象病院として、正しいものはどれか。","choices":[{"t":"特定機能病院、一般病床200床以上の地域医療支援病院、一般病床200床以上の紹介受診重点医療機関","c":true,"r":"紹介状なし受診等の定額負担の対象病院には、特定機能病院、一般病床200床以上の地域医療支援病院、一般病床200床以上の紹介受診重点医療機関が含まれる。"},{"t":"すべての地域医療支援病院とすべての有床診療所","c":false,"r":"地域医療支援病院は一般病床200床以上が対象であり、有床診療所が一律対象となるわけではない。"},{"t":"特定機能病院に限られ、地域医療支援病院は対象とならない。","c":false,"r":"一般病床200床以上の地域医療支援病院も対象となる。"},{"t":"許可病床20床以上のすべての病院","c":false,"r":"すべての病院が対象ではない。外来機能分化の観点から対象病院が限定されている。"},{"t":"療養病床を有する病院に限られる。","c":false,"r":"療養病床の有無で決まる制度ではない。"}],"source":"令和8年度診療報酬改定資料"}]},{"name":"地域医療支援病院の要件","pool":[{"q":"地域医療支援病院の要件・機能として、適切でないものはどれか。","choices":[{"t":"高度医療技術の開発・評価を主たる承認要件とする。","c":true,"r":"これは特定機能病院側の要件である。地域医療支援病院では、紹介患者への医療提供、救急医療、共同利用、地域医療従事者研修などが中心である。"},{"t":"救急医療を提供する能力を有する。","c":false,"r":"地域医療支援病院の機能として適切である。"},{"t":"建物、設備、機器等を地域の医師等が利用できる体制を確保する。","c":false,"r":"共同利用は地域医療支援病院の代表的な機能である。"},{"t":"地域の医療従事者に対する研修を行う。","c":false,"r":"地域医療従事者への研修は地域医療支援病院の機能として適切である。"},{"t":"紹介患者中心の医療を提供する。","c":false,"r":"紹介患者中心の医療提供は地域医療支援病院の重要な要件である。"}],"source":"予想問題集・厚労省資料"},{"q":"次のア〜ウのうち、地域医療支援病院の機能として正しいものの組合せはどれか。\nア 救急医療の提供\nイ 地域医療従事者への研修\nウ 集中治療室、無菌病室、医薬品情報管理室の設置","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イも地域医療支援病院の機能である。"},{"t":"イのみ","c":false,"r":"イは正しいが、アも地域医療支援病院の機能である。"},{"t":"ア・イ","c":true,"r":"救急医療の提供、地域医療従事者への研修はいずれも地域医療支援病院の主な機能である。ウは特定機能病院の構造設備の要件として整理する。"},{"t":"ア・ウ","c":false,"r":"アは正しいが、ウは特定機能病院側の要件である。"},{"t":"ア・イ・ウ","c":false,"r":"ウが不適切である。"}],"source":"予想問題集・厚労省資料"},{"q":"地域医療支援病院の共同利用に関する説明として、最も適切なものはどれか。","choices":[{"t":"地域の医師等が病院の建物、設備、機器等を利用できる体制を確保することが求められる。","c":true,"r":"地域医療支援病院では、地域の医師等による施設・設備・機器等の共同利用が重要な機能である。"},{"t":"共同利用とは、特定機能病院が大学の研究施設を専用利用することをいう。","c":false,"r":"共同利用は地域の医師等が病院の設備等を利用できる体制を指す。"},{"t":"共同利用は診療報酬上の選定療養費の徴収体制を意味する。","c":false,"r":"共同利用は医療法上の地域医療支援病院の機能であり、選定療養費そのものではない。"},{"t":"共同利用は救急搬送件数の多寡で判定される。","c":false,"r":"救急医療の提供と共同利用体制は別の論点である。"},{"t":"共同利用は紹介率が80％以上の場合に限り求められる。","c":false,"r":"紹介率のパターンと共同利用体制は別の要件である。"}],"source":"予想問題集・厚労省資料"}]},{"name":"特定機能病院の要件","pool":[{"q":"特定機能病院の承認要件として、適切でないものはどれか。","choices":[{"t":"地域の医師等による共同利用を満たせば、高度医療の提供・開発・研修に関する要件を満たしたものと扱われる。","c":true,"r":"特定機能病院では高度医療の提供、高度医療技術の開発・評価、高度医療に関する研修、人員配置、構造設備、医療安全管理体制などが求められる。共同利用は地域医療支援病院側の機能である。"},{"t":"高度医療の提供能力を有する。","c":false,"r":"特定機能病院の要件として適切である。"},{"t":"高度医療技術の開発・評価を行う。","c":false,"r":"特定機能病院の要件として適切である。"},{"t":"高度医療に関する研修を実施する。","c":false,"r":"特定機能病院の要件として適切である。"},{"t":"医療安全管理体制を整備する。","c":false,"r":"高度な医療を扱う特定機能病院では医療安全管理体制も重要な要件である。"}],"source":"厚労省資料"},{"q":"特定機能病院の構造設備に関する記述として、最も適切なものはどれか。","choices":[{"t":"集中治療室、無菌病室、医薬品情報管理室などが必要とされる。","c":true,"r":"特定機能病院では、高度医療を提供するための構造設備として集中治療室、無菌病室、医薬品情報管理室などが必要とされる。"},{"t":"地域医療従事者研修用の会議室を備えていれば、集中治療室等の整備は承認要件から外れる。","c":false,"r":"研修機能と構造設備は別の論点である。特定機能病院では集中治療室等の設備が求められる。"},{"t":"医薬品情報管理室は地域医療支援病院に特有の設備である。","c":false,"r":"医薬品情報管理室は特定機能病院の構造設備として整理される。"},{"t":"無菌病室は地域医療支援病院の共同利用設備としてのみ位置づけられる。","c":false,"r":"無菌病室は特定機能病院の高度医療提供体制に関する設備として整理される。"},{"t":"集中治療室は救急病院であれば共通して必須であり、特定機能病院の要件とは関係しない。","c":false,"r":"集中治療室は特定機能病院の構造設備の要件として重要である。"}],"source":"厚労省資料"},{"q":"特定機能病院について述べたものとして、正しいものの組合せはどれか。\nア 400床以上の病床を有することが必要である\nイ 高度医療の提供、開発・評価、研修を実施する能力を有する\nウ 承認者は都道府県知事である","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イも特定機能病院の要件である。"},{"t":"イのみ","c":false,"r":"イは正しいが、アも特定機能病院の要件である。"},{"t":"ア・イ","c":true,"r":"特定機能病院では400床以上、高度医療の提供・開発評価・研修が重要である。承認者は都道府県知事ではなく厚生労働大臣である。"},{"t":"ア・ウ","c":false,"r":"アは正しいが、ウが誤りである。"},{"t":"ア・イ・ウ","c":false,"r":"ウが不適切である。"}],"source":"予想問題集・厚労省資料"}]},{"name":"類似数値の整理","pool":[{"q":"次の数値の対応として、最も適切なものはどれか。","choices":[{"t":"特定機能病院の承認要件：紹介率50％以上・逆紹介率40％以上、診療報酬上の減算基準：紹介割合50％未満・逆紹介割合50‰未満","c":true,"r":"特定機能病院の医療法上の承認要件と、診療報酬上の外来機能分化の基準を分けて覚える。50‰は1000分の50である。"},{"t":"特定機能病院の承認要件：紹介率50％以上・逆紹介率50‰以上、診療報酬上の減算基準：紹介割合50％未満・逆紹介割合40％未満","c":false,"r":"承認要件は逆紹介率40％以上、診療報酬上の減算基準は逆紹介割合50‰未満である。"},{"t":"地域医療支援病院の承認要件：紹介率50％以上・逆紹介率40％以上、特定機能病院の承認要件：紹介率50％以上・逆紹介率70％以上","c":false,"r":"地域医療支援病院で紹介率50％の場合は逆紹介率70％以上、特定機能病院は50％・40％である。"},{"t":"診療報酬上の減算基準：紹介割合80％未満・逆紹介割合60％未満、特定機能病院の承認要件：紹介率50％以上・逆紹介率40％以上","c":false,"r":"80％・60％は特定領域型の特定機能病院と混同しやすい。外来診療料等の減算基準では、特定機能病院等は紹介割合50％未満・逆紹介割合50‰未満である。"},{"t":"地域医療支援病院の承認要件：紹介割合40％未満・逆紹介割合40‰未満、特定機能病院の承認要件：紹介率80％以上","c":false,"r":"40％・40‰は診療報酬上の別類型の基準と混同しやすい。地域医療支援病院と特定機能病院の承認要件ではない。"}],"source":"厚労省資料・令和8年度診療報酬改定資料"},{"q":"特定機能病院と地域医療支援病院の違いとして、最も適切なものはどれか。","choices":[{"t":"地域医療支援病院は地域連携・共同利用・救急・研修を重視し、特定機能病院は高度医療・開発評価・研修・医療安全を重視する。","c":true,"r":"両者の違いは、地域医療支援病院＝地域医療機関を支援する病院、特定機能病院＝高度医療を担う病院として整理すると理解しやすい。"},{"t":"地域医療支援病院は厚生労働大臣が承認し、特定機能病院は都道府県知事が承認する。","c":false,"r":"承認者が逆である。"},{"t":"地域医療支援病院は400床以上、特定機能病院は200床以上が基本である。","c":false,"r":"病床数の整理が逆である。地域医療支援病院は200床以上、特定機能病院は400床以上が基本である。"},{"t":"地域医療支援病院には紹介率・逆紹介率の基準がなく、特定機能病院だけに基準がある。","c":false,"r":"地域医療支援病院にも紹介率・逆紹介率の基準がある。"},{"t":"特定機能病院は共同利用を主目的とし、地域医療支援病院は高度医療の開発を主目的とする。","c":false,"r":"両者の説明が逆である。"}],"source":"予想問題集・厚労省資料"},{"q":"次のア〜ウのうち、制度の文脈として正しいものの組合せはどれか。\nア 50％・40％は特定機能病院の承認要件として整理される\nイ 50‰は診療報酬上の外来機能分化における逆紹介割合の基準として整理される\nウ 50％・70％は地域医療支援病院で紹介率50％の場合の基準として整理される","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イとウも正しい。"},{"t":"ア・イ","c":false,"r":"ア・イは正しいが、ウも正しい。"},{"t":"ア・ウ","c":false,"r":"ア・ウは正しいが、イも正しい。"},{"t":"イ・ウ","c":false,"r":"イ・ウは正しいが、アも正しい。"},{"t":"ア・イ・ウ","c":true,"r":"50％・40％、50‰、50％・70％はそれぞれ別の文脈で用いられる。試験ではこの混同を狙った選択肢に注意する。"}],"source":"厚労省資料・令和8年度診療報酬改定資料"}]},{"name":"総合整理","pool":[{"q":"地域医療支援病院について述べたものとして、正しいものの組合せはどれか。\nア 救急医療を提供する能力を有する\nイ 建物、設備、機器等を地域の医師等が利用できる体制を確保する\nウ 400床以上の病床を有することが必要である","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イも地域医療支援病院の要件・機能として正しい。"},{"t":"イのみ","c":false,"r":"イは正しいが、アも地域医療支援病院の要件・機能として正しい。"},{"t":"ア・イ","c":true,"r":"救急医療の提供能力、地域の医師等による設備・機器等の共同利用体制は地域医療支援病院の重要な要件・機能である。400床以上は特定機能病院側の病床数要件である。"},{"t":"ア・ウ","c":false,"r":"アは正しいが、ウは特定機能病院側の病床数要件である。"},{"t":"ア・イ・ウ","c":false,"r":"ウが不適切である。"}],"source":"予想問題集・厚労省資料"},{"q":"特定機能病院について述べたものとして、正しいものの組合せはどれか。\nア 高度医療の提供を担う\nイ 医師・薬剤師・看護師等について手厚い配置が求められる\nウ 地域医療支援病院と同じく、紹介率80％以上を原則とする","choices":[{"t":"アのみ","c":false,"r":"アは正しいが、イも正しい。"},{"t":"イのみ","c":false,"r":"イは正しいが、アも正しい。"},{"t":"ア・イ","c":true,"r":"特定機能病院は高度医療を担い、人員配置も通常の病院より手厚く求められる。紹介率80％以上は地域医療支援病院や特定領域型の基準と混同しやすい。"},{"t":"ア・ウ","c":false,"r":"アは正しいが、ウは不適切である。特定機能病院の原則的な紹介率・逆紹介率は50％・40％である。"},{"t":"ア・イ・ウ","c":false,"r":"ウが不適切である。"}],"source":"厚労省資料・予想問題集"},{"q":"制度の違いを整理した記述として、最も適切なものはどれか。","choices":[{"t":"承認要件では、特定機能病院は50％・40％、地域医療支援病院は80％、65％・40％、50％・70％の3パターンで整理する。診療報酬上の50‰は外来機能分化の逆紹介割合である。","c":true,"r":"特定機能病院、地域医療支援病院、診療報酬上の外来機能分化の3つを分けて覚えると混同を防げる。"},{"t":"特定機能病院の承認要件と診療報酬上の外来機能分化では、いずれも逆紹介率40％未満が基準となる。","c":false,"r":"診療報酬上の外来機能分化では逆紹介割合50‰未満という基準が出てくる。承認要件の逆紹介率40％とは別である。"},{"t":"地域医療支援病院は共同利用を求められない代わりに、高度医療技術の開発・評価を行う。","c":false,"r":"共同利用は地域医療支援病院の代表的機能であり、高度医療技術の開発・評価は特定機能病院側の要件である。"},{"t":"特定機能病院は都道府県知事が承認し、地域医療支援病院は厚生労働大臣が承認する。","c":false,"r":"承認者が逆である。"},{"t":"地域医療支援病院と特定機能病院はいずれも病床数400床以上が基本である。","c":false,"r":"地域医療支援病院は200床以上、特定機能病院は400床以上が基本である。"}],"source":"厚労省資料・令和8年度診療報酬改定資料"}]}];
+    let quizQuestions = [];
+    let currentIndex = 0;
+    let selectedIndex = null;
+    let score = 0;
+    let answered = false;
+    let review = [];
+
+    const quizEl = document.getElementById("quiz");
+    const progressText = document.getElementById("progressText");
+    const scoreText = document.getElementById("scoreText");
+    const progressBar = document.getElementById("progressBar");
+    const resultEl = document.getElementById("result");
+    const finalScore = document.getElementById("finalScore");
+    const resultMessage = document.getElementById("resultMessage");
+    const reviewList = document.getElementById("reviewList");
+    const retryBtn = document.getElementById("retryBtn");
+    const restartTop = document.getElementById("restartTop");
+    const testStatus = document.getElementById("testStatus");
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+    function sampleOne(array) { return array[Math.floor(Math.random() * array.length)]; }
+    function escapeHtml(str) {
+      return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+    }
+    function renderWithBreaks(str) { return escapeHtml(str).split("\n").join("<br>"); }
+
+    function buildQuiz() {
+      quizQuestions = shuffle(categories.map((cat) => {
+        const q = sampleOne(cat.pool);
+        return { category: cat.name, question: q.q, source: q.source, choices: shuffle(q.choices) };
+      }));
+      currentIndex = 0; selectedIndex = null; score = 0; answered = false; review = [];
+      resultEl.classList.remove("show");
+      renderQuestion(); updateProgress(); window.scrollTo({ top:0, behavior:"smooth" });
+    }
+    function updateProgress() {
+      progressText.textContent = `${Math.min(currentIndex, quizQuestions.length)} / ${quizQuestions.length} 問解答済み`;
+      scoreText.textContent = `正答 ${score} 問`;
+      const denominator = quizQuestions.length || 1;
+      progressBar.style.width = `${(Math.min(currentIndex, quizQuestions.length) / denominator) * 100}%`;
+    }
+    function renderQuestion() {
+      if (currentIndex >= quizQuestions.length) { showResult(); return; }
+      const q = quizQuestions[currentIndex];
+      selectedIndex = null; answered = false;
+      quizEl.innerHTML = `
+        <article class="question-card">
+          <div class="q-meta"><span class="tag">${escapeHtml(q.category)}</span><span>問 ${currentIndex + 1} / ${quizQuestions.length}</span></div>
+          <div class="question">${renderWithBreaks(q.question)}</div>
+          <div class="options" id="options"></div>
+          <div class="actions">
+            <button class="main-btn" id="answerBtn" type="button" disabled>回答</button>
+            <button class="main-btn ghost-btn" id="nextBtn" type="button" style="display:none;">次の問題へ</button>
+          </div>
+          <div class="explanation" id="explanation"></div>
+        </article>`;
+      const optionsEl = document.getElementById("options");
+      q.choices.forEach((choice, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button"; btn.className = "option";
+        btn.innerHTML = `<span class="mark">${i + 1}</span><span>${escapeHtml(choice.t)}</span>`;
+        btn.addEventListener("click", () => selectOption(i));
+        optionsEl.appendChild(btn);
+      });
+      document.getElementById("answerBtn").addEventListener("click", checkAnswer);
+      document.getElementById("nextBtn").addEventListener("click", nextQuestion);
+    }
+    function selectOption(i) {
+      if (answered) return;
+      selectedIndex = i;
+      document.querySelectorAll(".option").forEach((btn, idx) => btn.classList.toggle("selected", idx === i));
+      document.getElementById("answerBtn").disabled = false;
+    }
+    function checkAnswer() {
+      if (selectedIndex === null || answered) return;
+      answered = true;
+      const q = quizQuestions[currentIndex];
+      const selected = q.choices[selectedIndex];
+      const correctChoice = q.choices.find((c) => c.c);
+      const isCorrect = Boolean(selected.c);
+      if (isCorrect) score += 1;
+      const buttons = Array.from(document.querySelectorAll(".option"));
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true; btn.classList.remove("selected");
+        if (q.choices[idx].c) btn.classList.add("correct");
+      });
+      if (!isCorrect) buttons[selectedIndex].classList.add("incorrect");
+      const explanation = document.getElementById("explanation");
+      explanation.classList.add("show");
+      explanation.innerHTML = `
+        <div class="judge ${isCorrect ? "ok" : "ng"}">${isCorrect ? "正解" : "不正解"}</div>
+        ${isCorrect ? "" : `<div class="why"><strong>選んだ選択肢が誤りの理由：</strong><br>${escapeHtml(selected.r)}</div>`}
+        <div class="why"><strong>正答の解説：</strong><br>${escapeHtml(correctChoice.r)}</div>
+        <div class="source-note">出典メモ：${escapeHtml(q.source)}</div>`;
+      review.push({ category:q.category, question:q.question, correct:isCorrect, selected:selected.t, answer:correctChoice.t });
+      document.getElementById("answerBtn").style.display = "none";
+      document.getElementById("nextBtn").style.display = "inline-block";
+    }
+    function nextQuestion() {
+      currentIndex += 1; updateProgress(); renderQuestion();
+      const card = document.querySelector(".question-card");
+      if (card) card.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+    function showResult() {
+      quizEl.innerHTML = ""; updateProgress();
+      finalScore.textContent = `${score} / ${quizQuestions.length}`;
+      if (score === quizQuestions.length) resultMessage.textContent = "全問正解です。承認要件と診療報酬上の50‰まで整理できています。";
+      else if (score >= 6) resultMessage.textContent = "かなり良い結果です。特定機能病院の50％・40％と、診療報酬上の50‰を再確認しましょう。";
+      else resultMessage.textContent = "まずは、地域医療支援病院＝地域連携、特定機能病院＝高度医療、50‰＝診療報酬上の逆紹介割合、の3点から復習しましょう。";
+      reviewList.innerHTML = review.map((r, idx) => `
+        <li><strong>問${idx + 1}：${r.correct ? "○" : "×"}</strong><br>
+        <span class="small">${escapeHtml(r.category)}</span><br>
+        ${renderWithBreaks(r.question)}<br>
+        ${r.correct ? "" : `<span style="color:#fca5a5;">あなたの選択：</span>${escapeHtml(r.selected)}<br>`}
+        <span style="color:#86efac;">正答：</span>${escapeHtml(r.answer)}</li>`).join("");
+      resultEl.classList.add("show"); resultEl.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+    function runSelfTests() {
+      const tests = [
+        ["8カテゴリ", categories.length === 8],
+        ["各カテゴリ3問", categories.every((cat) => cat.pool.length === 3)],
+        ["各問5択", categories.every((cat) => cat.pool.every((q) => q.choices.length === 5))],
+        ["各問正答1つ", categories.every((cat) => cat.pool.every((q) => q.choices.filter((c) => c.c).length === 1))],
+        ["改行表示", renderWithBreaks("ア\nイ") === "ア<br>イ"]
+      ];
+      const failed = tests.filter((t) => !t[1]);
+      if (failed.length) {
+        testStatus.textContent = `起動チェック：${failed.map((t) => t[0]).join("、")}に問題があります。`;
+        testStatus.style.color = "#fca5a5"; console.error("Self tests failed", failed);
+      } else {
+        testStatus.textContent = "起動チェック：OK（カテゴリ数・問題数・選択肢数・正答数を確認済み）";
+      }
+    }
+    retryBtn.addEventListener("click", buildQuiz);
+    restartTop.addEventListener("click", buildQuiz);
+    runSelfTests();
+    buildQuiz();
+  </script>
+</body>
+</html>

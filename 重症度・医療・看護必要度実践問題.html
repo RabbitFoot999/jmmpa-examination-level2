@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>重症度・医療・看護必要度実践問題</title>
+<style>
+  :root{
+    --bg:#0f1419;
+    --panel:#151c24;
+    --panel2:#1b2530;
+    --text:#e8edf2;
+    --muted:#a9b4bf;
+    --line:#2b3846;
+    --accent:#7fb3c8;
+    --accent2:#b8a16a;
+    --ok:#86c28b;
+    --ng:#d8837b;
+    --shadow:0 18px 48px rgba(0,0,0,.32);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;
+    background:radial-gradient(circle at top left,#1a2730 0,#0f1419 42%,#0b0f13 100%);
+    color:var(--text);
+    line-height:1.7;
+  }
+  .wrap{width:min(920px,100%);margin:0 auto;padding:22px 14px 84px}
+  header{
+    padding:24px 18px 18px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:linear-gradient(135deg,rgba(27,37,48,.96),rgba(17,24,32,.94));
+    box-shadow:var(--shadow);
+  }
+  h1{font-size:clamp(24px,6vw,38px);line-height:1.25;margin:0 0 10px;letter-spacing:.02em}
+  .lead{color:var(--muted);margin:0;font-size:15px}
+  .badgeRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .badge{font-size:12px;color:#dce7ed;border:1px solid #405063;background:#18222d;border-radius:999px;padding:5px 10px}
+  .toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:16px 0;flex-wrap:wrap}
+  .progressText{color:var(--muted);font-size:14px}
+  .bar{height:9px;background:#111820;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex:1;min-width:160px}
+  .bar > div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.25s}
+  .card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:rgba(21,28,36,.96);
+    box-shadow:var(--shadow);
+    padding:18px;
+  }
+  .category{display:inline-block;color:#111820;background:var(--accent2);font-weight:700;font-size:12px;border-radius:999px;padding:4px 10px;margin-bottom:10px}
+  .qno{color:var(--muted);font-size:14px;margin-bottom:8px}
+  .question{font-size:18px;font-weight:700;margin:4px 0 16px;line-height:1.65}
+  .choices{display:grid;gap:10px;margin:0 0 16px;padding:0;list-style:none}
+  .choice{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:var(--panel2);
+    padding:13px 13px;
+    cursor:pointer;
+    min-height:52px;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    transition:.12s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .choice:hover{border-color:#53687a}
+  .choice.selected{outline:2px solid var(--accent);border-color:var(--accent);background:#1e303a}
+  .choice.correct{border-color:var(--ok);background:rgba(55,100,65,.28)}
+  .choice.wrong{border-color:var(--ng);background:rgba(118,56,52,.25)}
+  .letter{font-weight:800;color:var(--accent);min-width:1.4em}
+  button{
+    appearance:none;border:0;border-radius:999px;padding:13px 18px;font-weight:800;color:#0d1318;background:var(--accent);cursor:pointer;
+    min-height:48px;font-size:15px;box-shadow:0 8px 18px rgba(0,0,0,.22)
+  }
+  button.secondary{background:#273544;color:var(--text);border:1px solid var(--line);box-shadow:none}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .result{display:none;margin-top:16px;border-radius:14px;padding:14px;border:1px solid var(--line);background:#111820}
+  .result.show{display:block}
+  .result.ok{border-color:var(--ok)}
+  .result.ng{border-color:var(--ng)}
+  .resultTitle{font-weight:900;font-size:18px;margin:0 0 8px}
+  .explain{color:#d8e0e6;margin:0;white-space:pre-line}
+  .mini{color:var(--muted);font-size:13px;margin-top:12px}
+  .summary{display:none;margin-top:16px}
+  .summary.show{display:block}
+  .score{font-size:28px;font-weight:900;margin:0 0 10px}
+  .review{display:grid;gap:10px;margin-top:12px}
+  .reviewItem{border:1px solid var(--line);border-radius:14px;background:#121a22;padding:12px}
+  footer{color:var(--muted);font-size:12px;margin-top:18px;padding:0 4px}
+  a{color:#9fd0e1}
+  @media (max-width:560px){
+    .wrap{padding:12px 10px 72px}
+    header{padding:20px 14px 16px}
+    .card{padding:15px}
+    .question{font-size:17px}
+    .choice{padding:12px;min-height:56px}
+    button{width:100%}
+    .buttons{gap:8px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+<header>
+  <h1>重症度・医療・看護必要度実践問題</h1>
+  <p class="lead">急性期入院医療の評価で問われやすい、A項目・B項目・C項目、対象となる入院料・加算、2026年度診療報酬改定での見直しを確認します。各カテゴリから1問ずつランダム出題され、選択肢の順番も毎回変わります。</p>
+  <div class="badgeRow">
+    <span class="badge">五者択一</span><span class="badge">1問ずつ表示</span><span class="badge">解説あり</span><span class="badge">夜間スマホ対応</span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="progressText" id="progressText">準備中</div>
+  <div class="bar"><div id="barFill"></div></div>
+</div>
+
+<main class="card" id="quizCard">
+  <div class="category" id="category"></div>
+  <div class="qno" id="qno"></div>
+  <div class="question" id="question"></div>
+  <ul class="choices" id="choices"></ul>
+  <div class="buttons">
+    <button id="answerBtn" disabled>回答</button>
+    <button class="secondary" id="nextBtn" style="display:none">次の問題へ</button>
+  </div>
+  <div class="result" id="resultBox">
+    <p class="resultTitle" id="resultTitle"></p>
+    <p class="explain" id="explain"></p>
+  </div>
+  <p class="mini">選択肢をタップしてから「回答」を押してください。誤答時は、選んだ選択肢のどこが違うかを表示します。</p>
+</main>
+
+<section class="card summary" id="summary">
+  <p class="score" id="score"></p>
+  <p id="scoreMsg"></p>
+  <div class="buttons"><button id="retryBtn">もう一度ランダム出題</button></div>
+  <div class="review" id="review"></div>
+</section>
+
+<footer>
+  <p>学習用の簡易HTMLです。制度内容は告示・通知等で変更される場合があります。試験直前には公式資料・講義資料等も確認してください。</p>
+</footer>
+</div>
+
+<script>
+const pools = [
+  {
+    category:"基本構造：A・B・C項目",
+    items:[
+      {
+        q:"一般病棟用の重症度、医療・看護必要度に関する説明として、最も適切なものはどれか。",
+        choices:[
+          {t:"A項目はモニタリング及び処置等、B項目は患者の状況等、C項目は手術等の医学的状況を評価する。",ok:true,why:"A・B・C項目の基本的な対応関係として適切です。A項目は専門的な治療・処置、B項目はADL等を含む患者の状況、C項目は手術等の医学的状況を見ます。"},
+          {t:"A項目は患者のADL、B項目は手術等、C項目は救急搬送件数を評価する。",ok:false,why:"A項目とB項目、C項目の対応が入れ替わっています。救急搬送件数は2026改定で指数に加味されますが、C項目そのものではありません。"},
+          {t:"B項目は2026年度改定で廃止され、A項目とC項目のみで評価する。",ok:false,why:"B項目は廃止されていません。2026年度改定では、B項目の測定負担軽減として入院5日目以降の測定頻度に柔軟化が示されています。"},
+          {t:"C項目は主として療養病棟の医療区分を評価する項目である。",ok:false,why:"C項目は手術等の医学的状況を評価する項目です。療養病棟の医療区分とは別の論点です。"},
+          {t:"A項目は病院全体の救急搬送件数、B項目は全身麻酔手術件数、C項目は平均在院日数を評価する。",ok:false,why:"これは病院機能や病棟管理指標に関する内容で、A・B・C項目の基本構造ではありません。"}
+        ]
+      },
+      {
+        q:"重症度、医療・看護必要度のB項目に関する説明として、最も適切なものはどれか。",
+        choices:[
+          {t:"患者の状況等を評価する項目であり、看護の手間やADLに関連する内容を含む。",ok:true,why:"B項目は患者の状況等を評価する項目です。A項目の処置、C項目の手術等とは役割が異なります。"},
+          {t:"専門的な治療・処置の実施状況を評価する項目である。",ok:false,why:"専門的な治療・処置は主にA項目の内容です。"},
+          {t:"手術や内科的治療など医学的状況を評価する項目である。",ok:false,why:"手術等の医学的状況は主にC項目です。"},
+          {t:"2026年度改定で、評価票による評価そのものが不要になった。",ok:false,why:"評価自体が不要になったわけではありません。測定頻度の柔軟化が論点です。"},
+          {t:"DPCコードの副傷病の有無を評価する項目である。",ok:false,why:"DPCコードの副傷病とは別の仕組みです。"}
+        ]
+      },
+      {
+        q:"A項目とC項目の関係について、最も適切なものはどれか。",
+        choices:[
+          {t:"A項目はモニタリング及び処置等、C項目は手術等の医学的状況を中心に評価する。",ok:true,why:"A項目は処置等、C項目は手術等の医学的状況という整理が基本です。"},
+          {t:"A項目は在宅復帰率、C項目は平均在院日数を評価する。",ok:false,why:"在宅復帰率や平均在院日数は病棟・入院料の施設基準で用いられますが、A項目・C項目の内容ではありません。"},
+          {t:"A項目は患者の衣服の着脱、C項目は食事摂取の自立度を評価する。",ok:false,why:"このようなADLに近い評価はB項目のイメージです。"},
+          {t:"A項目とC項目は、2026年度改定で対象コードの処置等が削除された。",ok:false,why:"2026年度改定では、A項目やC項目に対象となる治療等が追加されています。"},
+          {t:"A項目は看護配置、C項目は病床利用率を評価する。",ok:false,why:"看護配置や病床利用率は別の管理指標で、A項目・C項目そのものではありません。"}
+        ]
+      }
+    ]
+  },
+  {
+    category:"対象となる入院料・加算",
+    items:[
+      {
+        q:"重症度、医療・看護必要度が施設基準となるものとして、組み合わせが最も適切なものはどれか。",
+        choices:[
+          {t:"急性期一般入院料、地域包括医療病棟入院料、地域包括ケア病棟入院料、急性期総合体制加算",ok:true,why:"これらはいずれも重症度、医療・看護必要度が関係する入院料・加算として整理されます。"},
+          {t:"回復期リハビリテーション病棟入院料、短期滞在手術等基本料1、外来診療料、生活習慣病管理料",ok:false,why:"回復期リハビリテーション病棟入院料は実績指数等が重要で、重症度、医療・看護必要度が要件となる代表例ではありません。外来系の管理料も論点が異なります。"},
+          {t:"療養病棟入院基本料、入院時食事療養費、選定療養、調剤基本料",ok:false,why:"療養病棟は医療区分等が中心です。入院時食事療養費や選定療養、調剤基本料は重症度、医療・看護必要度の施設基準とは性格が異なります。"},
+          {t:"特定疾患療養管理料、機能強化加算、時間外対応加算、地域包括診療加算",ok:false,why:"外来・かかりつけ医機能に関する評価であり、一般病棟用の重症度、医療・看護必要度の施設基準とは別です。"},
+          {t:"DPC対象病院、データ提出加算、診療録管理体制加算、電子的診療情報連携体制整備加算",ok:false,why:"これらは急性期病院の体制やデータ提出等に関係しますが、重症度、医療・看護必要度の要件として並べる組み合わせとしては不適切です。"}
+        ]
+      },
+      {
+        q:"次のうち、重症度、医療・看護必要度が要件になっていない入院料として最も適切なものはどれか。",
+        choices:[
+          {t:"回復期リハビリテーション病棟入院料",ok:true,why:"回復期リハビリテーション病棟入院料では、実績指数など回復期リハビリのアウトカム・体制が中心論点です。重症度、医療・看護必要度が要件となる代表例ではありません。"},
+          {t:"急性期一般入院料1",ok:false,why:"急性期一般入院料は重症度、医療・看護必要度が要件となる代表例です。"},
+          {t:"地域包括医療病棟入院料",ok:false,why:"地域包括医療病棟入院料も重症度、医療・看護必要度が関係します。"},
+          {t:"地域包括ケア病棟入院料",ok:false,why:"地域包括ケア病棟入院料も重症度、医療・看護必要度が関係する入院料として整理されます。"},
+          {t:"急性期病院B一般入院料",ok:false,why:"急性期病院B一般入院料も重症度、医療・看護必要度が関係する入院料です。"}
+        ]
+      },
+      {
+        q:"重症度、医療・看護必要度と加算の関係について、最も適切なものはどれか。",
+        choices:[
+          {t:"看護必要度加算、急性期看護補助体制加算、看護補助加算などでも、該当患者割合が施設基準上の論点になる。",ok:true,why:"入院料だけでなく、看護必要度加算や看護補助系の加算にも関係します。"},
+          {t:"看護必要度加算は、患者割合ではなく外来患者数だけで判定する。",ok:false,why:"看護必要度加算は入院医療に関する評価であり、外来患者数だけで判定するものではありません。"},
+          {t:"急性期看護補助体制加算では、必要度に関する基準は全く用いられない。",ok:false,why:"急性期看護補助体制加算でも重症度、医療・看護必要度が関係する整理です。"},
+          {t:"看護補助加算1は、在宅復帰率のみで評価される。",ok:false,why:"看護補助加算1では必要度の該当患者割合が論点になります。在宅復帰率だけではありません。"},
+          {t:"急性期総合体制加算では、必要度ではなく薬剤使用量だけが評価される。",ok:false,why:"急性期総合体制加算は急性期機能や必要度などが関係します。薬剤使用量だけの評価ではありません。"}
+        ]
+      }
+    ]
+  },
+  {
+    category:"2026年度改定：必要度の見直し",
+    items:[
+      {
+        q:"2026年度診療報酬改定における一般病棟用の重症度、医療・看護必要度の見直しとして、最も適切なものはどれか。",
+        choices:[
+          {t:"A項目・C項目に対象となる治療等が追加され、病床あたり救急搬送受入件数等を加味した指数も用いられる。",ok:true,why:"2026年度改定では、A項目・C項目の対象拡大と、対象病棟の病床あたり救急搬送受入件数等を加えた指数の導入が示されています。"},
+          {t:"B項目を廃止し、全ての入院料でA項目3点以上のみを基準とする。",ok:false,why:"B項目は廃止されていません。A項目3点以上のみで全てを判定するわけでもありません。"},
+          {t:"急性期一般入院料では、必要度Ⅰ・Ⅱの区分を廃止し、平均在院日数だけで評価する。",ok:false,why:"必要度Ⅰ・Ⅱの考え方や該当患者割合は残ります。平均在院日数だけで評価するものではありません。"},
+          {t:"救急搬送受入件数は急性期病院A/B一般入院料のみに関係し、必要度の指数には用いられない。",ok:false,why:"救急搬送受入件数等は、一般病棟用の重症度、医療・看護必要度の指数にも加味される見直しが示されています。"},
+          {t:"C項目は手術等の医学的状況から、在宅復帰率の評価に変更された。",ok:false,why:"C項目は引き続き手術等の医学的状況に関係します。在宅復帰率とは別です。"}
+        ]
+      },
+      {
+        q:"2026年度改定で示されたB項目の測定頻度に関する説明として、最も適切なものはどれか。",
+        choices:[
+          {t:"現行どおり毎日測定する方法に加え、入院5日目以降は7日ごとに1回測定し、それ以外の日は直近の評価で代替する方法も可能とされた。",ok:true,why:"B項目の測定負担軽減として示された内容です。患者の状態に明らかな変化がある場合は別途評価が必要です。"},
+          {t:"入院初日から退院日まで、B項目の測定は月1回に統一された。",ok:false,why:"月1回ではありません。入院5日目以降に7日ごとに1回という方法が選択肢として示されています。"},
+          {t:"B項目は廃止され、測定頻度の論点はなくなった。",ok:false,why:"B項目は廃止されていないため、測定頻度の柔軟化が論点になります。"},
+          {t:"B項目の測定は必要度Ⅱを届け出る医療機関では常に不要である。",ok:false,why:"必要度Ⅱであっても、B項目の評価票を用いた評価が関係する場面があります。常に不要とはいえません。"},
+          {t:"B項目は救急搬送件数を入力すれば自動的に代替できる。",ok:false,why:"救急搬送件数は指数に加味される論点であり、B項目の患者状況評価そのものを置き換えるものではありません。"}
+        ]
+      },
+      {
+        q:"2026年度改定でA項目・C項目に追加された内容の説明として、最も適切なものはどれか。",
+        choices:[
+          {t:"A項目では抗悪性腫瘍剤の使用に関連する対象薬剤、C項目では内科的治療・検査・手術に関する対象が追加された。",ok:true,why:"A項目『専門的な治療・処置』やC項目『救命等に係る内科的治療』『検査』『手術』に対象追加が示されています。"},
+          {t:"A項目では平均在院日数、C項目では病床利用率が追加された。",ok:false,why:"平均在院日数や病床利用率は病棟管理指標で、A項目・C項目の追加内容ではありません。"},
+          {t:"A項目では患者満足度、C項目では紹介率が追加された。",ok:false,why:"患者満足度や紹介率は経営指標・地域連携指標であり、必要度のA/C項目ではありません。"},
+          {t:"A項目では看護職員配置、C項目では入院基本料の点数が追加された。",ok:false,why:"看護配置や入院基本料点数は施設基準・診療報酬点数の話で、A/C項目の対象治療等の追加ではありません。"},
+          {t:"A項目とC項目は評価対象が縮小され、該当患者割合の基準は全て引き下げられた。",ok:false,why:"対象治療等の追加があり、それに伴い一部入院料で該当患者割合の基準が見直されています。全て引き下げとはいえません。"}
+        ]
+      }
+    ]
+  },
+  {
+    category:"急性期病院A/B一般入院料との関係",
+    items:[
+      {
+        q:"2026年度改定で新設された急性期病院A一般入院料の病院機能に係る要件として、最も適切なものはどれか。",
+        choices:[
+          {t:"救急搬送件数が年間2,000件以上、かつ全身麻酔による手術件数が年間1,200件以上であること。",ok:true,why:"急性期病院A一般入院料の急性期機能に係る要件として、年間救急搬送2,000件以上と全身麻酔手術1,200件以上が示されています。"},
+          {t:"救急搬送件数が年間1,500件以上、かつ全身麻酔手術が年間1,200件以上であること。",ok:false,why:"1,500件は急性期病院Bの要件の一つに関係する数値です。Aでは2,000件以上が示されています。"},
+          {t:"救急搬送件数が年間500件以上、かつ地域包括ケア病棟を届け出ていること。",ok:false,why:"500件以上かつ全身麻酔手術500件以上は急性期病院Bの選択肢の一つです。またAでは地域包括ケア病棟入院料の届出を行っていないことが要件に含まれます。"},
+          {t:"人口20万人未満の二次医療圏で最大救急搬送病院であれば、件数にかかわらずAを算定できる。",ok:false,why:"人口20万人未満地域の最大救急搬送病院はBの要件の一つに関係します。件数にかかわらずAを算定できるわけではありません。"},
+          {t:"DPC対象病院でないこと、データ提供加算を届け出ていないこと。",ok:false,why:"共通要件としてDPC対象病院であること、データ提供加算の届出を行っていることが示されています。"}
+        ]
+      },
+      {
+        q:"急性期病院B一般入院料の急性期医療に係る実績要件として、適切なものを1つ選べ。",
+        choices:[
+          {t:"救急搬送件数が年間500件以上で、かつ全身麻酔による手術件数が年間500件以上である場合。",ok:true,why:"急性期病院B一般入院料の実績要件の選択肢の一つとして、救急搬送500件以上かつ全身麻酔手術500件以上が示されています。"},
+          {t:"救急搬送件数が年間2,000件以上で、かつ全身麻酔手術が年間1,200件以上である場合だけ。",ok:false,why:"これは急性期病院A一般入院料の水準です。Bでは複数の選択肢が設定されています。"},
+          {t:"在宅復帰率が80％以上で、平均在院日数が60日以内である場合。",ok:false,why:"在宅復帰率や平均在院日数は別の病棟評価で問われやすい指標ですが、急性期病院Bの病院機能実績要件とは異なります。"},
+          {t:"紹介率が50％以上で、逆紹介率が70％以上である場合。",ok:false,why:"紹介率・逆紹介率は外来機能分化や特定機能病院等で問われる論点で、急性期病院Bの急性期実績要件とは別です。"},
+          {t:"地域包括医療病棟を届け出ている場合。",ok:false,why:"急性期病院一般入院基本料の共通基準では、地域包括医療病棟の届出を行っていないことが示されています。"}
+        ]
+      },
+      {
+        q:"急性期病院一般入院基本料と重症度、医療・看護必要度の関係として、最も適切なものはどれか。",
+        choices:[
+          {t:"病棟の患者割合に基づく評価に加え、病院全体の急性期機能にも着目した評価体系が導入された。",ok:true,why:"2026年度改定では、従来の病棟単位の患者割合に加え、救急搬送や全身麻酔手術など病院単位の急性期機能にも着目しています。"},
+          {t:"病院全体の急性期機能に着目するため、病棟単位の必要度評価は全て廃止された。",ok:false,why:"病棟単位の必要度評価が全て廃止されたわけではありません。病院単位の機能評価が加わったと理解します。"},
+          {t:"急性期病院A/B一般入院料では、救急搬送件数ではなく外来患者数が主な実績要件となった。",ok:false,why:"急性期機能として救急搬送受入や全身麻酔手術等が重要な実績要件です。"},
+          {t:"急性期病院A/B一般入院料は、地域包括医療病棟を算定している病院を主な対象とする。",ok:false,why:"共通基準として地域包括医療病棟の届出を行っていないことが示されています。"},
+          {t:"急性期病院A/B一般入院料では、看護配置の考え方がなくなった。",ok:false,why:"看護職員配置は引き続き重要です。A/Bでは病院機能と看護配置などが組み合わさります。"}
+        ]
+      }
+    ]
+  },
+  {
+    category:"必要度Ⅰ・必要度Ⅱ",
+    items:[
+      {
+        q:"重症度、医療・看護必要度ⅠとⅡに関する説明として、最も適切なものはどれか。",
+        choices:[
+          {t:"必要度Ⅰは主に評価票を用いた測定、必要度Ⅱは診療実績データを用いた評価として整理される。",ok:true,why:"必要度ⅠとⅡは、評価方法の違いとして押さえると理解しやすいです。"},
+          {t:"必要度Ⅰは外来患者、必要度Ⅱは入院患者を評価する。",ok:false,why:"どちらも入院医療の施設基準で用いられる評価です。外来患者と入院患者の区分ではありません。"},
+          {t:"必要度Ⅰは療養病棟、必要度Ⅱは精神病棟専用の評価である。",ok:false,why:"一般病棟用の必要度Ⅰ・Ⅱが中心論点です。療養病棟や精神病棟専用という整理ではありません。"},
+          {t:"必要度Ⅱでは、DPC対象病院でなくても診療実績データを用いた評価が標準となる。",ok:false,why:"診療実績データを用いるため、データ提出やDPC関連の体制が重要になります。DPC対象病院でないことが標準という説明は不適切です。"},
+          {t:"必要度ⅠとⅡの違いは、A項目とC項目のどちらを廃止するかである。",ok:false,why:"必要度Ⅰ・Ⅱの違いは評価方法の違いであり、A項目やC項目を廃止する違いではありません。"}
+        ]
+      },
+      {
+        q:"急性期一般入院料等で必要度Ⅰ・Ⅱを理解する際の注意点として、最も適切なものはどれか。",
+        choices:[
+          {t:"必要度Ⅰ・Ⅱでは基準該当患者割合が設定され、入院料や加算ごとに基準が異なる。",ok:true,why:"必要度Ⅰ・Ⅱでは該当患者割合が施設基準として示されます。入院料・加算により基準値は異なります。"},
+          {t:"必要度Ⅰ・Ⅱでは、全ての入院料で同じ該当患者割合を用いる。",ok:false,why:"入院料・加算ごとに基準は異なります。"},
+          {t:"必要度Ⅰ・Ⅱは、介護保険施設の要介護度を診療報酬で読み替えたものである。",ok:false,why:"要介護度とは別の、入院医療の重症度・医療・看護必要度の評価です。"},
+          {t:"必要度Ⅰ・Ⅱは、2026年度改定で地域包括ケア病棟だけに限定された。",ok:false,why:"急性期一般入院料等でも用いられます。地域包括ケア病棟だけに限定されたわけではありません。"},
+          {t:"必要度Ⅰ・Ⅱは、病床利用率を直接算出するための式である。",ok:false,why:"病床利用率は稼働状況を見る指標です。必要度Ⅰ・Ⅱは急性期らしい患者割合等を見る評価です。"}
+        ]
+      },
+      {
+        q:"必要度Ⅱに関する説明として、最も適切なものはどれか。",
+        choices:[
+          {t:"診療実績データを用いるため、医療機関のデータ提出体制と関連して理解する必要がある。",ok:true,why:"必要度Ⅱは診療実績データを用いた評価として整理されるため、データ提出体制との関係で押さえるとよいです。"},
+          {t:"看護職員が評価票を毎日記入する方式だけを指す。",ok:false,why:"評価票を用いる方式は必要度Ⅰのイメージです。"},
+          {t:"患者の状態ではなく、病院の法人形態だけで判定する方式である。",ok:false,why:"法人形態で判定するものではありません。診療実績データを用いた患者評価です。"},
+          {t:"地域医療連携推進法人に参加している病院だけが選択できる方式である。",ok:false,why:"地域医療連携推進法人への参加とは関係ありません。"},
+          {t:"在宅患者訪問診療料の算定回数を用いる評価方式である。",ok:false,why:"在宅医療の算定回数ではなく、入院医療の診療実績データを用いる評価です。"}
+        ]
+      }
+    ]
+  },
+  {
+    category:"看護・多職種協働加算",
+    items:[
+      {
+        q:"2026年度改定で新設された看護・多職種協働加算について、最も適切なものはどれか。",
+        choices:[
+          {t:"看護職員を含む多職種が協働し、患者の早期退院やADLの維持・向上を目指す体制を評価する。",ok:true,why:"看護職員を含む多職種協働による専門的指導・診療補助の体制を評価する加算です。"},
+          {t:"医師事務作業補助者の配置だけを評価する加算である。",ok:false,why:"医師事務作業補助体制加算とは別です。看護職員を含む多職種協働が中心です。"},
+          {t:"全ての急性期一般入院料を算定する病棟で同じ点数を算定する。",ok:false,why:"算定対象は急性期一般入院料4や急性期病院B一般入院料などに関係し、全ての急性期一般入院料で同じように算定するものではありません。"},
+          {t:"地域包括ケア病棟入院料1を算定する患者に限って算定する。",ok:false,why:"地域包括ケア病棟の加算ではなく、急性期一般入院料4や急性期病院B一般入院料との関係で整理されます。"},
+          {t:"患者の食費と光熱水費の上昇分を補填する加算である。",ok:false,why:"食費・光熱水費の基準額見直しや物価対応料とは別です。"}
+        ]
+      },
+      {
+        q:"看護・多職種協働加算の対象として示される職種の組み合わせとして、最も適切なものはどれか。",
+        choices:[
+          {t:"看護職員に加え、理学療法士、作業療法士、言語聴覚士、管理栄養士、臨床検査技師など。",ok:true,why:"看護職員を含む多職種として、PT・OT・ST・管理栄養士・臨床検査技師などが示されています。"},
+          {t:"医師、歯科医師、薬局薬剤師、歯科技工士に限定される。",ok:false,why:"この組み合わせはベースアップ評価料等の対象職種の論点に近く、看護・多職種協働加算の説明としては不適切です。"},
+          {t:"医事課職員、診療情報管理士、社会保険労務士だけで構成される。",ok:false,why:"事務系職種だけを評価する加算ではありません。病棟での専門的指導や診療補助に関わる多職種が中心です。"},
+          {t:"地域包括支援センターの3職種だけで構成される。",ok:false,why:"地域包括支援センターの職種構成とは別の論点です。"},
+          {t:"介護支援専門員と訪問介護員だけで構成される。",ok:false,why:"介護保険サービスの職種構成とは別です。"}
+        ]
+      },
+      {
+        q:"看護・多職種協働加算と重症度、医療・看護必要度の関係として、最も適切なものはどれか。",
+        choices:[
+          {t:"急性期入院医療において、必要度の高い患者に対し多職種でADL維持・早期退院等を支える体制を評価する文脈で理解する。",ok:true,why:"急性期病棟での患者像に合わせた専門的治療・ケア、多職種協働、ADL維持・向上を結びつけて理解します。"},
+          {t:"必要度が低い外来患者に対し、予約管理を行う体制を評価する。",ok:false,why:"外来予約管理ではなく、急性期入院医療における病棟での多職種協働が論点です。"},
+          {t:"必要度の評価を不要にする代替加算である。",ok:false,why:"必要度評価を不要にする加算ではありません。必要度や急性期機能の評価と併せて理解します。"},
+          {t:"DPCの機能評価係数Ⅱを直接引き上げる加算である。",ok:false,why:"DPC係数の直接評価ではなく、診療報酬上の入院料に加算する評価です。"},
+          {t:"在宅療養支援病院の緊急往診体制を評価する加算である。",ok:false,why:"在宅医療の緊急往診体制ではなく、急性期病棟での多職種協働を評価します。"}
+        ]
+      }
+    ]
+  },
+  {
+    category:"地域包括医療・地域包括ケアとの比較",
+    items:[
+      {
+        q:"重症度、医療・看護必要度と地域包括医療病棟入院料の関係として、最も適切なものはどれか。",
+        choices:[
+          {t:"地域包括医療病棟入院料でも、重症度、医療・看護必要度が施設基準上の論点になる。",ok:true,why:"地域包括医療病棟入院料は、重症度、医療・看護必要度が関係する入院料として整理されます。"},
+          {t:"地域包括医療病棟入院料では、重症度、医療・看護必要度は外来診療料に置き換えられる。",ok:false,why:"外来診療料に置き換えられるものではありません。"},
+          {t:"地域包括医療病棟入院料では、必要度ではなく介護報酬のLIFE提出だけで評価される。",ok:false,why:"LIFEは介護報酬の科学的介護情報システムに関する論点です。入院医療の必要度評価とは別です。"},
+          {t:"地域包括医療病棟入院料は、急性期病院A一般入院料と同時に届け出ることが共通要件である。",ok:false,why:"急性期病院一般入院基本料の共通基準では、地域包括医療病棟の届出を行っていないことが示されています。"},
+          {t:"地域包括医療病棟入院料は、全身麻酔手術1,200件以上だけで評価される。",ok:false,why:"全身麻酔手術1,200件以上は急性期病院A一般入院料の急性期機能要件に関係する数値です。"}
+        ]
+      },
+      {
+        q:"地域包括ケア病棟入院料と重症度、医療・看護必要度の関係として、最も適切なものはどれか。",
+        choices:[
+          {t:"地域包括ケア病棟入院料でも、重症度、医療・看護必要度が関係する。",ok:true,why:"地域包括ケア病棟入院料も必要度が関係する入院料として押さえます。"},
+          {t:"地域包括ケア病棟では、必要度評価ではなくDPCコード14桁だけで入院料が決まる。",ok:false,why:"DPCコードはDPC/PDPSの分類に関する論点で、地域包括ケア病棟入院料の必要度評価とは別です。"},
+          {t:"地域包括ケア病棟では、B項目だけを評価し、A項目とC項目は用いない。",ok:false,why:"必要度のA・B・C項目の基本構造を踏まえて理解する必要があります。B項目だけではありません。"},
+          {t:"地域包括ケア病棟では、救急搬送件数2,000件以上が共通要件である。",ok:false,why:"救急搬送2,000件以上は急性期病院A一般入院料の病院機能要件です。地域包括ケア病棟の共通要件ではありません。"},
+          {t:"地域包括ケア病棟では、回復期リハビリテーション病棟の実績指数のみを用いる。",ok:false,why:"実績指数は回復期リハビリテーション病棟の論点です。"}
+        ]
+      },
+      {
+        q:"回復期リハビリテーション病棟入院料と重症度、医療・看護必要度の関係について、最も適切なものはどれか。",
+        choices:[
+          {t:"回復期リハビリテーション病棟入院料では、重症度、医療・看護必要度よりも実績指数などの回復期リハビリの評価が中心となる。",ok:true,why:"回復期リハビリテーション病棟では、必要度ではなく実績指数などのアウトカム評価が問われやすいです。"},
+          {t:"回復期リハビリテーション病棟入院料は、重症度、医療・看護必要度が要件となる代表的な入院料である。",ok:false,why:"予想問題集でも、必要度が要件になっていない入院料として回復期リハビリテーション病棟入院料が挙げられています。"},
+          {t:"回復期リハビリテーション病棟入院料では、A項目の抗悪性腫瘍剤使用だけで入院料区分が決まる。",ok:false,why:"抗悪性腫瘍剤使用はA項目の追加論点ですが、回復期リハ病棟の入院料区分を決める中心ではありません。"},
+          {t:"回復期リハビリテーション病棟入院料は、急性期病院B一般入院料と同じ病院機能要件を用いる。",ok:false,why:"急性期病院B一般入院料の救急搬送・全身麻酔手術などの要件とは別です。"},
+          {t:"回復期リハビリテーション病棟入院料は、看護・多職種協働加算2の対象入院料である。",ok:false,why:"看護・多職種協働加算2は急性期病院B一般入院料との関係で整理されます。"}
+        ]
+      }
+    ]
+  },
+  {
+    category:"試験で問われやすい誤りの見抜き方",
+    items:[
+      {
+        q:"重症度、医療・看護必要度に関する選択肢のうち、誤りとして最も適切なものはどれか。",
+        choices:[
+          {t:"2026年度改定で、B項目は廃止され、A項目とC項目だけで全ての患者を評価することになった。",ok:true,why:"B項目は廃止されていません。測定頻度の柔軟化が示された点と混同しないようにします。"},
+          {t:"A項目は、モニタリング及び処置等に関する評価である。",ok:false,why:"これは正しい説明です。"},
+          {t:"C項目は、手術等の医学的状況に関する評価である。",ok:false,why:"これは正しい説明です。"},
+          {t:"急性期一般入院料では、重症度、医療・看護必要度が施設基準上の論点となる。",ok:false,why:"これは正しい説明です。"},
+          {t:"2026年度改定では、救急搬送受入件数等を加味した指数が示された。",ok:false,why:"これは正しい説明です。"}
+        ]
+      },
+      {
+        q:"急性期入院医療の見直しに関する選択肢のうち、誤りとして最も適切なものはどれか。",
+        choices:[
+          {t:"急性期病院A一般入院料の要件では、救急搬送件数が年間1,500件以上であれば、全身麻酔手術件数にかかわらず足りる。",ok:true,why:"Aでは救急搬送2,000件以上かつ全身麻酔手術1,200件以上が示されています。1,500件はBの実績要件の一つに関係する数値です。"},
+          {t:"急性期病院B一般入院料では、救急搬送500件以上かつ全身麻酔手術500件以上が実績要件の選択肢の一つとなる。",ok:false,why:"これは正しい説明です。"},
+          {t:"急性期病院一般入院基本料では、病院全体の急性期機能に着目した評価が導入された。",ok:false,why:"これは正しい説明です。"},
+          {t:"急性期病院A/B一般入院料の共通基準には、DPC対象病院であることが含まれる。",ok:false,why:"これは正しい説明です。"},
+          {t:"看護・多職種協働加算は、急性期病棟での多職種協働を評価する新設加算である。",ok:false,why:"これは正しい説明です。"}
+        ]
+      },
+      {
+        q:"重症度、医療・看護必要度の対象となる入院料・加算の理解として、誤りとして最も適切なものはどれか。",
+        choices:[
+          {t:"回復期リハビリテーション病棟入院料は、重症度、医療・看護必要度が施設基準となる代表例である。",ok:true,why:"回復期リハビリテーション病棟入院料は、必要度が要件になっていない入院料として整理されます。実績指数等が中心です。"},
+          {t:"急性期一般入院料は、重症度、医療・看護必要度が施設基準上の論点となる。",ok:false,why:"これは正しい説明です。"},
+          {t:"地域包括医療病棟入院料は、重症度、医療・看護必要度が関係する。",ok:false,why:"これは正しい説明です。"},
+          {t:"地域包括ケア病棟入院料は、重症度、医療・看護必要度が関係する。",ok:false,why:"これは正しい説明です。"},
+          {t:"看護必要度加算や急性期看護補助体制加算も、重症度、医療・看護必要度と関連して整理される。",ok:false,why:"これは正しい説明です。"}
+        ]
+      }
+    ]
+  }
+];
+
+let quiz = [];
+let idx = 0;
+let selected = null;
+let answered = false;
+let results = [];
+
+const el = id => document.getElementById(id);
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function start(){
+  quiz = pools.map(p=>({category:p.category, ...shuffle(p.items)[0]}));
+  quiz = shuffle(quiz);
+  quiz.forEach(q=>q.choices = shuffle(q.choices));
+  idx = 0; selected = null; answered = false; results=[];
+  el('summary').classList.remove('show');
+  el('quizCard').style.display='block';
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function render(){
+  const q = quiz[idx];
+  selected = null; answered = false;
+  el('category').textContent = q.category;
+  el('qno').textContent = `問題 ${idx+1} / ${quiz.length}`;
+  el('question').textContent = q.q;
+  el('progressText').textContent = `進捗：${idx+1} / ${quiz.length}`;
+  el('barFill').style.width = `${(idx)/quiz.length*100}%`;
+  el('answerBtn').disabled = true;
+  el('answerBtn').style.display = 'inline-block';
+  el('nextBtn').style.display = 'none';
+  const rb = el('resultBox');
+  rb.className = 'result';
+  el('resultTitle').textContent='';
+  el('explain').textContent='';
+  const ul = el('choices');
+  ul.innerHTML='';
+  q.choices.forEach((c,i)=>{
+    const li=document.createElement('li');
+    li.className='choice';
+    li.innerHTML=`<span class="letter">${String.fromCharCode(65+i)}</span><span>${c.t}</span>`;
+    li.addEventListener('click',()=>{
+      if(answered) return;
+      selected=i;
+      [...ul.children].forEach(x=>x.classList.remove('selected'));
+      li.classList.add('selected');
+      el('answerBtn').disabled=false;
+    });
+    ul.appendChild(li);
+  });
+}
+function answer(){
+  if(selected===null || answered) return;
+  answered=true;
+  const q = quiz[idx];
+  const c = q.choices[selected];
+  const correctIndex = q.choices.findIndex(x=>x.ok);
+  const lis=[...el('choices').children];
+  lis[correctIndex].classList.add('correct');
+  if(!c.ok) lis[selected].classList.add('wrong');
+  const rb=el('resultBox');
+  rb.className = 'result show ' + (c.ok?'ok':'ng');
+  el('resultTitle').textContent = c.ok ? '正解です' : '不正解です';
+  const correctText = q.choices[correctIndex].t;
+  el('explain').textContent = c.ok ? `正答：${correctText}\n\n${c.why}` : `正答：${correctText}\n\nあなたの選択肢が誤りである理由：${c.why}\n\n補足：${q.choices[correctIndex].why}`;
+  results.push({q:q.q, category:q.category, correct:c.ok, selected:c.t, answer:correctText});
+  el('answerBtn').style.display='none';
+  el('nextBtn').style.display='inline-block';
+  el('barFill').style.width = `${(idx+1)/quiz.length*100}%`;
+}
+function next(){
+  if(idx < quiz.length-1){
+    idx++;
+    render();
+    document.getElementById('top').scrollIntoView({behavior:'smooth'});
+  }else{
+    showSummary();
+  }
+}
+function showSummary(){
+  el('quizCard').style.display='none';
+  const ok = results.filter(r=>r.correct).length;
+  el('progressText').textContent = `完了：${quiz.length}問`;
+  el('barFill').style.width = '100%';
+  el('score').textContent = `${ok} / ${quiz.length} 問正解`;
+  el('scoreMsg').textContent = ok === quiz.length ? '満点です。必要度の基本構造と2026改定の論点がよく整理できています。' : '誤答した問題は、A・B・C項目、対象入院料、急性期病院A/Bの数値を中心に見直しましょう。';
+  const review=el('review');
+  review.innerHTML='';
+  results.forEach((r,i)=>{
+    const div=document.createElement('div');
+    div.className='reviewItem';
+    div.innerHTML=`<strong>${i+1}. ${r.category}</strong><br>${r.correct?'○':'×'} ${r.q}<br><span style="color:var(--muted)">あなたの回答：</span>${r.selected}<br><span style="color:var(--muted)">正答：</span>${r.answer}`;
+    review.appendChild(div);
+  });
+  el('summary').classList.add('show');
+  document.getElementById('top').scrollIntoView({behavior:'smooth'});
+}
+el('answerBtn').addEventListener('click',answer);
+el('nextBtn').addEventListener('click',next);
+el('retryBtn').addEventListener('click',start);
+start();
+</script>
+</body>
+</html>

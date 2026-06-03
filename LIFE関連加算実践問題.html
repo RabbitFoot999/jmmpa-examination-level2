@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LIFE関連加算実践問題</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #111827;
+      --card: #1e293b;
+      --card2: #172033;
+      --text: #e5e7eb;
+      --muted: #a7b0c0;
+      --line: #334155;
+      --accent: #38bdf8;
+      --accent2: #0ea5e9;
+      --good: #34d399;
+      --bad: #fb7185;
+      --warn: #fbbf24;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .35);
+      --radius: 18px;
+      --tap: 48px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.16), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(52,211,153,.10), transparent 30rem),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      line-height: 1.7;
+    }
+
+    .wrap {
+      width: min(940px, 100%);
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 14px max(28px, env(safe-area-inset-bottom));
+    }
+
+    .hero {
+      margin: 10px 0 18px;
+      padding: 22px 18px;
+      border: 1px solid rgba(148,163,184,.22);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(30,41,59,.92), rgba(15,23,42,.92));
+      box-shadow: var(--shadow);
+    }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56,189,248,.12);
+      border: 1px solid rgba(56,189,248,.28);
+      color: #bae6fd;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 7vw, 42px);
+      line-height: 1.16;
+      letter-spacing: .02em;
+    }
+
+    .lead { margin: 0; color: var(--muted); font-size: 15px; }
+
+    .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(15,23,42,.62);
+      border: 1px solid rgba(148,163,184,.18);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (min-width: 720px) {
+      .controls { grid-template-columns: auto auto 1fr; align-items: center; }
+      .hero { padding: 28px; }
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+    }
+
+    .btn {
+      min-height: var(--tap);
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #082f49;
+      box-shadow: 0 10px 25px rgba(14,165,233,.22);
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+      touch-action: manipulation;
+    }
+    .btn:active { transform: translateY(1px) scale(.99); }
+    .btn.secondary {
+      background: rgba(148,163,184,.12);
+      color: var(--text);
+      border: 1px solid rgba(148,163,184,.26);
+      box-shadow: none;
+    }
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+      filter: grayscale(.2);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 14px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress {
+      height: 10px;
+      flex: 1;
+      border-radius: 999px;
+      background: rgba(148,163,184,.16);
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,.14);
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--good));
+      transition: width .25s ease;
+    }
+
+    .quiz-card {
+      background: rgba(30,41,59,.94);
+      border: 1px solid rgba(148,163,184,.22);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .q-head {
+      padding: 18px;
+      border-bottom: 1px solid rgba(148,163,184,.18);
+      background: linear-gradient(180deg, rgba(15,23,42,.58), rgba(15,23,42,.12));
+    }
+
+    .q-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(148,163,184,.11);
+      border: 1px solid rgba(148,163,184,.22);
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .question {
+      margin: 0;
+      white-space: pre-line;
+      font-weight: 800;
+      color: #f8fafc;
+      font-size: clamp(17px, 4.5vw, 22px);
+      line-height: 1.75;
+    }
+
+    .choices { padding: 14px; display: grid; gap: 11px; }
+    .choice {
+      width: 100%;
+      min-height: var(--tap);
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 11px;
+      align-items: start;
+      padding: 13px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,.25);
+      background: rgba(15,23,42,.48);
+      text-align: left;
+      cursor: pointer;
+      transition: background .12s ease, border-color .12s ease, transform .12s ease;
+      touch-action: manipulation;
+    }
+    .choice:hover { border-color: rgba(56,189,248,.65); }
+    .choice:active { transform: translateY(1px); }
+    .choice.selected {
+      border-color: rgba(56,189,248,.9);
+      background: rgba(14,165,233,.14);
+    }
+    .choice.correct {
+      border-color: rgba(52,211,153,.95);
+      background: rgba(16,185,129,.13);
+    }
+    .choice.wrong {
+      border-color: rgba(251,113,133,.92);
+      background: rgba(244,63,94,.12);
+    }
+    .choice.dim { opacity: .72; }
+    .num {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(148,163,184,.18);
+      color: #dbeafe;
+      font-weight: 900;
+      font-size: 13px;
+    }
+    .choice-text { color: #e2e8f0; font-size: 15px; }
+    .marker { display: block; margin-top: 7px; font-size: 12px; font-weight: 900; color: #bae6fd; }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      padding: 0 14px 16px;
+    }
+
+    .explain {
+      margin: 0 14px 16px;
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(15,23,42,.62);
+    }
+    .explain.good { border-color: rgba(52,211,153,.45); background: rgba(16,185,129,.11); }
+    .explain.bad { border-color: rgba(251,113,133,.45); background: rgba(244,63,94,.10); }
+    .result-title { margin: 0 0 8px; font-size: 18px; font-weight: 900; }
+    .result-title.good { color: var(--good); }
+    .result-title.bad { color: var(--bad); }
+    .explain p { margin: 8px 0 0; color: #dbeafe; }
+    .small { font-size: 13px; color: var(--muted); }
+
+    .finish {
+      display: none;
+      padding: 22px 18px;
+      border-radius: 24px;
+      background: rgba(30,41,59,.94);
+      border: 1px solid rgba(148,163,184,.22);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .finish h2 { margin: 0 0 8px; font-size: 26px; }
+    .score { font-size: 42px; line-height: 1; font-weight: 950; margin: 16px 0; color: #bae6fd; }
+    .review { text-align: left; display: grid; gap: 10px; margin-top: 18px; }
+    .review-item {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(15,23,42,.5);
+      border: 1px solid rgba(148,163,184,.18);
+    }
+
+    footer {
+      margin: 18px 0 0;
+      padding: 14px 4px 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="badge-row">
+        <span class="badge">医療経営士2級対策</span>
+        <span class="badge">介護報酬</span>
+        <span class="badge">1回5問</span>
+      </div>
+      <h1>LIFE関連加算実践問題</h1>
+      <p class="lead">科学的介護情報システム（LIFE）の目的、データ提出、フィードバック、関連加算、PDCAサイクルを確認する実践問題です。</p>
+      <div class="panel small">
+        各カテゴリ3問ずつ、全15問の問題プールから毎回5問をランダム出題します。選択肢を選び、「回答」ボタンを押すと正誤判定と解説が表示されます。
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" id="startBtn">開始する</button>
+        <button class="btn secondary" type="button" id="resetBtn">5問を選び直す</button>
+        <span class="small">夜でも見やすい暗色レイアウト・スマホ操作向け</span>
+      </div>
+    </header>
+
+    <section id="quizArea" class="hidden">
+      <div class="status">
+        <span id="countText">問1 / 5</span>
+        <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+        <span id="scoreText">0点</span>
+      </div>
+
+      <article class="quiz-card" id="questionTop">
+        <div class="q-head">
+          <div class="q-meta">
+            <span class="pill" id="categoryText">カテゴリ</span>
+            <span class="pill">五者択一</span>
+          </div>
+          <p class="question" id="questionText"></p>
+        </div>
+        <div class="choices" id="choices"></div>
+        <div class="actions">
+          <button class="btn" type="button" id="answerBtn" disabled>回答</button>
+          <button class="btn secondary hidden" type="button" id="nextBtn">次の問題へ</button>
+        </div>
+        <div class="explain hidden" id="explainBox"></div>
+      </article>
+    </section>
+
+    <section class="finish" id="finishArea">
+      <h2>終了です</h2>
+      <p class="small">LIFEは「提出して終わり」ではなく、フィードバックを活用してケアの質改善につなげる点が中心です。</p>
+      <div class="score" id="finalScore">0 / 5</div>
+      <button class="btn" type="button" id="retryBtn">もう一度解く</button>
+      <div class="review" id="review"></div>
+    </section>
+
+    <footer>
+      GitHub Pages用の単一HTMLです。外部ライブラリは使用していません。
+    </footer>
+  </div>
+
+<script>
+const questionBank = [
+  {
+    category: "LIFEの基本的理解",
+    questions: [
+      {
+        q: "科学的介護情報システム（LIFE）について、適切なものを1つ選べ。",
+        choices: [
+          { t: "介護施設・事業所から利用者の状態やケア内容等の情報を収集し、フィードバックを通じてケアの質向上につなげる仕組みである。", ok: true, exp: "LIFEは、科学的介護を推進するため、利用者の状態やケア内容等のデータを活用し、事業所へのフィードバックを通じてケアの質向上につなげる仕組みである。" },
+          { t: "介護施設・事業所の財務諸表を国に提出し、経営利益を比較する仕組みである。", ok: false, exp: "LIFEで中心となるのは財務情報ではなく、利用者の状態やケア内容等の介護に関する情報である。" },
+          { t: "医療機関のDPCデータを収集し、急性期入院医療の包括評価に用いる仕組みである。", ok: false, exp: "DPCは医療保険の急性期入院医療に関する仕組みであり、LIFEとは対象制度が異なる。" },
+          { t: "利用者本人の満足度を入力し、事業所の順位を公表することを主目的とする制度である。", ok: false, exp: "LIFEは満足度調査や順位公表を主目的とする制度ではない。" },
+          { t: "介護職員の勤務シフトを標準化し、人員配置基準を自動判定する仕組みである。", ok: false, exp: "勤務シフトや人員配置基準の自動判定がLIFEの主目的ではない。" }
+        ]
+      },
+      {
+        q: "LIFEの活用目的として、適切なものを1つ選べ。",
+        choices: [
+          { t: "全国データ等を踏まえたフィードバックを活用し、事業所におけるケアの見直しや質の向上につなげる。", ok: true, exp: "LIFEでは、提出データに基づくフィードバックを活用し、PDCAサイクルによるケアの質向上を図ることが重要である。" },
+          { t: "介護施設の利益率を算出し、利益率の高低に応じて介護報酬を直接配分する。", ok: false, exp: "LIFE関連加算は利益率の高さを直接評価する加算ではない。" },
+          { t: "医療機関の病床機能を報告し、地域医療構想の必要病床数を算定する。", ok: false, exp: "病床機能報告や地域医療構想は医療提供体制に関する制度であり、LIFEとは異なる。" },
+          { t: "利用者の要介護認定をLIFE上で自動更新する。", ok: false, exp: "要介護認定は市町村が行う介護保険制度上の手続きであり、LIFEが自動更新するものではない。" },
+          { t: "介護報酬請求を紙レセプトに一本化し、電子請求を廃止する。", ok: false, exp: "LIFEは介護報酬請求方式を紙に戻す制度ではない。" }
+        ]
+      },
+      {
+        q: "LIFEに関する説明として、適切でないものを1つ選べ。",
+        choices: [
+          { t: "LIFEは、介護施設・事業所の財務指標を全国比較し、収益性向上を主目的とする仕組みである。", ok: true, exp: "この選択肢が誤り。LIFEの主目的は、財務指標の全国比較ではなく、科学的介護の推進とケアの質向上である。" },
+          { t: "LIFEは、科学的介護を推進するための情報システムである。", ok: false, exp: "これは正しい説明である。" },
+          { t: "LIFEでは、利用者の状態やケア内容等に関するデータが活用される。", ok: false, exp: "これは正しい説明である。" },
+          { t: "LIFEのフィードバックは、事業所が自らのケアを見直す材料となる。", ok: false, exp: "これは正しい説明である。" },
+          { t: "LIFE関連加算では、データ提出だけでなく、フィードバックの活用も重要である。", ok: false, exp: "これは正しい説明である。" }
+        ]
+      }
+    ]
+  },
+  {
+    category: "データ提出と評価頻度",
+    questions: [
+      {
+        q: "LIFE関連加算におけるデータ提出や評価の頻度について、適切なものを1つ選べ。",
+        choices: [
+          { t: "少なくとも3か月に1回以上の頻度で、評価の見直しやデータ提出を行うことが求められる。", ok: true, exp: "LIFE関連加算では、少なくとも3か月に1回以上の評価見直しやデータ提出が重要なポイントとなる。" },
+          { t: "年度末に1回、事業所単位でまとめて提出すればよい。", ok: false, exp: "1年に1回では不十分であり、少なくとも3か月に1回以上の頻度が求められる。" },
+          { t: "利用者の状態に変化があった場合だけ、データ提出の対象となる。", ok: false, exp: "状態変化時だけでなく、定期的な評価・データ提出が求められる。" },
+          { t: "初回利用時に提出すれば、その後の見直しや再提出は不要である。", ok: false, exp: "初回のみではなく、継続的な評価とデータ提出が必要である。" },
+          { t: "毎日データ提出を行うことが、全てのLIFE関連加算に共通する算定要件である。", ok: false, exp: "毎日の提出が全てのLIFE関連加算に共通して求められているわけではない。" }
+        ]
+      },
+      {
+        q: "LIFEへのデータ提出対象者について、適切なものを1つ選べ。",
+        choices: [
+          { t: "加算の対象となるサービスごとの利用者又は入所者全員を対象として考える。", ok: true, exp: "LIFEへのデータ提出は、加算を算定するサービスごとの利用者又は入所者全員が対象となる点を押さえる。" },
+          { t: "要介護3以上の利用者を中心に提出し、要介護1・2は対象外として扱う。", ok: false, exp: "要介護3以上に限定されるわけではない。" },
+          { t: "認知症の診断を受けた利用者を対象とし、それ以外の利用者は対象外となる。", ok: false, exp: "認知症の有無だけで対象者が限定されるものではない。" },
+          { t: "利用者本人がデータ提出を希望した場合に限って提出対象となる。", ok: false, exp: "利用者の希望者だけを対象とする制度ではなく、加算の対象サービスごとに整理する。" },
+          { t: "管理者が任意に抽出した一部の利用者を代表例として提出する。", ok: false, exp: "任意抽出の一部利用者だけを提出対象とする考え方ではない。" }
+        ]
+      },
+      {
+        q: "LIFE関連加算のデータ提出に関する説明として、適切でないものを1つ選べ。",
+        choices: [
+          { t: "3か月に1回以上という場合の3か月は、必ず90日ごとに厳密に換算する。", ok: true, exp: "この選択肢が誤り。3か月は90日換算ではなく、月単位で考える点が重要である。" },
+          { t: "評価結果を踏まえて、計画やケア内容の見直しにつなげることが重要である。", ok: false, exp: "これは正しい説明である。" },
+          { t: "LIFE関連加算では、定期的なデータ提出が求められる。", ok: false, exp: "これは正しい説明である。" },
+          { t: "提出データは、事業所へのフィードバックに活用される。", ok: false, exp: "これは正しい説明である。" },
+          { t: "データ提出とフィードバック活用は、科学的介護の推進に関係する。", ok: false, exp: "これは正しい説明である。" }
+        ]
+      }
+    ]
+  },
+  {
+    category: "フィードバックと令和6年度改定",
+    questions: [
+      {
+        q: "令和6年度介護報酬改定におけるLIFEの見直しについて、適切なものを1つ選べ。",
+        choices: [
+          { t: "フィードバック情報について、サービス別、平均要介護度別、都道府県別などで比較できるようにする方向で見直された。", ok: true, exp: "令和6年度改定では、LIFEのフィードバックをより活用しやすくするため、層別化された比較が重視された。" },
+          { t: "LIFEのフィードバックは廃止され、事業所の自己評価を中心に運用することとなった。", ok: false, exp: "フィードバックは廃止されていない。より活用しやすくする方向で見直されている。" },
+          { t: "LIFEへのデータ提出は任意提出に整理され、関連加算の要件から外された。", ok: false, exp: "LIFE関連加算では、データ提出やフィードバック活用が引き続き重要である。" },
+          { t: "全国平均との比較は行わず、同一法人内の事業所比較を中心にする制度へ変更された。", ok: false, exp: "全国データ等との比較が活用される。" },
+          { t: "LIFEは診療報酬制度に移管され、介護報酬上の評価とは切り離された。", ok: false, exp: "LIFEは介護報酬に関係する科学的介護の仕組みである。" }
+        ]
+      },
+      {
+        q: "LIFEのフィードバックの活用について、適切なものを1つ選べ。",
+        choices: [
+          { t: "自事業所の状態を全国データ等と比較し、ケアの内容や計画の見直しに活用する。", ok: true, exp: "LIFEのフィードバックは、事業所が自らのケアを見直し、質改善につなげるために活用する。" },
+          { t: "利用者の介護保険料を減免するかどうかを判定するために活用する。", ok: false, exp: "LIFEのフィードバックは保険料減免の判定に用いるものではない。" },
+          { t: "介護職員の個人別給与を全国ランキング化するために活用する。", ok: false, exp: "職員給与のランキング化を目的とする仕組みではない。" },
+          { t: "病院のDPC係数を算定するために活用する。", ok: false, exp: "DPC係数は医療保険の急性期入院医療に関する仕組みであり、LIFEとは異なる。" },
+          { t: "事業所の建物・設備の耐震性能を判定するために活用する。", ok: false, exp: "耐震性能の判定がLIFEのフィードバックの目的ではない。" }
+        ]
+      },
+      {
+        q: "LIFEのフィードバックに関する説明として、適切でないものを1つ選べ。",
+        choices: [
+          { t: "令和6年度介護報酬改定では、LIFEのフィードバックは全国平均に限定され、サービス別等の比較は行わない方向となった。", ok: true, exp: "この選択肢が誤り。令和6年度改定では、サービス別、平均要介護度別、都道府県別など、層別化された比較が可能となる方向で見直されている。" },
+          { t: "フィードバックは、事業所のケアの質改善に活用される。", ok: false, exp: "これは正しい説明である。" },
+          { t: "LIFEの活用では、提出データを踏まえたPDCAサイクルが重要である。", ok: false, exp: "これは正しい説明である。" },
+          { t: "全国データ等との比較は、事業所が自らの状況を把握する材料となる。", ok: false, exp: "これは正しい説明である。" },
+          { t: "フィードバックを活用することで、サービスの質の向上につなげることが期待される。", ok: false, exp: "これは正しい説明である。" }
+        ]
+      }
+    ]
+  },
+  {
+    category: "LIFE関連加算の種類",
+    questions: [
+      {
+        q: "科学的介護推進体制加算について、適切なものを1つ選べ。",
+        choices: [
+          { t: "利用者の状態等に係る情報をLIFEへ提出し、フィードバックを活用してサービスの質向上を図る体制を評価する加算である。", ok: true, exp: "科学的介護推進体制加算は、LIFEへのデータ提出とフィードバック活用を通じた科学的介護の推進を評価する加算である。" },
+          { t: "介護施設の建物整備や設備更新を行った場合に、建築費相当分を補填する加算である。", ok: false, exp: "建築費や設備更新費を補填する加算ではない。" },
+          { t: "救急搬送を受け入れた医療機関が、診療報酬として算定する評価である。", ok: false, exp: "科学的介護推進体制加算は介護報酬の加算であり、医療機関の救急搬送受入を評価する診療報酬ではない。" },
+          { t: "介護職員の夜勤回数や勤務間インターバルの達成状況を中心に評価する加算である。", ok: false, exp: "夜勤回数や勤務間インターバルを中心に評価する加算ではない。" },
+          { t: "利用者の自己負担割合を市町村が軽減するための給付である。", ok: false, exp: "利用者負担軽減の給付ではなく、事業所の体制や取組を評価する加算である。" }
+        ]
+      },
+      {
+        q: "ADL維持等加算について、適切なものを1つ選べ。",
+        choices: [
+          { t: "利用者のADLの維持又は改善に向けた取組や成果を評価する加算であり、LIFE関連加算として整理される。", ok: true, exp: "ADL維持等加算は、利用者のADLの維持・改善に着目したアウトカム評価の性格を持つ。LIFEとの関係も押さえたい。" },
+          { t: "医療機関の平均在院日数短縮を評価する診療報酬上の加算である。", ok: false, exp: "ADL維持等加算は介護報酬の加算であり、平均在院日数を評価する診療報酬ではない。" },
+          { t: "施設の病床利用率が一定水準を超えた場合に算定する加算である。", ok: false, exp: "病床利用率を評価する加算ではない。" },
+          { t: "職員の資格取得者数や研修受講者数を中心に評価する加算である。", ok: false, exp: "職員の資格取得者数を中心に評価する加算ではなく、利用者のADLの維持・改善に関係する。" },
+          { t: "入院時食費の自己負担額を引き下げるための介護保険上の加算である。", ok: false, exp: "食費自己負担額を引き下げる加算ではない。" }
+        ]
+      },
+      {
+        q: "LIFE関連加算として整理されるものの組み合わせとして、適切なものを1つ選べ。",
+        choices: [
+          { t: "科学的介護推進体制加算、ADL維持等加算、個別機能訓練加算など", ok: true, exp: "LIFE関連加算では、科学的介護推進体制加算、ADL維持等加算、個別機能訓練加算、栄養・口腔関連の加算などが代表例として整理される。" },
+          { t: "急性期一般入院料、救急医療管理加算、地域医療体制確保加算", ok: false, exp: "これらは医療保険の診療報酬に関する評価であり、LIFE関連加算とは異なる。" },
+          { t: "DPC機能評価係数、救命救急入院料、特定集中治療室管理料", ok: false, exp: "DPCや高度急性期入院医療に関する診療報酬であり、LIFE関連加算ではない。" },
+          { t: "外来・在宅ベースアップ評価料、入院ベースアップ評価料、物価対応料", ok: false, exp: "これらは診療報酬上の賃上げ・物価対応に関する評価であり、LIFE関連加算ではない。" },
+          { t: "紹介受診重点医療機関入院診療加算、外来腫瘍化学療法診療料、医療DX推進体制整備加算", ok: false, exp: "いずれも診療報酬側の評価であり、LIFE関連加算とは制度の対象が異なる。" }
+        ]
+      }
+    ]
+  },
+  {
+    category: "PDCAサイクルとケアの質改善",
+    questions: [
+      {
+        q: "LIFE関連加算におけるPDCAサイクルの考え方について、適切なものを1つ選べ。",
+        choices: [
+          { t: "データ提出とフィードバックを踏まえ、計画やケア内容を見直し、サービスの質向上につなげる。", ok: true, exp: "LIFEでは、データを提出するだけでなく、フィードバックを踏まえてケアを見直すPDCAサイクルが重要である。" },
+          { t: "データ提出が完了すれば、フィードバックの確認やケア内容の見直しまで行ったものとして扱う。", ok: false, exp: "データ提出だけでなく、フィードバックを活用した見直しが重要である。" },
+          { t: "PDCAサイクルは医療機関の原価計算に用いる考え方であり、介護サービスの質改善とは関係しない。", ok: false, exp: "PDCAサイクルは介護サービスの質改善にも関係する。" },
+          { t: "LIFEでは全国データとの比較を行わず、各事業所の主観的判断を中心にケアを見直す。", ok: false, exp: "全国データ等に基づくフィードバックを活用できる点がLIFEの特徴である。" },
+          { t: "LIFEの活用では、利用者のADLや栄養状態の情報はケアの見直しに用いない。", ok: false, exp: "LIFEではADL、栄養、口腔、認知症など利用者状態に関する情報が活用される。" }
+        ]
+      },
+      {
+        q: "LIFE関連加算の考え方について、適切なものの組み合わせを1つ選べ。\nア　データ提出そのものだけでなく、フィードバックを活用したケアの質向上が重要である。\nイ　LIFE関連加算は、介護施設・事業所の利益率を直接評価する加算である。\nウ　ADL、栄養、口腔、認知症など利用者の状態に関する情報が活用される。\nエ　LIFE関連加算は、DPC対象病院が算定する診療報酬上の評価である。",
+        choices: [
+          { t: "ア、ウ", ok: true, exp: "アとウが正しい。LIFE関連加算では、利用者状態等のデータを提出し、フィードバックを活用してケアの質向上につなげる。" },
+          { t: "ア、イ", ok: false, exp: "イが誤り。LIFE関連加算は利益率を直接評価する加算ではない。" },
+          { t: "イ、エ", ok: false, exp: "イもエも誤り。LIFE関連加算は介護報酬側の論点であり、DPC対象病院の診療報酬ではない。" },
+          { t: "ウ、エ", ok: false, exp: "エが誤り。DPC対象病院が算定する診療報酬ではない。" },
+          { t: "ア、イ、ウ", ok: false, exp: "イが誤りであるため、この組み合わせは適切でない。" }
+        ]
+      },
+      {
+        q: "LIFE関連加算に関する説明として、適切でないものを1つ選べ。",
+        choices: [
+          { t: "LIFE関連加算では、データ提出を行えば、フィードバックを踏まえたケアの見直しは不要である。", ok: true, exp: "この選択肢が誤り。LIFE関連加算では、データ提出だけでなく、フィードバックを活用したケアの見直しが重要である。" },
+          { t: "LIFEは、科学的介護を推進する仕組みである。", ok: false, exp: "これは正しい説明である。" },
+          { t: "フィードバックを活用し、事業所のケアを改善する視点が重要である。", ok: false, exp: "これは正しい説明である。" },
+          { t: "利用者の状態に関する情報は、ケアの質改善に活用される。", ok: false, exp: "これは正しい説明である。" },
+          { t: "LIFE関連加算では、PDCAサイクルの視点が問われやすい。", ok: false, exp: "これは正しい説明である。" }
+        ]
+      }
+    ]
+  }
+];
+
+let round = [];
+let current = 0;
+let selected = null;
+let answered = false;
+let score = 0;
+let review = [];
+
+const quizArea = document.getElementById('quizArea');
+const finishArea = document.getElementById('finishArea');
+const countText = document.getElementById('countText');
+const scoreText = document.getElementById('scoreText');
+const bar = document.getElementById('bar');
+const categoryText = document.getElementById('categoryText');
+const questionText = document.getElementById('questionText');
+const choicesEl = document.getElementById('choices');
+const answerBtn = document.getElementById('answerBtn');
+const nextBtn = document.getElementById('nextBtn');
+const explainBox = document.getElementById('explainBox');
+const finalScore = document.getElementById('finalScore');
+const reviewEl = document.getElementById('review');
+
+function shuffle(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function validateBank() {
+  const errors = [];
+  questionBank.forEach((cat) => {
+    if (cat.questions.length !== 3) errors.push(cat.category + 'の問題数が3問ではありません。');
+    cat.questions.forEach((q, idx) => {
+      if (q.choices.length !== 5) errors.push(cat.category + ' 問題' + (idx + 1) + 'の選択肢が5つではありません。');
+      const correct = q.choices.filter(c => c.ok).length;
+      if (correct !== 1) errors.push(cat.category + ' 問題' + (idx + 1) + 'の正答数が1つではありません。');
+    });
+  });
+  return errors;
+}
+
+function buildRound() {
+  return questionBank.map(cat => {
+    const picked = shuffle(cat.questions)[0];
+    return {
+      category: cat.category,
+      q: picked.q,
+      choices: shuffle(picked.choices)
+    };
+  });
+}
+
+function start() {
+  const errors = validateBank();
+  if (errors.length) {
+    alert('問題データにエラーがあります。\n' + errors.join('\n'));
+    return;
+  }
+  round = buildRound();
+  current = 0;
+  selected = null;
+  answered = false;
+  score = 0;
+  review = [];
+  finishArea.style.display = 'none';
+  quizArea.classList.remove('hidden');
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestion() {
+  const item = round[current];
+  selected = null;
+  answered = false;
+  answerBtn.disabled = true;
+  answerBtn.classList.remove('hidden');
+  nextBtn.classList.add('hidden');
+  explainBox.className = 'explain hidden';
+  explainBox.innerHTML = '';
+
+  countText.textContent = `問${current + 1} / ${round.length}`;
+  scoreText.textContent = `${score}点`;
+  bar.style.width = `${(current / round.length) * 100}%`;
+  categoryText.textContent = item.category;
+  questionText.textContent = item.q;
+  choicesEl.innerHTML = '';
+
+  item.choices.forEach((choice, index) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'choice';
+    btn.innerHTML = `<span class="num">${index + 1}</span><span class="choice-text">${escapeHtml(choice.t)}<span class="marker hidden"></span></span>`;
+    btn.addEventListener('click', () => selectChoice(index));
+    choicesEl.appendChild(btn);
+  });
+}
+
+function selectChoice(index) {
+  if (answered) return;
+  selected = index;
+  answerBtn.disabled = false;
+  [...choicesEl.children].forEach((el, i) => {
+    el.classList.toggle('selected', i === index);
+  });
+}
+
+function answer() {
+  if (selected === null || answered) return;
+  answered = true;
+  const item = round[current];
+  const selectedChoice = item.choices[selected];
+  const correctIndex = item.choices.findIndex(c => c.ok);
+  const isCorrect = selectedChoice.ok;
+  if (isCorrect) score++;
+
+  [...choicesEl.children].forEach((el, i) => {
+    const marker = el.querySelector('.marker');
+    const choice = item.choices[i];
+    el.classList.remove('selected');
+    if (choice.ok) {
+      el.classList.add('correct');
+      marker.textContent = '正解';
+      marker.classList.remove('hidden');
+    } else if (i === selected) {
+      el.classList.add('wrong');
+      marker.textContent = '選択した回答';
+      marker.classList.remove('hidden');
+    } else {
+      el.classList.add('dim');
+    }
+  });
+
+  explainBox.className = 'explain ' + (isCorrect ? 'good' : 'bad');
+  explainBox.innerHTML = `
+    <div class="result-title ${isCorrect ? 'good' : 'bad'}">${isCorrect ? '正解' : '不正解'}</div>
+    <p><strong>正解：</strong>${correctIndex + 1}</p>
+    <p><strong>${isCorrect ? '解説' : '選んだ選択肢が誤りの理由'}：</strong>${escapeHtml(selectedChoice.exp)}</p>
+    ${isCorrect ? '' : `<p><strong>正答の解説：</strong>${escapeHtml(item.choices[correctIndex].exp)}</p>`}
+  `;
+  explainBox.classList.remove('hidden');
+
+  review.push({
+    q: item.q,
+    category: item.category,
+    ok: isCorrect,
+    selected: selected + 1,
+    correct: correctIndex + 1,
+    explanation: item.choices[correctIndex].exp
+  });
+
+  scoreText.textContent = `${score}点`;
+  answerBtn.classList.add('hidden');
+  nextBtn.textContent = current + 1 === round.length ? '結果へ' : '次の問題へ';
+  nextBtn.classList.remove('hidden');
+}
+
+function next() {
+  current++;
+  if (current >= round.length) {
+    finish();
+    return;
+  }
+  renderQuestion();
+  document.getElementById('questionTop').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function finish() {
+  quizArea.classList.add('hidden');
+  finishArea.style.display = 'block';
+  bar.style.width = '100%';
+  finalScore.textContent = `${score} / ${round.length}`;
+  reviewEl.innerHTML = review.map((r, i) => `
+    <div class="review-item">
+      <div class="small">問${i + 1}｜${escapeHtml(r.category)}｜${r.ok ? '正解' : '不正解'}</div>
+      <strong>${escapeHtml(r.q)}</strong>
+      <div class="small">選択：${r.selected}　正解：${r.correct}</div>
+      <div class="small">${escapeHtml(r.explanation)}</div>
+    </div>
+  `).join('');
+  finishArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>'"]/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[ch]));
+}
+
+document.getElementById('startBtn').addEventListener('click', start);
+document.getElementById('resetBtn').addEventListener('click', start);
+document.getElementById('retryBtn').addEventListener('click', start);
+answerBtn.addEventListener('click', answer);
+nextBtn.addEventListener('click', next);
+
+start();
+</script>
+</body>
+</html>

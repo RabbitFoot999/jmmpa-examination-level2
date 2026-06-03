@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DPC・出来高払い実践問題</title>
+  <style>
+    :root {
+      --bg:#101820; --panel:#172331; --panel2:#1d2b3a; --text:#e8edf2;
+      --muted:#aab6c2; --line:#314355; --accent:#8fb3d9; --gold:#c8a96a;
+      --ok:#77c593; --okbg:#173826; --ng:#e08a8a; --ngbg:#3b1f24;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; min-height:100vh; color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+      line-height:1.7;
+      background:radial-gradient(circle at top left,rgba(143,179,217,.16),transparent 34rem),linear-gradient(180deg,#0d141b,var(--bg));
+    }
+    .wrap { width:min(920px,100%); margin:0 auto; padding:16px 12px 40px; }
+    header,.card,.result {
+      background:rgba(23,35,49,.96); border:1px solid var(--line); border-radius:18px;
+      padding:18px; box-shadow:0 12px 28px rgba(0,0,0,.32);
+    }
+    header { margin-bottom:12px; }
+    .sub { color:var(--gold); font-weight:800; font-size:.86rem; margin:0 0 4px; }
+    h1 { font-size:clamp(1.35rem,5vw,2rem); margin:0 0 8px; line-height:1.35; }
+    .desc,.hint,.meta,.foot { color:var(--muted); }
+    .desc { margin:0; font-size:.95rem; }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0; }
+    .stat { background:rgba(29,43,58,.92); border:1px solid var(--line); border-radius:14px; padding:10px 12px; }
+    .stat small { display:block; color:var(--muted); font-size:.78rem; }
+    .stat b { display:block; font-size:1.1rem; }
+    .meta { display:flex; justify-content:space-between; gap:10px; font-size:.86rem; margin-bottom:10px; }
+    .pill { color:var(--accent); border:1px solid var(--line); background:var(--panel2); border-radius:999px; padding:2px 10px; font-weight:800; }
+    h2 { font-size:clamp(1.05rem,4vw,1.32rem); margin:0 0 6px; white-space:pre-line; line-height:1.65; }
+    .hint { margin:0 0 12px; font-size:.92rem; }
+    .choices { display:grid; gap:10px; }
+    .choice {
+      width:100%; border:1px solid var(--line); background:#111b25; color:var(--text);
+      border-radius:14px; padding:12px; text-align:left; font-size:1rem; line-height:1.65;
+      white-space:pre-line; cursor:pointer;
+    }
+    .choice:hover { border-color:#526a82; }
+    .choice.selected { background:#213247; border-color:var(--accent); }
+    .choice.correct { background:var(--okbg); border-color:var(--ok); }
+    .choice.wrong { background:var(--ngbg); border-color:var(--ng); }
+    .actions { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+    .action {
+      border:1px solid var(--line); border-radius:12px; padding:10px 16px;
+      font-weight:800; font-size:.98rem; cursor:pointer;
+    }
+    #answerBtn { background:var(--accent); color:#08111a; border-color:var(--accent); }
+    #nextBtn,#retryBtn { background:#243446; color:var(--text); }
+    button:disabled { opacity:.42; cursor:not-allowed; }
+    .explain {
+      display:none; margin-top:14px; padding:13px; border-radius:14px;
+      border:1px solid var(--line); background:#111b25;
+    }
+    .explain.show { display:block; }
+    .explain h3 { margin:0 0 8px; font-size:1.08rem; }
+    .ok { color:var(--ok); } .ng { color:var(--ng); }
+    .explain p { margin:8px 0 0; white-space:pre-line; }
+    .explain b { color:var(--gold); }
+    .result { display:none; }
+    .result.show { display:block; }
+    .resultItem { border:1px solid var(--line); border-radius:12px; padding:10px; background:#111b25; margin-top:8px; }
+    .foot { text-align:center; font-size:.82rem; margin-top:14px; }
+    @media(max-width:520px) {
+      .wrap { padding:12px 10px 32px; }
+      header,.card,.result { padding:15px; border-radius:16px; }
+      .stats { grid-template-columns:1fr; }
+      .choice { font-size:.96rem; }
+      .actions .action { flex:1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="top">
+    <header>
+      <p class="sub">医療経営士2級 専門分野</p>
+      <h1>DPC・出来高払い実践問題</h1>
+      <p class="desc">DPC/PDPS、包括評価と出来高評価、DPCコード、入院期間、医療機関別係数、機能評価係数Ⅰ・Ⅱ、DPC参加基準を確認します。12カテゴリから各1問をランダム出題します。</p>
+    </header>
+
+    <div class="stats">
+      <div class="stat"><small>進捗</small><b id="progress">1 / 12</b></div>
+      <div class="stat"><small>正答数</small><b id="score">0 / 0</b></div>
+    </div>
+
+    <main class="card" id="quizBox">
+      <div class="meta"><span class="pill" id="qNo">第1問</span><span id="cat">カテゴリ</span></div>
+      <h2 id="prompt"></h2>
+      <p class="hint" id="hint"></p>
+      <div class="choices" id="choices"></div>
+      <div class="actions">
+        <button class="action" id="answerBtn">回答</button>
+        <button class="action" id="nextBtn" disabled>次へ</button>
+      </div>
+      <section class="explain" id="explain"></section>
+    </main>
+
+    <section class="result" id="resultBox">
+      <h2>結果</h2>
+      <p id="finalScore"></p>
+      <p>間違えたカテゴリは、包括・出来高、機能評価係数Ⅰ・Ⅱ、旧制度の係数名、DPC参加基準を重点的に復習してください。</p>
+      <button class="action" id="retryBtn">再チャレンジ</button>
+      <div id="resultList"></div>
+    </section>
+
+    <p class="foot">夜間学習向けの暗めの配色です。GitHub Pagesにそのままアップロードできます。</p>
+  </div>
+
+  <script>
+    const questionPool = [
+  {
+    category: "DPC/PDPSの基本構造",
+    questions: [
+      {
+        prompt: "DPC/PDPSの仕組みについて、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "DPC/PDPSは、診断群分類に基づく1日当たり定額報酬算定制度である。", correct: true, explanation: "DPC/PDPSは、診断群分類ごとに設定された1日当たり包括点数を基本として算定する制度である。" },
+          { text: "DPC/PDPSでは、入院基本料、投薬、注射、画像診断、検体検査に加え、内視鏡検査や心臓カテーテル検査も原則として包括評価される。", correct: false, explanation: "内視鏡検査や心臓カテーテル検査は出来高評価として整理されるため、すべての検査が包括評価されるわけではない。" },
+          { text: "日本のDPC/PDPSは、米国のDRG/PPSと同じく、1入院当たり定額払い方式として整理される。", correct: false, explanation: "米国のDRG/PPSは1件当たり定額払い、日本のDPC/PDPSは1日当たり定額報酬算定制度として整理される。" },
+          { text: "DPC/PDPSでは、包括評価部分と出来高評価部分が併存している。", correct: true, explanation: "DPC/PDPSでは、包括評価される項目と、手術・麻酔・リハビリテーション料など出来高評価される項目が併存する。" },
+          { text: "DPC/PDPSでは、診断群分類にかかわらず、医療機関ごとに同一の1日当たり包括点数が設定される。", correct: false, explanation: "1日当たり包括点数は診断群分類ごとに設定され、さらに医療機関別係数を乗じて算定される。" }
+        ],
+        explanation: "DPC/PDPSは、診断群分類に基づく1日当たり包括評価を基本とするが、すべてが包括評価になるわけではない。米国のDRG/PPSとの違いも頻出である。"
+      },
+      {
+        prompt: "DPC/PDPSと出来高払いの比較について、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "出来高払いでは、実施した診療行為ごとに点数が積み上がる。", correct: true, explanation: "出来高払いは、検査、処置、投薬など実施した診療行為ごとに診療報酬が積み上がる方式である。" },
+          { text: "DPC/PDPSでは、包括評価部分について、医療資源投入量が増えるほど同じ割合で収入も増える。", correct: false, explanation: "包括評価部分では、医療資源投入量を増やしても、その分だけ収入が増えるわけではない。" },
+          { text: "DPC/PDPSでは、包括評価部分と出来高評価部分を分けて収益管理する視点が重要となる。", correct: true, explanation: "DPC病院では、包括部分のコスト管理と、出来高で残る手術・麻酔等の収益構造を分けて考える必要がある。" },
+          { text: "出来高払いでは、診療行為を追加しても、原則として診療報酬は診断群分類ごとの定額に固定される。", correct: false, explanation: "これはDPC/PDPSの包括評価部分に近い説明であり、出来高払いの説明ではない。" },
+          { text: "DPC/PDPSは、外来診療の初診料・再診料を診断群分類ごとに包括する制度である。", correct: false, explanation: "DPC/PDPSは主に急性期入院医療に関する支払方式であり、外来初再診料を包括する制度ではない。" }
+        ],
+        explanation: "出来高払いは『実施した分だけ積み上がる』、DPC/PDPSは『包括部分では収入が一定程度決まる』という違いが基本である。"
+      },
+      {
+        prompt: "日本のDPC/PDPSと米国のDRG/PPSに関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "日本のDPC/PDPSは1日当たり定額、米国のDRG/PPSは1件当たり定額として整理される。", correct: true, explanation: "日本のDPC/PDPSは1日当たり定額報酬算定制度、米国のDRG/PPSは1件当たり定額払い方式である。" },
+          { text: "日本のDPC/PDPSは1件当たり定額、米国のDRG/PPSは1日当たり定額として整理される。", correct: false, explanation: "説明が逆である。" },
+          { text: "日本のDPC/PDPSも米国のDRG/PPSも、医師への技術料を除いて外来診療だけに適用される。", correct: false, explanation: "いずれも外来診療だけに適用される制度ではない。" },
+          { text: "米国のDRG/PPSは日本のDPC/PDPSを参考に、診療群分類ごとの1日当たり定額払いとして導入された。", correct: false, explanation: "米国のDRG/PPSは1件当たり定額払いであり、日本のDPC/PDPSとは支払い単位が異なる。" },
+          { text: "日本のDPC/PDPSでは、医療機関別係数を用いず、すべてのDPC対象病院に同一の包括点数が適用される。", correct: false, explanation: "日本のDPC/PDPSでは、診断群分類ごとの点数に医療機関別係数を乗じる。" }
+        ],
+        explanation: "比較問題では、日本のDPC/PDPS＝1日当たり定額、米国のDRG/PPS＝1件当たり定額という対比を押さえる。"
+      }
+    ]
+  },
+  {
+    category: "包括評価と出来高評価",
+    questions: [
+      {
+        prompt: "DPC/PDPSにおける包括評価・出来高評価の組み合わせとして、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "包括評価：入院基本料、投薬、注射\n出来高評価：手術、麻酔、リハビリテーション料", correct: true, explanation: "入院基本料、投薬、注射は包括評価に含まれやすく、手術、麻酔、リハビリテーション料は出来高評価される代表例である。" },
+          { text: "包括評価：手術、麻酔、画像診断\n出来高評価：投薬、注射、入院基本料", correct: false, explanation: "手術・麻酔は出来高評価であり、投薬・注射・入院基本料は包括評価側で整理される。" },
+          { text: "包括評価：内視鏡検査、心臓カテーテル検査\n出来高評価：検体検査、画像診断", correct: false, explanation: "内視鏡検査や心臓カテーテル検査は出来高評価であり、検体検査や画像診断は包括評価に含まれやすい。" },
+          { text: "包括評価：リハビリテーション料、1000点未満の処置\n出来高評価：医療安全対策加算、診療録管理体制加算", correct: false, explanation: "リハビリテーション料は出来高評価であり、医療安全対策加算や診療録管理体制加算は包括評価側で整理される。" },
+          { text: "包括評価：特定疾患に対する計画的な指導管理\n出来高評価：急性期看護補助体制加算、医師事務作業補助体制加算", correct: false, explanation: "特定疾患に対する計画的な指導管理は出来高評価として整理され、急性期看護補助体制加算や医師事務作業補助体制加算は包括評価側で整理される。" }
+        ],
+        explanation: "DPCでは、入院管理・投薬・注射・画像診断・検体検査などは包括評価、手術・麻酔・リハビリテーション料・内視鏡検査・心臓カテーテル検査などは出来高評価として押さえる。"
+      },
+      {
+        prompt: "DPC/PDPSにおいて出来高評価されるものとして、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "心臓カテーテル検査", correct: true, explanation: "心臓カテーテル検査は出来高評価される代表例である。" },
+          { text: "内視鏡検査", correct: true, explanation: "内視鏡検査は出来高評価される代表例である。" },
+          { text: "入院基本料", correct: false, explanation: "入院基本料は包括評価側に含まれる代表例である。" },
+          { text: "投薬", correct: false, explanation: "投薬は包括評価に含まれやすい。" },
+          { text: "医療安全対策加算", correct: false, explanation: "医療安全対策加算は包括評価側、機能評価係数Ⅰ側で整理される。" }
+        ],
+        explanation: "『検査はすべて包括』ではない。内視鏡検査と心臓カテーテル検査は出来高評価として問われやすい。"
+      },
+      {
+        prompt: "DPC/PDPSの包括対象と出来高対象に関する記述として、適切でないものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "内視鏡検査や心臓カテーテル検査は、検査に分類されるため包括評価に含めて整理する。", correct: true, explanation: "これが誤り。内視鏡検査や心臓カテーテル検査は出来高評価として整理される。" },
+          { text: "入院基本料、投薬、注射は包括評価に含まれやすい。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "手術や麻酔は出来高評価される代表例である。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "リハビリテーション料は出来高評価として整理される。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "医療安全対策加算や診療録管理体制加算は、DPC包括評価側で整理される。", correct: false, explanation: "これは正しい記述である。" }
+        ],
+        explanation: "設問は『適切でないもの』を選ぶ問題。検査の中でも、内視鏡検査・心臓カテーテル検査は出来高評価として残る点が重要である。"
+      }
+    ]
+  },
+  {
+    category: "出来高病院とDPC病院の損益管理",
+    questions: [
+      {
+        prompt: "出来高病院とDPC病院の損益管理について、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "出来高病院では、診療行為を積み上げることで医業収益を増加させる管理が重要となる。", correct: true, explanation: "出来高病院では、行為ごとに診療報酬が積み上がるため、医業収益の増加が重要となる。" },
+          { text: "DPC病院では、包括評価部分の収入が一定程度決まるため、薬剤費・材料費・在院日数などの管理が重要となる。", correct: true, explanation: "DPC病院では、包括収入が一定程度決まるため、コスト管理や在院日数管理が重要になる。" },
+          { text: "出来高病院では、医療資源投入量が増えても医業収益は原則として変化しない。", correct: false, explanation: "出来高払いでは、診療行為の積み上げにより医業収益が増加しやすい。" },
+          { text: "DPC病院では、包括評価部分であっても検査や投薬を増やすほど収入が同じ割合で増加する。", correct: false, explanation: "包括評価部分では、検査や投薬を増やしてもその分だけ収入が増えるわけではない。" },
+          { text: "DPC病院では、出来高評価項目が残らないため、手術件数やリハビリ実施量は収益管理と関係しない。", correct: false, explanation: "手術やリハビリテーション料は出来高評価されるため、収益管理と関係する。" }
+        ],
+        explanation: "出来高病院は収益の積み上げ、DPC病院は包括部分のコスト管理・在院日数管理が重要である。"
+      },
+      {
+        prompt: "DPC病院の損益管理に関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "包括評価部分では収入が一定程度決まるため、薬剤・材料・検査等の投入量が過大になると利益を圧迫しやすい。", correct: true, explanation: "DPC病院では、包括評価部分の収入が一定程度決まるため、過大な医療資源投入は利益を圧迫しやすい。" },
+          { text: "DPC病院では、材料費率の上昇は医業収益の増加によって自動的に補填されるため、材料費管理の重要性は低い。", correct: false, explanation: "包括部分では材料費が増えても収入が同じ割合で増えるわけではないため、材料費管理は重要である。" },
+          { text: "DPC病院では、出来高評価される項目がないため、症例構成よりも外来再診回数の管理が入院収益管理の中心となる。", correct: false, explanation: "DPCでも出来高評価項目は残る。また、入院収益管理では症例構成や在院日数、医療資源投入量が重要となる。" },
+          { text: "DPC病院では、在院日数が延びるほど1日当たり包括点数が高くなるため、長期入院により収益性が高まる。", correct: false, explanation: "一般に、入院期間が進むにつれて1日当たり点数は低下する。" },
+          { text: "DPC病院では、包括評価部分の収入が診断群分類にかかわらず一定であるため、診療密度の高い症例ほど利益が出やすい。", correct: false, explanation: "診療密度が高い症例はコストも高くなりやすく、診断群分類や医療資源投入量に応じた管理が必要である。" }
+        ],
+        explanation: "DPC病院では、包括収入とコストの差が収益性に影響する。出来高病院とは損益管理の視点が異なる。"
+      },
+      {
+        prompt: "出来高病院・DPC病院の管理会計上の特徴について、最も適切な組み合わせを1つ選べ。\nア 出来高病院で重視されやすい管理\nイ DPC病院で重視されやすい管理",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "ア 医業収益の増加\nイ 変動費・固定費、在院日数の管理", correct: true, explanation: "出来高病院では医業収益の増加、DPC病院ではコスト削減や在院日数管理が重要になりやすい。" },
+          { text: "ア 変動費・固定費、在院日数の管理\nイ 医業収益の積み上げのみ", correct: false, explanation: "出来高病院とDPC病院の重点が逆になっている。" },
+          { text: "ア 医業収益の増加\nイ 包括対象の投薬・注射の実施回数を増やす管理", correct: false, explanation: "DPCでは、包括対象の投薬・注射を増やしてもその分だけ収入が増えるわけではない。" },
+          { text: "ア 診療行為を抑制して材料費を固定化する管理\nイ 出来高評価項目をすべて包括化する管理", correct: false, explanation: "出来高病院では診療行為の積み上げが収益増につながりやすく、DPC病院で出来高評価項目をすべて包括化するわけではない。" },
+          { text: "ア 医療機関別係数の見直し\nイ 患者自己負担割合の調整", correct: false, explanation: "医療機関別係数や自己負担割合の調整は、個別病院の管理会計上の中心論点ではない。" }
+        ],
+        explanation: "予想問題集では、損益分岐点図表を用いて出来高病院とDPC病院の違いを問う形式が出ている。"
+      }
+    ]
+  },
+  {
+    category: "DPCの入院期間Ⅰ〜Ⅲ",
+    questions: [
+      {
+        prompt: "DPCの入院期間Ⅰ〜Ⅲについて、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "入院期間Ⅰは、入院初期の医療資源投入量が多い時期を反映し、1日当たり点数が高く設定されやすい。", correct: true, explanation: "入院初期は検査・治療等の医療資源投入量が多いため、期間Ⅰは高めの点数に設定されやすい。" },
+          { text: "入院期間Ⅱは、DPC対象病院全体の在院日数の中央値に相当する。", correct: true, explanation: "入院期間Ⅱは、DPC対象病院全体の在院日数の中央値に相当するものとして整理される。" },
+          { text: "入院期間Ⅱは、すべてのDPC分類で一律に14日とされる。", correct: false, explanation: "入院期間ⅡはDPC分類ごとに設定され、一律14日ではない。" },
+          { text: "入院期間Ⅲでは、入院期間Ⅰよりも1日当たり点数が高く設定されるのが原則である。", correct: false, explanation: "一般に、入院期間が長くなるにつれて1日当たり点数は低下する。" },
+          { text: "入院期間Ⅱは、医療機関ごとの直近1か月の平均在院日数により毎月決定される。", correct: false, explanation: "医療機関ごとの直近1か月の平均在院日数で毎月決定されるものではない。" }
+        ],
+        explanation: "DPCの期間は、期間Ⅰ＝入院初期、期間Ⅱ＝標準的な在院日数の目安、期間Ⅲ＝長期化した期間として理解する。"
+      },
+      {
+        prompt: "DPCの入院期間Ⅱに関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "多くの診断群分類では、平均在院日数が中央値を上回っていた実態を踏まえ、入院期間Ⅱを平均在院日数から中央値へ見直す方向で整理されている。", correct: true, explanation: "長期入院の影響を受けやすい平均値ではなく、中央値を用いる方向で整理されている。" },
+          { text: "入院期間Ⅱは、DPC対象病院のうち大学病院本院群の平均在院日数だけを用いて設定される。", correct: false, explanation: "大学病院本院群だけの平均在院日数で設定されるものではない。" },
+          { text: "入院期間Ⅱは、急性期一般入院料1を算定する病棟では常に7日とされる。", correct: false, explanation: "入院期間ⅡはDPC分類ごとに設定されるものであり、入院料だけで常に7日とされるわけではない。" },
+          { text: "入院期間Ⅱは、期間Ⅲを超えた患者の出来高実績点数から逆算して設定される。", correct: false, explanation: "期間Ⅲ超の出来高実績点数から逆算して設定されるものではない。" },
+          { text: "入院期間Ⅱは、医療機関別係数のうち救急補正係数の値によって病院ごとに変動する。", correct: false, explanation: "入院期間Ⅱは病院ごとの救急補正係数で変動するものではない。" }
+        ],
+        explanation: "『平均在院日数』と『中央値』の混同が狙われやすい。現在の整理では中央値が重要である。"
+      },
+      {
+        prompt: "DPC病院において在院日数管理が重要となる理由として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "入院期間が長くなると1日当たり包括点数が低下しやすく、病床回転や退院支援にも影響するため。", correct: true, explanation: "DPCでは、入院期間が進むにつれて1日当たり点数が低下しやすく、病床運用や退院支援が重要となる。" },
+          { text: "入院日数が長くなるほど、DPCの1日当たり包括点数は原則として上昇するため。", correct: false, explanation: "一般に、入院が長くなるほど1日当たり点数は低下する。" },
+          { text: "入院期間Ⅲに入ると、手術・麻酔・リハビリテーション料が包括評価へ変更されるため。", correct: false, explanation: "手術・麻酔・リハビリテーション料は出来高評価として整理される。" },
+          { text: "DPCでは、退院支援や転院調整を行うと医療機関別係数が直ちに引き下げられるため。", correct: false, explanation: "退院支援や転院調整を行うと直ちに医療機関別係数が引き下げられるわけではない。" },
+          { text: "DPCでは、在院日数が長くなるほど入院基本料が出来高で上乗せされるため。", correct: false, explanation: "DPC包括部分の基本的な構造とは異なる。" }
+        ],
+        explanation: "DPC病院では、医療の質を保ちつつ、適切な退院支援・転院調整により在院日数を管理する視点が重要である。"
+      }
+    ]
+  },
+  {
+    category: "DPCコードとMDC",
+    questions: [
+      {
+        prompt: "DPCコードとMDCについて、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "DPCコードは14桁で構成される。", correct: true, explanation: "DPCコードは14桁で構成される。" },
+          { text: "DPCコードの最初の6桁がDPC傷病分類であり、そのうち最初の2桁がMDCである。", correct: true, explanation: "最初の2桁がMDC、最初の6桁がDPC傷病分類である。" },
+          { text: "MDCは医療機関別係数の一部であり、病院ごとの機能を評価する係数である。", correct: false, explanation: "MDCは主要診断群であり、医療機関別係数の一部ではない。" },
+          { text: "DPCコードでは、手術、処置、副傷病などの情報は反映されない。", correct: false, explanation: "DPCコードには、手術、処置、副傷病などの情報も反映される。" },
+          { text: "MDCは診断群分類ではなく、患者の自己負担割合を示す分類である。", correct: false, explanation: "MDCは主要診断群であり、自己負担割合を示す分類ではない。" }
+        ],
+        explanation: "DPCコードは14桁、最初の2桁がMDC、最初の6桁がDPC傷病分類である。"
+      },
+      {
+        prompt: "DPCコード『050030xx03x0xx』の読み方に関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "先頭の05はMDCであり、循環器系疾患を示す。", correct: true, explanation: "DPCコードの先頭2桁はMDCであり、05は循環器系疾患を示す。" },
+          { text: "先頭の05は外傷・熱傷・中毒を示す。", correct: false, explanation: "外傷・熱傷・中毒はMDC16である。" },
+          { text: "050030は医療機関別係数を示す。", correct: false, explanation: "050030はDPC傷病分類であり、医療機関別係数ではない。" },
+          { text: "03は基礎係数の区分を示す。", correct: false, explanation: "03は手術分類に関係する部分であり、基礎係数の区分ではない。" },
+          { text: "xは包括対象外であることを示す記号であり、出来高算定の対象を意味する。", correct: false, explanation: "xは該当する分類項目がない場合などに用いられる記号であり、包括対象外を意味するものではない。" }
+        ],
+        explanation: "DPCコードは、MDC、傷病分類、手術、処置、副傷病等の情報を組み合わせて読む。"
+      },
+      {
+        prompt: "MDCと疾患例の組み合わせとして、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "MDC05：循環器系疾患、急性心筋梗塞や狭心症など", correct: true, explanation: "MDC05は循環器系疾患であり、急性心筋梗塞や狭心症などが該当する。" },
+          { text: "MDC05：呼吸器系疾患、肺炎やCOPDなど", correct: false, explanation: "呼吸器系疾患はMDC04である。" },
+          { text: "MDC06：神経系疾患、脳梗塞やてんかんなど", correct: false, explanation: "神経系疾患はMDC01である。" },
+          { text: "MDC01：消化器系疾患、胃がんや大腸がんなど", correct: false, explanation: "消化器系疾患、肝臓・胆道・膵臓疾患はMDC06である。" },
+          { text: "MDC16：内分泌・栄養・代謝に関する疾患、糖尿病など", correct: false, explanation: "外傷・熱傷・中毒がMDC16であり、糖尿病はMDC10で整理される。" }
+        ],
+        explanation: "DPCコードの問題では2桁コードが問われる可能性は高くないが、コードの読み方を理解するうえで05＝循環器系疾患などは押さえておく。"
+      }
+    ]
+  },
+  {
+    category: "MDC分類と疾患例",
+    questions: [
+      {
+        prompt: "MDCの分類名と具体的な疾患例の組み合わせとして、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "神経系疾患：脳梗塞、てんかん\n呼吸器系疾患：肺炎、COPD\n循環器系疾患：急性心筋梗塞、狭心症", correct: true, explanation: "脳梗塞・てんかんは神経系疾患、肺炎・COPDは呼吸器系疾患、急性心筋梗塞・狭心症は循環器系疾患である。" },
+          { text: "神経系疾患：肺炎、COPD\n呼吸器系疾患：急性心筋梗塞、狭心症\n循環器系疾患：脳梗塞、てんかん", correct: false, explanation: "神経、呼吸器、循環器の疾患例が入れ替わっている。" },
+          { text: "呼吸器系疾患：大腸がん、胃がん\n消化器系疾患、肝臓・胆道・膵臓疾患：肺炎、COPD\n循環器系疾患：狭心症", correct: false, explanation: "大腸がん・胃がんは消化器系疾患、肺炎・COPDは呼吸器系疾患である。" },
+          { text: "血液・造血器・免疫臓器の疾患：糖尿病\n内分泌・栄養・代謝に関する疾患：急性白血病\n外傷・熱傷・中毒：大腿骨近位部骨折", correct: false, explanation: "糖尿病は内分泌・栄養・代謝に関する疾患、急性白血病は血液・造血器・免疫臓器の疾患である。" },
+          { text: "小児疾患：小児の急性白血病\n呼吸器系疾患：脳梗塞\n外傷・熱傷・中毒：大腸がん", correct: false, explanation: "小児の急性白血病であっても血液・造血器系で整理される。脳梗塞は神経系、大腸がんは消化器系である。" }
+        ],
+        explanation: "試験では2桁コードそのものより、分類名と疾患例の入れ替えが狙われやすい。"
+      },
+      {
+        prompt: "MDCの分類名と疾患例に関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "小児の急性白血病であっても、疾患の性質から血液・造血器・免疫臓器の疾患として整理される。", correct: true, explanation: "急性白血病は血液・造血器系の疾患であり、小児であっても小児疾患に機械的に分類されるわけではない。" },
+          { text: "小児患者の疾患は、主たる病態にかかわらず小児疾患として分類される。", correct: false, explanation: "小児だからすべて小児疾患になるわけではない。主たる疾患分類が重要である。" },
+          { text: "糖尿病は腎・尿路系疾患及び男性生殖器系疾患として分類される。", correct: false, explanation: "糖尿病は内分泌・栄養・代謝に関する疾患として整理される。" },
+          { text: "肺炎は循環器系疾患、狭心症は呼吸器系疾患として分類される。", correct: false, explanation: "肺炎は呼吸器系疾患、狭心症は循環器系疾患である。" },
+          { text: "薬物中毒は消化器系疾患、肝臓・胆道・膵臓疾患として分類される。", correct: false, explanation: "薬物中毒は外傷・熱傷・中毒として整理される。" }
+        ],
+        explanation: "MDCは年齢ではなく主たる疾患の系統で整理する。『小児＝小児疾患』という単純な判断は避ける。"
+      },
+      {
+        prompt: "MDCの分類名と具体的疾患例の対応について、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "消化器系疾患、肝臓・胆道・膵臓疾患：胃がん、大腸がん、膵炎", correct: true, explanation: "胃がん・大腸がん・膵炎は、消化器系疾患、肝臓・胆道・膵臓疾患として整理される。" },
+          { text: "外傷・熱傷・中毒：大腿骨近位部骨折、薬物中毒", correct: true, explanation: "大腿骨近位部骨折や薬物中毒は、外傷・熱傷・中毒として整理される。" },
+          { text: "内分泌・栄養・代謝に関する疾患：急性白血病、悪性リンパ腫", correct: false, explanation: "急性白血病や悪性リンパ腫は、血液・造血器・免疫臓器の疾患として整理される。" },
+          { text: "腎・尿路系疾患及び男性生殖器系疾患：糖尿病、甲状腺機能亢進症", correct: false, explanation: "糖尿病や甲状腺機能亢進症は、内分泌・栄養・代謝に関する疾患として整理される。" },
+          { text: "呼吸器系疾患：脳梗塞、てんかん", correct: false, explanation: "脳梗塞やてんかんは神経系疾患である。" }
+        ],
+        explanation: "消化器系、外傷・熱傷・中毒、内分泌、血液、神経の入れ替えに注意する。"
+      }
+    ]
+  },
+  {
+    category: "医療機関別係数",
+    questions: [
+      {
+        prompt: "DPC/PDPSにおける医療機関別係数について、適切な組み合わせを1つ選べ。\nア 医療機関群ごとに設定される基本的な係数\nイ 入院基本料や入院基本料等加算などを係数化したもの\nウ DPCデータ等に基づき、効率性、複雑性、カバー率、地域医療への貢献などを評価するもの\nエ 救急入院初期の医療資源投入の乖離を補正するもの",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "ア 基礎係数　イ 機能評価係数Ⅰ　ウ 機能評価係数Ⅱ　エ 救急補正係数", correct: true, explanation: "医療機関別係数は、基礎係数、機能評価係数Ⅰ、機能評価係数Ⅱ、救急補正係数で整理される。" },
+          { text: "ア 機能評価係数Ⅰ　イ 基礎係数　ウ 救急補正係数　エ 機能評価係数Ⅱ", correct: false, explanation: "基礎係数と機能評価係数Ⅰ、機能評価係数Ⅱ、救急補正係数の対応が入れ替わっている。" },
+          { text: "ア 基礎係数　イ 機能評価係数Ⅱ　ウ 機能評価係数Ⅰ　エ 救急補正係数", correct: false, explanation: "入院基本料等加算は機能評価係数Ⅰ、DPCデータ等に基づく評価は機能評価係数Ⅱである。" },
+          { text: "ア 救急補正係数　イ 機能評価係数Ⅰ　ウ 基礎係数　エ 機能評価係数Ⅱ", correct: false, explanation: "医療機関群ごとの基本的な係数は基礎係数であり、救急入院初期の補正が救急補正係数である。" },
+          { text: "ア 基礎係数　イ 保険診療係数　ウ 機能評価係数Ⅱ　エ 救急医療係数", correct: false, explanation: "保険診療係数は廃止され、救急医療係数は救急補正係数として整理されている。" }
+        ],
+        explanation: "医療機関別係数全体の構成と、機能評価係数Ⅱの内訳を混同しないことが重要である。"
+      },
+      {
+        prompt: "DPCの包括部分の計算イメージとして、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "診断群分類ごとの1日当たり点数 × 医療機関別係数 × 入院日数", correct: true, explanation: "DPC包括部分は、診断群分類ごとの1日当たり点数に医療機関別係数を乗じ、入院日数に応じて算定するイメージである。" },
+          { text: "手術料 × 医療機関別係数 × 外来患者数", correct: false, explanation: "手術料は出来高評価であり、この式はDPC包括部分の計算ではない。" },
+          { text: "初診料 × 地域医療係数 × 再診回数", correct: false, explanation: "DPC包括部分の計算イメージではない。" },
+          { text: "患者自己負担額 × 保険診療係数 × 救急医療係数", correct: false, explanation: "自己負担額から算定するものではなく、保険診療係数は廃止、救急医療係数は救急補正係数として整理されている。" },
+          { text: "出来高実績点数 × カバー率係数 × 外来管理加算", correct: false, explanation: "DPC包括部分の基本的な計算イメージではない。" }
+        ],
+        explanation: "DPC包括部分は、1日当たり点数、医療機関別係数、入院日数の関係で理解する。"
+      },
+      {
+        prompt: "医療機関別係数に関する記述として、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "同じDPC分類でも、病院ごとの機能や役割の違いを包括点数に反映するために用いられる。", correct: true, explanation: "医療機関別係数は、病院ごとの機能、体制、実績の違いをDPC包括点数に反映する係数である。" },
+          { text: "医療機関別係数には、基礎係数、機能評価係数Ⅰ、機能評価係数Ⅱ、救急補正係数が含まれる。", correct: true, explanation: "現在の整理では、この4つで医療機関別係数を構成する。" },
+          { text: "医療機関別係数は、患者の自己負担割合を決定するために用いられる。", correct: false, explanation: "自己負担割合を決める係数ではない。" },
+          { text: "医療機関別係数は、すべてのDPC対象病院で同一の値として設定される。", correct: false, explanation: "医療機関別係数は病院ごとの機能や実績により異なる。" },
+          { text: "医療機関別係数は、出来高評価項目の点数を補正するために用いられる。", correct: false, explanation: "医療機関別係数はDPC包括部分に関係する係数である。" }
+        ],
+        explanation: "医療機関別係数は、DPC包括点数に病院ごとの違いを反映する補正係数である。"
+      }
+    ]
+  },
+  {
+    category: "機能評価係数Ⅰ・Ⅱ",
+    questions: [
+      {
+        prompt: "機能評価係数Ⅰ・Ⅱに関する記述として、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "急性期看護補助体制加算や医療安全対策加算は、機能評価係数Ⅰに関係する。", correct: true, explanation: "急性期看護補助体制加算や医療安全対策加算は、入院基本料等加算として機能評価係数Ⅰ側で整理される。" },
+          { text: "効率性係数、複雑性係数、カバー率係数、地域医療係数は、機能評価係数Ⅱに関係する。", correct: true, explanation: "現在の機能評価係数Ⅱは、効率性、複雑性、カバー率、地域医療の4項目として整理される。" },
+          { text: "急性期看護補助体制加算や診療録管理体制加算は、機能評価係数Ⅱの地域医療係数として評価される。", correct: false, explanation: "急性期看護補助体制加算や診療録管理体制加算は機能評価係数Ⅰ側で整理される。" },
+          { text: "機能評価係数Ⅰは、DPCデータに基づく効率性や複雑性を評価する係数である。", correct: false, explanation: "DPCデータに基づく効率性や複雑性は、機能評価係数Ⅱ側の説明である。" },
+          { text: "機能評価係数Ⅱは、入院基本料や入院基本料等加算を包括評価に反映するための係数である。", correct: false, explanation: "入院基本料や入院基本料等加算を係数化するのは機能評価係数Ⅰ側である。" }
+        ],
+        explanation: "機能評価係数Ⅰ＝届出・体制評価、機能評価係数Ⅱ＝DPCデータ等に基づく実績評価として整理する。"
+      },
+      {
+        prompt: "機能評価係数Ⅰに関係するものとして、最も適切な組み合わせを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "急性期看護補助体制加算・医療安全対策加算・診療録管理体制加算", correct: true, explanation: "これらは機能評価係数Ⅰに関係する代表例である。" },
+          { text: "効率性係数・複雑性係数・カバー率係数", correct: false, explanation: "これらは機能評価係数Ⅱの項目である。" },
+          { text: "保険診療係数・救急医療係数・後発医薬品係数", correct: false, explanation: "保険診療係数は廃止、救急医療係数は救急補正係数として整理されている。" },
+          { text: "患者自己負担割合・高額療養費・保険者番号", correct: false, explanation: "機能評価係数Ⅰの項目ではない。" },
+          { text: "外来管理加算・時間外対応加算・地域包括診療加算", correct: false, explanation: "外来診療に関する加算が中心であり、DPCの機能評価係数Ⅰの代表例としては不適切である。" }
+        ],
+        explanation: "機能評価係数Ⅰでは、入院基本料や入院基本料等加算など、届出体制に関する項目を押さえる。"
+      },
+      {
+        prompt: "機能評価係数Ⅰと機能評価係数Ⅱの区別に関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "機能評価係数Ⅰは届出体制や入院基本料等加算、機能評価係数ⅡはDPCデータに基づく実績評価として整理される。", correct: true, explanation: "機能評価係数Ⅰは体制評価、機能評価係数ⅡはDPCデータ等に基づく実績評価と整理できる。" },
+          { text: "機能評価係数Ⅰは効率性、複雑性、カバー率、地域医療のみで構成される。", correct: false, explanation: "これは機能評価係数Ⅱの説明である。" },
+          { text: "機能評価係数Ⅱは、入院基本料等加算を個別に係数化するための仕組みである。", correct: false, explanation: "入院基本料等加算は機能評価係数Ⅰ側で整理される。" },
+          { text: "機能評価係数ⅠとⅡは名称が異なるだけで、どちらも病院群別の基礎係数を意味する。", correct: false, explanation: "基礎係数、機能評価係数Ⅰ、機能評価係数Ⅱはそれぞれ別の構成要素である。" },
+          { text: "機能評価係数Ⅰは現在廃止され、機能評価係数Ⅱと救急補正係数に再編された。", correct: false, explanation: "機能評価係数Ⅰは医療機関別係数の構成要素として残っている。" }
+        ],
+        explanation: "係数の名称だけでなく、何を評価しているかを押さえる必要がある。"
+      }
+    ]
+  },
+  {
+    category: "機能評価係数Ⅱの内訳",
+    questions: [
+      {
+        prompt: "ア〜オは、DPC/PDPSの係数等について述べたものである。適切な組み合わせを1つ選べ。\nア 各医療機関における在院日数短縮の努力を評価\nイ 医療機関ごとに設定する包括点数に対する出来高実績点数相当の係数\nウ 救急入院における入院初期の医療資源投入の乖離を補正\nエ 様々な疾患に対応できる総合的な体制を評価\nオ 1入院当たり医療資源投入の観点から見た患者構成を評価",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "ア 効率性係数　イ 基礎係数　ウ 救急補正係数　エ カバー率係数　オ 複雑性係数", correct: true, explanation: "アは効率性係数、イは基礎係数、ウは救急補正係数、エはカバー率係数、オは複雑性係数である。" },
+          { text: "ア 複雑性係数　イ 基礎係数　ウ 救急補正係数　エ カバー率係数　オ 効率性係数", correct: false, explanation: "在院日数短縮の努力は効率性係数、医療資源投入の観点から見た患者構成は複雑性係数である。" },
+          { text: "ア 効率性係数　イ 機能評価係数Ⅰ　ウ 救急医療係数　エ 複雑性係数　オ カバー率係数", correct: false, explanation: "イは基礎係数、ウは救急補正係数、エはカバー率係数、オは複雑性係数である。" },
+          { text: "ア 救急補正係数　イ 基礎係数　ウ 効率性係数　エ 地域医療係数　オ 複雑性係数", correct: false, explanation: "アは効率性係数、ウは救急補正係数、エはカバー率係数である。" },
+          { text: "ア 効率性係数　イ 激変緩和係数　ウ 救急補正係数　エ 保険診療係数　オ カバー率係数", correct: false, explanation: "イは基礎係数、エはカバー率係数、オは複雑性係数である。保険診療係数は廃止されている。" }
+        ],
+        explanation: "予想問題集に近い組み合わせ形式。係数名と説明の対応を入れ替えた選択肢に注意する。"
+      },
+      {
+        prompt: "現在の機能評価係数Ⅱの項目として、最も適切な組み合わせを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "効率性係数・複雑性係数・カバー率係数・地域医療係数", correct: true, explanation: "現在の機能評価係数Ⅱは、効率性、複雑性、カバー率、地域医療の4項目として整理される。" },
+          { text: "保険診療係数・救急医療係数・後発医薬品係数・調整係数", correct: false, explanation: "保険診療係数は廃止され、救急医療係数は救急補正係数として整理された。" },
+          { text: "入院基本料・医療安全対策加算・診療録管理体制加算・急性期看護補助体制加算", correct: false, explanation: "これらは機能評価係数Ⅰ側で整理される。" },
+          { text: "初診料・再診料・外来管理加算・地域包括診療加算", correct: false, explanation: "外来診療料等であり、機能評価係数Ⅱの項目ではない。" },
+          { text: "病床利用率・人件費率・材料費率・経常利益率", correct: false, explanation: "経営指標ではあるが、機能評価係数Ⅱの4項目ではない。" }
+        ],
+        explanation: "旧制度の保険診療係数・救急医療係数を含める選択肢に注意する。"
+      },
+      {
+        prompt: "機能評価係数Ⅱに関する記述として、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "効率性係数は、各医療機関における在院日数短縮の努力を評価する。", correct: true, explanation: "効率性係数は在院日数短縮の努力を評価する。" },
+          { text: "カバー率係数は、様々な疾患に対応できる総合的な体制を評価する。", correct: true, explanation: "カバー率係数は、幅広い診断群分類への対応を評価する。" },
+          { text: "複雑性係数は、地域医療への貢献度を評価する。", correct: false, explanation: "複雑性係数は、1入院当たり医療資源投入の観点から見た患者構成を評価する。" },
+          { text: "地域医療係数は、入院基本料等加算の届出状況を係数化する。", correct: false, explanation: "入院基本料等加算の届出状況は機能評価係数Ⅰ側で整理される。" },
+          { text: "救急補正係数は、現在の機能評価係数Ⅱの4項目の1つである。", correct: false, explanation: "救急補正係数は機能評価係数Ⅱとは別に整理される。" }
+        ],
+        explanation: "効率性、複雑性、カバー率、地域医療の説明を混同しないようにする。"
+      }
+    ]
+  },
+  {
+    category: "旧制度との混同対策",
+    questions: [
+      {
+        prompt: "DPC/PDPSの係数に関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "2024年度改定により、保険診療係数は廃止され、救急医療係数は救急補正係数として整理された。", correct: true, explanation: "現在の機能評価係数Ⅱには、保険診療係数と救急医療係数は含まれない。" },
+          { text: "2024年度改定後も、保険診療係数と救急医療係数は機能評価係数Ⅱの中心的項目として残っている。", correct: false, explanation: "保険診療係数は廃止され、救急医療係数は救急補正係数として整理された。" },
+          { text: "救急補正係数は、現在の機能評価係数Ⅱの4項目の1つである。", correct: false, explanation: "救急補正係数は、機能評価係数Ⅱとは別に整理される。" },
+          { text: "保険診療係数は、DPC標準病院群の基礎係数を区分するために新設された係数である。", correct: false, explanation: "保険診療係数は廃止された係数であり、基礎係数を区分するために新設されたものではない。" },
+          { text: "救急医療係数は、入院基本料等加算を包括評価に反映するための係数として機能評価係数Ⅰに統合された。", correct: false, explanation: "救急医療係数は救急補正係数として整理された。入院基本料等加算を反映するのは機能評価係数Ⅰ側である。" }
+        ],
+        explanation: "旧制度の保険診療係数・救急医療係数を現在の機能評価係数Ⅱに含める選択肢は誤りである。"
+      },
+      {
+        prompt: "DPCの係数について、現在の整理として適切でないものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "機能評価係数Ⅱには、保険診療係数と救急医療係数が含まれる。", correct: true, explanation: "これが誤り。保険診療係数は廃止、救急医療係数は救急補正係数として整理された。" },
+          { text: "機能評価係数Ⅱには、効率性係数、複雑性係数、カバー率係数、地域医療係数が含まれる。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "救急補正係数は、救急入院初期の医療資源投入の乖離を補正する。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "機能評価係数Ⅰは、入院基本料や入院基本料等加算などを包括評価に反映する。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "基礎係数は、医療機関群ごとに設定される基本的な係数である。", correct: false, explanation: "これは正しい記述である。" }
+        ],
+        explanation: "設問は『適切でないもの』を選ぶ形式。旧制度の係数名が混じる選択肢に注意する。"
+      },
+      {
+        prompt: "DPC/PDPSの係数の見直しに関する記述として、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "保険診療係数は廃止され、現在の機能評価係数Ⅱは4項目で整理されている。", correct: true, explanation: "現在の機能評価係数Ⅱは、効率性、複雑性、カバー率、地域医療の4項目として整理される。" },
+          { text: "救急医療係数は、救急補正係数として機能評価係数Ⅱとは別に整理された。", correct: true, explanation: "救急医療係数は、救急補正係数として整理された。" },
+          { text: "保険診療係数は、医療安全対策加算を評価するために機能評価係数Ⅰへ移行した。", correct: false, explanation: "保険診療係数が医療安全対策加算を評価するために機能評価係数Ⅰへ移行したわけではない。" },
+          { text: "救急医療係数は、地域医療係数に名称変更され、地域医療への貢献を評価するようになった。", correct: false, explanation: "救急医療係数は救急補正係数として整理された。地域医療係数とは別である。" },
+          { text: "機能評価係数Ⅱは、2024年度改定以降、入院基本料等加算だけを評価する係数となった。", correct: false, explanation: "入院基本料等加算は機能評価係数Ⅰ側であり、機能評価係数ⅡはDPCデータ等に基づく評価である。" }
+        ],
+        explanation: "旧制度との混同は、試験でかなり狙いやすい。『保険診療係数』『救急医療係数』の現在の扱いを押さえる。"
+      }
+    ]
+  },
+  {
+    category: "令和8年度改定とDPC",
+    questions: [
+      {
+        prompt: "令和8年度診療報酬改定におけるDPC/PDPSの見直しについて、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "DPC標準病院群のうち、救急車等による搬送により入院した患者数等に係る一定の要件を満たす医療機関について、基礎係数の評価を区別する。", correct: true, explanation: "令和8年度改定では、DPC標準病院群のうち一定要件を満たす医療機関について、基礎係数の評価を区別する見直しが行われる。" },
+          { text: "複雑性係数について、入院初期の医療資源投入の観点から見た患者構成を評価するよう見直しが行われる。", correct: true, explanation: "複雑性係数について、入院初期の医療資源投入に着目した見直しが行われる。" },
+          { text: "地域医療係数の定量評価指数では、DPC標準病院群において、がん、脳卒中、心血管疾患、周産期の4領域は評価対象から除外される。", correct: false, explanation: "DPC標準病院群において、がん、脳卒中、心血管疾患、周産期の4領域に着目した評価へ見直される。" },
+          { text: "入院期間Ⅱは、在院日数の中央値から平均在院日数へ戻す方向で見直される。", correct: false, explanation: "入院期間Ⅱは、平均在院日数から在院日数の中央値へ見直す方向で整理される。" },
+          { text: "DPC算定対象病棟から対象外病棟へ転棟し、その後同一傷病等でDPC算定病棟へ再転棟した場合、転棟後の期間にかかわらず別入院として扱う。", correct: false, explanation: "同一傷病等で再転棟した場合の取扱いが整理されており、期間にかかわらず一律に別入院とするわけではない。" }
+        ],
+        explanation: "令和8年度改定では、DPC標準病院群の基礎係数、複雑性係数、地域医療係数、入院期間Ⅱなどの見直しが重要である。"
+      },
+      {
+        prompt: "令和8年度改定におけるDPC/PDPSの入院期間Ⅱの見直しについて、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "平均在院日数が中央値を上回っていた診断群分類が多かったことを踏まえ、平均在院日数から在院日数の中央値へ見直す。", correct: true, explanation: "長期入院の影響を受けやすい平均値ではなく、中央値を用いる方向で見直される。" },
+          { text: "入院期間Ⅱを中央値から平均在院日数へ戻し、長期入院患者の医療資源投入量をより強く反映する。", correct: false, explanation: "見直しの方向が逆である。" },
+          { text: "入院期間ⅡをDPC分類ごとではなく、全DPC対象病院で一律に10日とする。", correct: false, explanation: "入院期間ⅡはDPC分類ごとに設定される。" },
+          { text: "入院期間Ⅱは、地域医療係数の値に応じて病院ごとに設定される。", correct: false, explanation: "地域医療係数の値に応じて病院ごとに設定されるものではない。" },
+          { text: "入院期間Ⅱは、救急搬送件数と全身麻酔手術件数だけで決定される。", correct: false, explanation: "救急搬送件数と全身麻酔手術件数だけで入院期間Ⅱが決まるわけではない。" }
+        ],
+        explanation: "入院期間Ⅱは『平均在院日数』ではなく『中央値』がポイントである。"
+      },
+      {
+        prompt: "令和8年度改定におけるDPC/PDPSの係数見直しに関する記述として、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "基礎係数について、DPC標準病院群の中でも一定の急性期機能を有する医療機関を区別する見直しが行われる。", correct: true, explanation: "DPC標準病院群のうち、一定要件を満たす医療機関について基礎係数の評価を区別する見直しが行われる。" },
+          { text: "地域医療係数について、DPC標準病院群では、がん、脳卒中、心血管疾患、周産期の4領域に着目した評価が行われる。", correct: true, explanation: "地域医療係数の定量評価指数において、DPC標準病院群では4領域に着目した評価へ見直される。" },
+          { text: "複雑性係数は廃止され、すべて救急補正係数へ統合される。", correct: false, explanation: "複雑性係数は廃止ではなく、算出方法等の見直しが行われる。" },
+          { text: "カバー率係数は、医療安全対策加算や診療録管理体制加算の届出を評価する係数へ変更される。", correct: false, explanation: "医療安全対策加算や診療録管理体制加算は機能評価係数Ⅰ側で整理される。" },
+          { text: "救急補正係数は廃止され、保険診療係数として再編される。", correct: false, explanation: "保険診療係数は廃止されており、救急補正係数を保険診療係数へ再編するものではない。" }
+        ],
+        explanation: "令和8年度改定では、DPC標準病院群の基礎係数、複雑性係数、地域医療係数の見直しが押さえどころである。"
+      }
+    ]
+  },
+  {
+    category: "DPC参加基準",
+    questions: [
+      {
+        prompt: "DPC/PDPSへの参加基準に関する記述として、適切なものを2つ選べ。",
+        multi: true,
+        requiredCount: 2,
+        choices: [
+          { text: "DPC対象病院は、DPC調査に適切に参加し、DPCデータを継続的に提出できる体制を有する必要がある。", correct: true, explanation: "DPC/PDPSでは、診断群分類に基づく評価を行うため、DPC調査に参加し、必要なデータを提出できる体制が重要である。" },
+          { text: "DPC対象病院の基準では、データ／病床比が1か月当たり0.875以上であることが求められる。", correct: true, explanation: "データ／病床比は、DPC算定対象病床数に対して十分な退院患者データが提出されているかを見る指標であり、1か月当たり0.875以上が基準として問われる。" },
+          { text: "DPC対象病院では、適切なコーディングに関する委員会の設置は任意であり、診療科ごとの判断に委ねられる。", correct: false, explanation: "DPCでは適切な傷病名・手術・処置等のコーディングが重要であり、適切なコーディングに関する委員会の設置が求められる。" },
+          { text: "データ／病床比は、DPC対象病床数に対する職員数の割合を示す指標であり、0.5以上であれば基準を満たす。", correct: false, explanation: "データ／病床比は職員数の割合ではなく、DPC対象病床数に対する提出データ数の指標である。0.5ではなく0.875以上が重要である。" },
+          { text: "DPC準備病院は、DPCデータの提出を行わず、出来高算定の実績のみでDPC対象病院へ移行する。", correct: false, explanation: "DPC準備病院は、DPC対象病院への移行前にDPCデータを提出し、制度参加に必要な体制を整える段階として理解する。" }
+        ],
+        explanation: "DPC参加基準では、DPCデータ提出体制、診療録管理・コーディング体制、データ／病床比0.875以上が問われやすい。0.5などの近い数値への入れ替えに注意する。"
+      },
+      {
+        prompt: "DPC参加基準に関する次の記述のうち、適切なものの組み合わせとして最も適切なものを1つ選べ。\nア DPC調査に適切に参加できる体制が必要である。\nイ データ／病床比は1か月当たり0.875以上が基準として重要である。\nウ 適切なコーディングに関する委員会は、DPC対象病院では不要である。\nエ DPC準備病院は、DPCデータを提出せずにDPC対象病院へ移行する制度である。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "ア・イ", correct: true, explanation: "アとイが正しい。DPC調査への参加体制とデータ／病床比0.875以上は、DPC参加基準として重要である。" },
+          { text: "ア・ウ", correct: false, explanation: "ウが誤り。DPCでは適切なコーディングに関する委員会の設置が求められる。" },
+          { text: "イ・エ", correct: false, explanation: "エが誤り。DPC準備病院はDPCデータを提出し、制度参加に必要な体制を整える段階である。" },
+          { text: "ウ・エ", correct: false, explanation: "ウもエも誤り。コーディング体制とデータ提出体制は重要である。" },
+          { text: "ア・イ・ウ", correct: false, explanation: "ウが誤りであるため、この組み合わせは不適切である。" }
+        ],
+        explanation: "DPC参加基準では、データ提出体制、データ／病床比、コーディング体制を組み合わせて問われやすい。"
+      },
+      {
+        prompt: "DPC参加基準に関する記述として、誤っているものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "データ／病床比は、DPC対象病床数に対する退院患者データ数の状況を見る指標であり、基準は1か月当たり0.5以上である。", correct: true, explanation: "これが誤り。データ／病床比は職員数等ではなく提出データ数に関する指標であり、基準として重要なのは1か月当たり0.875以上である。" },
+          { text: "DPC対象病院は、DPC調査に参加し、必要なデータを提出できる体制を有することが求められる。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "DPC参加には、診療録管理や適切なコーディングを行う体制が重要となる。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "DPC準備病院は、DPC対象病院へ移行する前段階として、DPCデータ提出等の体制を整える病院として理解できる。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "適切なコーディングに関する委員会は、傷病名や手術・処置等のコーディングの適正化に関係する。", correct: false, explanation: "これは正しい記述である。" }
+        ],
+        explanation: "設問は『誤っているもの』を選ぶ問題。過去問題ではデータ／病床比0.875を0.5に入れ替える形が狙われやすい。"
+      }
+    ]
+  },
+
+  {
+    category: "総合問題",
+    questions: [
+      {
+        prompt: "DPC/PDPSに関する次の記述のうち、適切なものの組み合わせとして最も適切なものを1つ選べ。\nア DPCコードは14桁で構成される。\nイ 入院期間Ⅱは在院日数の中央値に相当する。\nウ 手術と麻酔は原則として包括評価される。\nエ 現在の機能評価係数Ⅱには保険診療係数が含まれる。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "ア・イ", correct: true, explanation: "アとイが正しい。手術・麻酔は出来高評価であり、保険診療係数は廃止されている。" },
+          { text: "ア・ウ", correct: false, explanation: "ウが誤り。手術と麻酔は出来高評価される。" },
+          { text: "イ・エ", correct: false, explanation: "エが誤り。保険診療係数は廃止されている。" },
+          { text: "ウ・エ", correct: false, explanation: "ウもエも誤り。" },
+          { text: "ア・イ・ウ", correct: false, explanation: "ウが誤りであるため、この組み合わせは不適切。" }
+        ],
+        explanation: "DPCコード14桁、入院期間Ⅱ＝中央値、手術・麻酔＝出来高、保険診療係数＝廃止をまとめて確認する問題である。"
+      },
+      {
+        prompt: "DPC/PDPSの包括評価・出来高評価・係数に関する記述として、最も適切なものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "急性期看護補助体制加算や医療安全対策加算は、機能評価係数Ⅰ側で整理される。", correct: true, explanation: "これらは入院基本料等加算として、機能評価係数Ⅰに関係する代表例である。" },
+          { text: "急性期看護補助体制加算や医療安全対策加算は、機能評価係数Ⅱの効率性係数として評価される。", correct: false, explanation: "機能評価係数Ⅱではなく、機能評価係数Ⅰ側で整理される。" },
+          { text: "内視鏡検査や心臓カテーテル検査は、検査に分類されるため包括評価される。", correct: false, explanation: "内視鏡検査や心臓カテーテル検査は出来高評価である。" },
+          { text: "カバー率係数は、1入院当たり医療資源投入の観点から見た患者構成を評価する。", correct: false, explanation: "これは複雑性係数の説明である。カバー率係数は、幅広い疾患への対応を評価する。" },
+          { text: "救急補正係数は、現在の機能評価係数Ⅱの一項目として保険診療係数と並んで評価される。", correct: false, explanation: "救急補正係数は機能評価係数Ⅱとは別に整理され、保険診療係数は廃止されている。" }
+        ],
+        explanation: "係数名、包括・出来高対象、旧制度の名称を混ぜた総合問題である。"
+      },
+      {
+        prompt: "DPC病院の診療報酬に関する記述として、誤っているものを1つ選べ。",
+        multi: false,
+        requiredCount: 1,
+        choices: [
+          { text: "現在の機能評価係数Ⅱには、保険診療係数と救急医療係数が含まれる。", correct: true, explanation: "これが誤り。保険診療係数は廃止され、救急医療係数は救急補正係数として整理されている。" },
+          { text: "DPCコードは14桁で構成され、最初の2桁がMDCである。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "手術、麻酔、リハビリテーション料は出来高評価される代表例である。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "入院期間ⅡはDPC対象病院全体の在院日数の中央値に相当する。", correct: false, explanation: "これは正しい記述である。" },
+          { text: "カバー率係数は、様々な疾患に対応できる総合的な体制を評価する。", correct: false, explanation: "これは正しい記述である。" }
+        ],
+        explanation: "設問は『誤っているもの』を選ぶ問題。古い知識として残りやすい保険診療係数・救急医療係数に注意する。"
+      }
+    ]
+  }
+];
+
+    let quiz = [], index = 0, selected = [], answered = false, score = 0, results = [];
+    const $ = (id) => document.getElementById(id);
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function sameSet(a, b) {
+      if (a.length !== b.length) return false;
+      const s = new Set(a);
+      return b.every((x) => s.has(x));
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;").replaceAll("'", "&#039;").replaceAll("\n", "<br>");
+    }
+
+    function makeQuiz() {
+      return shuffle(questionPool.map((cat) => {
+        const q = cat.questions[Math.floor(Math.random() * cat.questions.length)];
+        return { ...q, category: cat.category, choices: shuffle(q.choices) };
+      }));
+    }
+
+    function current() { return quiz[index]; }
+    function correctIndexes(q) { return q.choices.map((c, i) => c.correct ? i : null).filter((v) => v !== null); }
+
+    function render() {
+      const q = current();
+      $("progress").textContent = `${index + 1} / ${quiz.length}`;
+      $("score").textContent = `${score} / ${results.length}`;
+      $("qNo").textContent = `第${index + 1}問`;
+      $("cat").textContent = q.category;
+      $("prompt").textContent = q.prompt;
+      $("hint").textContent = q.requiredCount > 1 ? `正しい選択肢を${q.requiredCount}つ選んでください。` : "正しい選択肢を1つ選んでください。";
+      $("choices").innerHTML = "";
+
+      q.choices.forEach((c, i) => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.textContent = `${String.fromCharCode(65 + i)}. ${c.text}`;
+        btn.onclick = () => choose(i);
+        $("choices").appendChild(btn);
+      });
+
+      $("answerBtn").disabled = true;
+      $("nextBtn").disabled = true;
+      $("nextBtn").textContent = "次へ";
+      $("explain").className = "explain";
+      $("explain").innerHTML = "";
+      selected = [];
+      answered = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function choose(i) {
+      if (answered) return;
+      const q = current();
+      if (!q.multi || q.requiredCount === 1) {
+        selected = [i];
+      } else if (selected.includes(i)) {
+        selected = selected.filter((x) => x !== i);
+      } else if (selected.length < q.requiredCount) {
+        selected.push(i);
+      }
+      updateChoices();
+      $("answerBtn").disabled = selected.length !== q.requiredCount;
+    }
+
+    function updateChoices() {
+      document.querySelectorAll(".choice").forEach((btn, i) => {
+        btn.classList.toggle("selected", selected.includes(i));
+      });
+    }
+
+    function answer() {
+      if (answered) return;
+      const q = current();
+      if (selected.length !== q.requiredCount) return;
+
+      answered = true;
+      const ok = sameSet(selected, correctIndexes(q));
+      if (ok) score++;
+      results.push({ category: q.category, ok });
+
+      document.querySelectorAll(".choice").forEach((btn, i) => {
+        if (q.choices[i].correct) btn.classList.add("correct");
+        if (selected.includes(i) && !q.choices[i].correct) btn.classList.add("wrong");
+      });
+
+      const selectedExps = selected.map((i) => `<p><b>選択肢の確認：</b>${escapeHtml(q.choices[i].explanation)}</p>`).join("");
+      $("explain").className = "explain show";
+      $("explain").innerHTML = `<h3 class="${ok ? "ok" : "ng"}">${ok ? "正解です。" : "不正解です。"}</h3>${selectedExps}<p><b>解説：</b>${escapeHtml(q.explanation)}</p>`;
+
+      $("answerBtn").disabled = true;
+      $("nextBtn").disabled = false;
+      $("nextBtn").textContent = index + 1 >= quiz.length ? "結果へ" : "次へ";
+      $("score").textContent = `${score} / ${results.length}`;
+    }
+
+    function next() {
+      if (!answered) return;
+      if (index + 1 >= quiz.length) showResult();
+      else { index++; render(); }
+    }
+
+    function showResult() {
+      $("quizBox").style.display = "none";
+      $("resultBox").className = "result show";
+      $("finalScore").innerHTML = `正答数：<b>${score}</b> / ${quiz.length}`;
+      $("resultList").innerHTML = results.map((r, i) => `<div class="resultItem">第${i + 1}問：${escapeHtml(r.category)}　<b class="${r.ok ? "ok" : "ng"}">${r.ok ? "正解" : "不正解"}</b></div>`).join("");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function retry() {
+      quiz = makeQuiz();
+      index = 0; selected = []; answered = false; score = 0; results = [];
+      $("quizBox").style.display = "";
+      $("resultBox").className = "result";
+      render();
+    }
+
+    $("answerBtn").onclick = answer;
+    $("nextBtn").onclick = next;
+    $("retryBtn").onclick = retry;
+    retry();
+  </script>
+</body>
+</html>
