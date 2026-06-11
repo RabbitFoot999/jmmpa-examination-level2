@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSC実践問題</title>
+<style>
+:root {
+  --bg:#0b1120; --card:#172033; --card2:#0f172a; --text:#e5e7eb; --muted:#a8b3c7;
+  --line:#334155; --primary:#7dd3fc; --okbg:#123a2a; --badbg:#4a1d22; --warnbg:#3c2f12;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;background:linear-gradient(180deg,var(--bg),#020617);color:var(--text);line-height:1.75}
+header{background:linear-gradient(135deg,#111827,#164e63);padding:30px 18px;border-bottom:1px solid #1f3b4a}
+.wrap{max-width:960px;margin:0 auto}
+h1{margin:0 0 10px;font-size:clamp(25px,4vw,38px);line-height:1.25}
+.lead{margin:0;color:#dbeafe;font-size:15px}
+main{padding:18px}
+.panel,.card,.result{background:rgba(23,32,51,.96);border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.panel{padding:18px;margin-bottom:18px}
+.small{color:var(--muted);font-size:13px}
+.status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.stat{background:rgba(15,23,42,.76);border:1px solid var(--line);border-radius:15px;padding:11px 12px}
+.stat b{display:block;font-size:21px;color:#f8fafc}
+.stat span{color:var(--muted);font-size:12px}
+.bar{height:10px;background:#020617;border-radius:999px;overflow:hidden;margin-top:14px;border:1px solid #1e293b}
+.bar>div{height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#86efac);transition:width .25s ease}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:999px;padding:11px 17px;font-weight:800;cursor:pointer;font-size:14px}
+button:disabled{opacity:.55;cursor:default}
+.primary{background:#0ea5e9;color:#04111f}
+.secondary{background:#334155;color:#e5e7eb;border:1px solid #475569}
+.card{padding:20px;margin:16px 0}
+.qhead{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.qnum{font-weight:900;color:var(--primary)}
+.tag,.diff{border-radius:999px;padding:2px 9px;font-size:12px;font-weight:800}
+.tag{background:#0b3b52;color:#bae6fd;border:1px solid #155e75}
+.diff{background:var(--warnbg);color:#fde68a;border:1px solid #854d0e}
+.question{font-size:18px;font-weight:900;margin:10px 0 13px;color:#f8fafc}
+.options{display:grid;gap:10px}
+.option{border:1px solid var(--line);background:rgba(15,23,42,.78);border-radius:16px;padding:12px;cursor:pointer;display:grid;gap:9px}
+.option:hover{background:#172033}
+.option.selected{border-color:#38bdf8;background:#082f49}
+.option.correct{background:var(--okbg);border-color:#22c55e;color:#dcfce7}
+.option.wrong{background:var(--badbg);border-color:#ef4444;color:#fee2e2}
+.option.missed{background:#143522;border-color:#16a34a;color:#dcfce7}
+.otop{display:flex;gap:9px;align-items:flex-start;font-weight:800}
+input{accent-color:#38bdf8;margin-top:7px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.cell{border:1px solid rgba(148,163,184,.28);border-radius:12px;padding:8px;background:rgba(2,6,23,.28);min-height:72px}
+.head{display:block;color:#93c5fd;font-size:12px;font-weight:900;margin-bottom:3px}
+.body{font-size:13px;color:#e5e7eb}
+.feedback{display:none;margin-top:14px;padding:13px 15px;border-radius:15px;border:1px solid var(--line);background:#0f172a}
+.feedback.show{display:block}
+.feedback.ok{background:var(--okbg);border-color:#22c55e}
+.feedback.bad{background:var(--badbg);border-color:#ef4444}
+.explain{margin-top:10px;padding:13px 15px;border-radius:15px;border:1px solid var(--line);background:rgba(15,23,42,.75)}
+.result{display:none;padding:20px;margin:18px 0}
+.result.show{display:block}
+.review{margin-top:12px;display:grid;gap:10px}
+.review div{border:1px solid var(--line);border-radius:14px;padding:11px 13px;background:rgba(15,23,42,.75)}
+footer{color:var(--muted);font-size:12px;padding:28px 18px;text-align:center}
+@media(max-width:760px){.status{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:16px}.grid{grid-template-columns:1fr}.cell{min-height:auto}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>BSC実践問題</h1><p class="lead">病院におけるバランスト・スコアカードの4視点と具体的指標の組み合わせを、過去受験者メモに近い形式で確認する問題です。</p></div></header>
+<main class="wrap">
+<section class="panel">
+<strong>学習できる内容</strong>
+<p class="small">BSCの「財務」「顧客」「業務プロセス」「学習と成長」の4視点に、病院の指標を正しく分類する練習です。5問をランダム順で表示し、選択肢の順番も毎回変わります。</p>
+<div class="status">
+<div class="stat"><b id="total">5</b><span>出題数</span></div>
+<div class="stat"><b id="answered">0</b><span>解答済み</span></div>
+<div class="stat"><b id="correct">0</b><span>正解数</span></div>
+<div class="stat"><b id="rate">0%</b><span>正答率</span></div>
+</div>
+<div class="bar"><div id="fill"></div></div>
+<div class="actions"><button class="primary" onclick="restart()">問題をランダム再出題</button><button class="secondary" onclick="showResult()">現在の結果を見る</button></div>
+</section>
+<section id="quiz"></section>
+<section id="result" class="result"><h2>結果</h2><p id="resultText"></p><p class="small" id="hint"></p><div id="review" class="review"></div><div class="actions"><button class="primary" onclick="restart()">再チャレンジする</button><button class="secondary" onclick="scrollQ()">問題へ戻る</button></div></section>
+</main>
+<footer>医療経営士2級対策用の自習クイズです。迷ったら「財務＝お金」「顧客＝患者・紹介元の評価」「業務＝医療提供の流れ」「学習＝人材育成」で整理してください。</footer>
+<script>
+const DATA=[{"cat": "基本分類", "q": "BSCの4つの視点と病院における指標の組み合わせとして、最も適切なものはどれか。", "choices": [["医業収益・人件費率", "患者満足度・紹介率", "医療事故件数・クリニカルパス適用率", "研修参加率・資格取得率", true, "財務は収益・費用、顧客は患者や紹介元からの評価、業務プロセスは医療の質や運用、人材育成は学習と成長に対応しています。"], ["患者満足度・紹介率", "医業収益・人件費率", "研修参加率・資格取得率", "医療事故件数・クリニカルパス適用率", false, "財務と顧客が入れ替わっています。また、研修・資格は学習と成長、医療事故・パス適用率は業務プロセスです。"], ["研修参加率・資格取得率", "患者満足度・紹介率", "医業収益・人件費率", "医療事故件数・クリニカルパス適用率", false, "研修・資格は学習と成長です。医業収益・人件費率は財務、医療事故・パス適用率は業務プロセスです。"], ["医療事故件数・クリニカルパス適用率", "患者満足度・紹介率", "医業収益・人件費率", "研修参加率・資格取得率", false, "医療事故・パス適用率は業務プロセス、医業収益・人件費率は財務です。"], ["医業収益・人件費率", "研修参加率・資格取得率", "患者満足度・紹介率", "医療事故件数・クリニカルパス適用率", false, "研修・資格は学習と成長、患者満足度・紹介率は顧客、医療事故・パス適用率は業務プロセスです。"]], "exp": "BSCでは、財務、顧客、業務プロセス、学習と成長の4視点を区別します。病院では、財務に医業収益や費用率、顧客に患者満足度や紹介率、業務プロセスに医療安全や標準化、人材育成に研修や資格取得を置くのが基本です。"}, {"cat": "地域連携", "q": "地域連携を重視する病院のBSC指標として、4視点の組み合わせが最も適切なものはどれか。", "choices": [["紹介入院による医業収益", "紹介率・逆紹介率", "紹介予約から受診までの日数", "地域連携研修の受講率", true, "紹介入院収益は財務、紹介率・逆紹介率は紹介元を含む顧客評価、予約から受診までの日数は連携プロセス、研修は学習と成長です。"], ["紹介率・逆紹介率", "紹介入院による医業収益", "地域連携研修の受講率", "紹介予約から受診までの日数", false, "紹介率・逆紹介率は顧客、紹介入院収益は財務です。研修は学習と成長、予約から受診までの日数は業務プロセスです。"], ["紹介入院による医業収益", "地域連携研修の受講率", "紹介率・逆紹介率", "紹介予約から受診までの日数", false, "地域連携研修は学習と成長です。紹介率・逆紹介率は顧客、予約から受診までの日数は業務プロセスです。"], ["紹介予約から受診までの日数", "紹介率・逆紹介率", "紹介入院による医業収益", "地域連携研修の受講率", false, "予約から受診までの日数は業務プロセス、紹介入院収益は財務です。"], ["地域連携研修の受講率", "紹介予約から受診までの日数", "紹介率・逆紹介率", "紹介入院による医業収益", false, "研修は学習と成長、予約から受診までの日数は業務プロセス、紹介率・逆紹介率は顧客、紹介入院収益は財務です。"]], "exp": "紹介率・逆紹介率は業務連携にも見えますが、BSCでは紹介元医療機関から見た評価として顧客の視点に分類するのが自然です。"}, {"cat": "急性期・救急", "q": "救急医療を重視する急性期病院のBSC指標として、最も適切な組み合わせはどれか。", "choices": [["救急入院による医業収益", "救急隊・患者家族からの評価", "救急応需率・入院決定までの時間", "救急対応研修の受講率", true, "救急入院収益は財務、救急隊や患者家族からの評価は顧客、応需率や入院決定までの時間は業務プロセス、研修は学習と成長です。"], ["救急隊・患者家族からの評価", "救急入院による医業収益", "救急対応研修の受講率", "救急応需率・入院決定までの時間", false, "救急隊・患者家族からの評価は顧客、救急入院収益は財務です。研修は学習と成長、応需率等は業務プロセスです。"], ["救急応需率・入院決定までの時間", "救急隊・患者家族からの評価", "救急入院による医業収益", "救急対応研修の受講率", false, "救急応需率・入院決定までの時間は業務プロセス、救急入院収益は財務です。"], ["救急入院による医業収益", "救急対応研修の受講率", "救急隊・患者家族からの評価", "救急応需率・入院決定までの時間", false, "救急対応研修は学習と成長、救急隊・患者家族からの評価は顧客、応需率等は業務プロセスです。"], ["救急対応研修の受講率", "救急応需率・入院決定までの時間", "救急隊・患者家族からの評価", "救急入院による医業収益", false, "研修は学習と成長、応需率等は業務プロセス、救急隊等からの評価は顧客、救急入院収益は財務です。"]], "exp": "救急では、収益、地域からの評価、受入プロセス、人材育成を分けて考えるとBSCの4視点に整理しやすくなります。"}, {"cat": "入退院支援", "q": "入退院支援を強化する病院のBSC指標として、最も適切な組み合わせはどれか。", "choices": [["病床利用率・入院単価", "退院時患者満足度・家族満足度", "入院48時間以内の退院支援スクリーニング実施率", "退院支援研修の受講率", true, "病床利用率・入院単価は財務、患者・家族満足度は顧客、退院支援スクリーニング実施率は業務プロセス、退院支援研修は学習と成長です。"], ["退院時患者満足度・家族満足度", "病床利用率・入院単価", "退院支援研修の受講率", "入院48時間以内の退院支援スクリーニング実施率", false, "患者・家族満足度は顧客、病床利用率・入院単価は財務です。退院支援研修は学習と成長、スクリーニング実施率は業務プロセスです。"], ["入院48時間以内の退院支援スクリーニング実施率", "退院時患者満足度・家族満足度", "病床利用率・入院単価", "退院支援研修の受講率", false, "スクリーニング実施率は業務プロセス、病床利用率・入院単価は財務です。"], ["病床利用率・入院単価", "退院支援研修の受講率", "退院時患者満足度・家族満足度", "入院48時間以内の退院支援スクリーニング実施率", false, "退院支援研修は学習と成長、患者・家族満足度は顧客、スクリーニング実施率は業務プロセスです。"], ["退院支援研修の受講率", "入院48時間以内の退院支援スクリーニング実施率", "退院時患者満足度・家族満足度", "病床利用率・入院単価", false, "退院支援研修は学習と成長、スクリーニング実施率は業務プロセス、患者・家族満足度は顧客、病床利用率・入院単価は財務です。"]], "exp": "入退院支援では、患者・家族の評価と、スクリーニングやカンファレンスなど内部の流れを分けて整理することが大切です。"}, {"cat": "人材育成・組織能力", "q": "人材育成と業務改善を重視する病院のBSC指標として、最も適切な組み合わせはどれか。", "choices": [["人件費率・教育研修費率", "患者クレーム件数・接遇満足度", "業務改善実施件数・標準手順遵守率", "職員満足度・離職率", true, "人件費率や教育研修費率は財務、患者クレームや接遇満足度は顧客、業務改善や標準手順遵守率は業務プロセス、職員満足度や離職率は学習と成長です。"], ["患者クレーム件数・接遇満足度", "人件費率・教育研修費率", "職員満足度・離職率", "業務改善実施件数・標準手順遵守率", false, "患者クレームや接遇満足度は顧客、人件費率等は財務です。職員満足度・離職率は学習と成長、業務改善や手順遵守は業務プロセスです。"], ["業務改善実施件数・標準手順遵守率", "患者クレーム件数・接遇満足度", "人件費率・教育研修費率", "職員満足度・離職率", false, "業務改善実施件数・標準手順遵守率は業務プロセス、人件費率・教育研修費率は財務です。"], ["人件費率・教育研修費率", "職員満足度・離職率", "患者クレーム件数・接遇満足度", "業務改善実施件数・標準手順遵守率", false, "職員満足度・離職率は学習と成長、患者クレームや接遇満足度は顧客、業務改善や手順遵守は業務プロセスです。"], ["職員満足度・離職率", "業務改善実施件数・標準手順遵守率", "患者クレーム件数・接遇満足度", "人件費率・教育研修費率", false, "職員満足度・離職率は学習と成長、業務改善等は業務プロセス、患者クレーム等は顧客、人件費率等は財務です。"]], "exp": "職員満足度や離職率は、職員・組織の成長力に関する指標として扱うと整理しやすいです。"}];
+let qs=[],idx=0,ans=0,ok=0,sel=null,records=[];
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function sh(a){a=a.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startQ(q){let cs=sh(q.choices).map(c=>({f:c[0],u:c[1],p:c[2],l:c[3],correct:c[4],reason:c[5]}));return {...q,choices:cs,selected:null,answered:false,correctIndex:cs.findIndex(c=>c.correct)}}
+function restart(){qs=sh(DATA).map(startQ);idx=0;ans=0;ok=0;sel=null;records=[];document.getElementById("result").classList.remove("show");render();window.scrollTo({top:0,behavior:"smooth"})}
+function choice(c,i,q){let cls="option";if(q.selected===i&&!q.answered)cls+=" selected";if(q.answered&&c.correct)cls+=q.selected===i?" correct":" missed";if(q.answered&&q.selected===i&&!c.correct)cls+=" wrong";let dis=q.answered?"disabled":"";return `<label class="${cls}" onclick="selectChoice(${i})"><div class="otop"><input type="radio" name="choice" ${q.selected===i?"checked":""} ${dis}><span>選択肢 ${i+1}</span></div><div class="grid"><div class="cell"><span class="head">財務の視点</span><span class="body">${esc(c.f)}</span></div><div class="cell"><span class="head">顧客の視点</span><span class="body">${esc(c.u)}</span></div><div class="cell"><span class="head">業務プロセスの視点</span><span class="body">${esc(c.p)}</span></div><div class="cell"><span class="head">学習と成長の視点</span><span class="body">${esc(c.l)}</span></div></div></label>`}
+function render(){let q=qs[idx];sel=q.selected;let opts=q.choices.map((c,i)=>choice(c,i,q)).join("");let fb=q.answered?feedback(q):"";document.getElementById("quiz").innerHTML=`<article class="card" id="qtop"><div class="qhead"><span class="qnum">問${idx+1} / ${qs.length}</span><span class="tag">${esc(q.cat)}</span><span class="diff">組み合わせ</span></div><div class="question">${esc(q.q)}</div><div class="options">${opts}</div><div class="actions"><button class="primary" onclick="submit()" ${q.answered?"disabled":""}>回答</button><button class="secondary" onclick="prev()" ${idx===0?"disabled":""}>前の問題へ</button><button class="secondary" onclick="next()" ${idx===qs.length-1?"disabled":""}>次の問題へ</button></div>${fb}</article>`;status();}
+function feedback(q){let s=q.choices[q.selected],c=q.choices[q.correctIndex],good=s.correct;let correctText=`<div class="explain"><strong>正しい組み合わせ：</strong><br>財務：${esc(c.f)}<br>顧客：${esc(c.u)}<br>業務プロセス：${esc(c.p)}<br>学習と成長：${esc(c.l)}</div>`;return `<div class="feedback show ${good?"ok":"bad"}"><strong>${good?"正解です。":"不正解です。"} 正解：選択肢${q.correctIndex+1}</strong><br>${good?esc(s.reason):"選択した答えが誤りである理由："+esc(s.reason)}${correctText}<div class="explain"><strong>解説：</strong>${esc(q.exp)}</div></div>`}
+function selectChoice(i){let q=qs[idx];if(q.answered)return;q.selected=i;render();}
+function submit(){let q=qs[idx];if(q.answered)return;if(q.selected===null){alert("選択肢を1つ選んでから「回答」を押してください。");return}q.answered=true;ans++;if(q.choices[q.selected].correct)ok++;let c=q.choices[q.correctIndex];records[idx]={correct:q.choices[q.selected].correct,cat:q.cat,answer:`財務：${c.f}／顧客：${c.u}／業務：${c.p}／学習：${c.l}`};render();if(ans===qs.length)showResult();}
+function prev(){if(idx>0){idx--;render();scrollQ();}}
+function next(){if(idx<qs.length-1){idx++;render();scrollQ();}}
+function status(){document.getElementById("total").textContent=qs.length;document.getElementById("answered").textContent=ans;document.getElementById("correct").textContent=ok;let r=ans?Math.round(ok/ans*100):0;document.getElementById("rate").textContent=r+"%";document.getElementById("fill").style.width=(ans/qs.length*100)+"%";}
+function showResult(){let r=ans?Math.round(ok/ans*100):0;document.getElementById("resultText").innerHTML=`<strong>${ans}問解答 / ${qs.length}問中 ${ok}問正解（正答率 ${r}%）</strong>`;document.getElementById("hint").textContent=r>=90?"かなり定着しています。":r>=70?"良いペースです。誤答した視点の入れ替わりを確認しましょう。":"まずは4視点の意味を整理しましょう。";let wrong=records.map((x,i)=>x&&!x.correct?`<div><strong>問${i+1}（${esc(x.cat)}）</strong><br>正解：${esc(x.answer)}</div>`:"").join("");document.getElementById("review").innerHTML=wrong|| (ans?'<div>誤答はありません。</div>':'');document.getElementById("result").classList.add("show");document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"});}
+function scrollQ(){let e=document.getElementById("qtop");if(e)e.scrollIntoView({behavior:"smooth",block:"start"})}
+restart();
+</script>
+</body>
+</html>
