@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>感染症対策・感染性廃棄物実践問題</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --bg2:#111827;
+      --card:#182235;
+      --card2:#1f2a3f;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --line:#334155;
+      --accent:#38bdf8;
+      --accent2:#2dd4bf;
+      --warn:#facc15;
+      --ok:#34d399;
+      --bad:#fb7185;
+      --shadow:0 18px 50px rgba(0,0,0,.32);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.14), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(45,212,191,.10), transparent 28rem),
+        linear-gradient(180deg, var(--bg), #0b1020 55%, #070b14);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+      line-height:1.7;
+    }
+    a{color:#7dd3fc}
+    .wrap{width:min(960px, 100%); margin:0 auto; padding:22px 14px 92px}
+    header{
+      padding:22px 4px 18px;
+    }
+    .topline{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px}
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 10px; border:1px solid rgba(125,211,252,.26);
+      border-radius:999px; color:#bae6fd; background:rgba(15,23,42,.72);
+      font-size:13px; font-weight:700;
+    }
+    h1{font-size:clamp(25px, 5.5vw, 42px); line-height:1.22; margin:0 0 10px; letter-spacing:.02em}
+    .lead{margin:0; color:#cbd5e1; font-size:15px}
+    .panel{
+      background:linear-gradient(180deg, rgba(30,41,59,.96), rgba(15,23,42,.96));
+      border:1px solid rgba(148,163,184,.22);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      overflow:hidden;
+    }
+    .status{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(148,163,184,.18);
+      display:grid; gap:10px;
+    }
+    .bar{height:10px; background:#111827; border-radius:999px; overflow:hidden; border:1px solid rgba(148,163,184,.18)}
+    .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--accent2), var(--accent)); transition:width .25s ease}
+    .meta{display:flex; justify-content:space-between; gap:10px; color:#cbd5e1; font-size:14px; flex-wrap:wrap}
+    .questionArea{padding:18px 16px 20px}
+    .cat{display:inline-block; margin:0 0 10px; padding:5px 9px; border-radius:9px; color:#99f6e4; background:rgba(45,212,191,.10); border:1px solid rgba(45,212,191,.22); font-size:13px; font-weight:800}
+    .stem{font-size:18px; font-weight:800; line-height:1.65; margin:0 0 8px}
+    .ask{margin:0 0 15px; color:#cbd5e1; font-weight:700}
+    .choices{display:grid; gap:10px; margin:16px 0}
+    .choice{
+      width:100%; text-align:left; color:var(--text);
+      border:1px solid rgba(148,163,184,.25);
+      background:linear-gradient(180deg, rgba(30,41,59,.98), rgba(17,24,39,.96));
+      border-radius:15px; padding:14px 14px;
+      font-size:16px; line-height:1.62;
+      display:grid; grid-template-columns:auto 1fr; gap:10px;
+      touch-action:manipulation; cursor:pointer;
+    }
+    .choice:active{transform:scale(.995)}
+    .choice .num{
+      min-width:30px; height:30px; border-radius:999px;
+      display:inline-grid; place-items:center;
+      background:#0f172a; border:1px solid rgba(148,163,184,.30); color:#bae6fd; font-weight:900;
+    }
+    .choice.selected{border-color:rgba(56,189,248,.75); background:linear-gradient(180deg, rgba(8,47,73,.76), rgba(17,24,39,.96)); box-shadow:0 0 0 3px rgba(56,189,248,.10)}
+    .choice.correct{border-color:rgba(52,211,153,.9); background:linear-gradient(180deg, rgba(6,78,59,.52), rgba(17,24,39,.95))}
+    .choice.incorrect{border-color:rgba(251,113,133,.92); background:linear-gradient(180deg, rgba(127,29,29,.46), rgba(17,24,39,.95))}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    button.primary, button.secondary{
+      border:0; border-radius:14px; padding:13px 16px; font-weight:900; font-size:16px;
+      touch-action:manipulation; cursor:pointer;
+    }
+    button.primary{background:linear-gradient(135deg, var(--accent2), var(--accent)); color:#06202d; box-shadow:0 10px 24px rgba(56,189,248,.18)}
+    button.secondary{background:#1f2937; color:#e5e7eb; border:1px solid rgba(148,163,184,.28)}
+    button:disabled{opacity:.48; cursor:not-allowed}
+    .feedback{
+      margin-top:16px; padding:15px 14px; border-radius:16px; border:1px solid rgba(148,163,184,.20);
+      background:rgba(15,23,42,.82); display:none;
+    }
+    .feedback.show{display:block}
+    .feedback h2{font-size:18px; margin:0 0 8px}
+    .feedback.ok h2{color:var(--ok)}
+    .feedback.bad h2{color:var(--bad)}
+    .feedback p{margin:8px 0}
+    .feedback .small{font-size:14px; color:#cbd5e1}
+    .final{display:none; padding:22px 16px}
+    .final.show{display:block}
+    .scoreBox{
+      background:rgba(15,23,42,.78); border:1px solid rgba(148,163,184,.2); border-radius:16px; padding:16px;
+    }
+    .scoreNum{font-size:38px; font-weight:1000; letter-spacing:.02em; margin:0 0 4px}
+    .review{display:grid; gap:10px; margin-top:16px}
+    .reviewItem{background:rgba(17,24,39,.78); border:1px solid rgba(148,163,184,.18); border-radius:14px; padding:12px}
+    .reviewItem strong{color:#e0f2fe}
+    footer{margin:18px 4px 0; color:#94a3b8; font-size:12px}
+    .toast{display:none; margin-top:10px; color:#fde68a; font-size:14px; font-weight:700}
+    .toast.show{display:block}
+    @media (max-width: 520px){
+      .wrap{padding-left:10px; padding-right:10px}
+      .questionArea{padding:16px 12px 18px}
+      .status{padding:12px}
+      .stem{font-size:17px}
+      .choice{font-size:15px; padding:13px 11px; gap:9px}
+      button.primary, button.secondary{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header id="top">
+      <div class="topline">
+        <span class="badge">医療経営士2級</span>
+        <span class="badge">専門分野対策</span>
+        <span class="badge">5問ランダム</span>
+      </div>
+      <h1>感染症対策・感染性廃棄物実践問題</h1>
+      <p class="lead">感染性廃棄物、感染対策向上加算、抗菌薬適正使用、感染症サーベイランス、院内感染対策を横断して確認します。各カテゴリの問題プールから毎回1問ずつ出題します。</p>
+    </header>
+
+    <main class="panel" id="app">
+      <section class="status" id="status">
+        <div class="meta">
+          <span id="counter">問題 1 / 5</span>
+          <span id="scoreNow">正答 0</span>
+        </div>
+        <div class="bar" aria-hidden="true"><span id="barFill"></span></div>
+      </section>
+
+      <section class="questionArea" id="questionArea">
+        <div class="cat" id="category"></div>
+        <p class="stem" id="stem"></p>
+        <p class="ask" id="ask"></p>
+        <div class="choices" id="choices"></div>
+        <div class="toast" id="toast">選択肢を選んでから回答してください。</div>
+        <div class="actions">
+          <button type="button" class="primary" id="answerBtn">回答</button>
+          <button type="button" class="secondary" id="nextBtn" style="display:none">次の問題へ</button>
+        </div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+      </section>
+
+      <section class="final" id="finalArea">
+        <div class="scoreBox">
+          <p class="scoreNum" id="finalScore"></p>
+          <p id="finalMessage"></p>
+        </div>
+        <div class="review" id="review"></div>
+        <div class="actions">
+          <button type="button" class="primary" id="retryBtn">もう一度解く</button>
+          <a class="secondary" href="index.html" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; border-radius:14px; padding:13px 16px; font-weight:900; font-size:16px; background:#1f2937; color:#e5e7eb; border:1px solid rgba(148,163,184,.28)">一覧に戻る</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>出典・作成根拠：過去受験者メモ、医療経営士2級予想問題集、令和8年度診療報酬改定概要をもとに作成。実際の試験では、正式な告示・通知・疑義解釈も確認してください。</p>
+    </footer>
+  </div>
+
+  <script>
+    const bank = [
+      {
+        category: "感染性廃棄物：表示と分別",
+        questions: [
+          {
+            stem: "感染性廃棄物のバイオハザードマーク等による表示について述べたものとして、最も適切なものはどれか。",
+            ask: "適切なものを1つ選べ。",
+            options: [
+              {id:"a", text:"血液等の液状又は泥状のものは赤色、血液が付着したガーゼ等の固形状のものは橙色、注射針等の鋭利なものは黄色で表示する。", correct:true, reason:"液状・泥状は赤、固形状は橙、鋭利なものは黄という整理が基本です。"},
+              {id:"b", text:"血液が付着したガーゼ等の固形状のものは赤色、血液等の液状又は泥状のものは橙色、注射針等の鋭利なものは黄色で表示する。", correct:false, reason:"血液が付着したガーゼ等の固形状は橙色です。赤色は血液等の液状又は泥状のものに対応します。"},
+              {id:"c", text:"注射針等の鋭利なものは赤色、血液が付着した固形状のものは黄色、液状又は泥状のものは橙色で表示する。", correct:false, reason:"注射針等の鋭利なものは黄色です。赤色・橙色・黄色の対応を入れ替えないよう注意します。"},
+              {id:"d", text:"感染性廃棄物は、容器の材質で区別すれば足り、バイオハザードマーク等による表示は行わない。", correct:false, reason:"感染性廃棄物は分別・梱包のうえ、表示によって非感染性廃棄物と区別します。"},
+              {id:"e", text:"医療機関内で発生した廃棄物は、感染のおそれの有無にかかわらず、すべて感染性廃棄物として同一表示で扱う。", correct:false, reason:"感染のおそれがあるものを感染性廃棄物として区別します。すべてを同一表示で扱うという整理ではありません。"}
+            ],
+            explanation: "過去メモの『血液が付着した固形のものは赤』は引っかけになりやすい論点です。血液付着ガーゼ等の固形状は橙、注射針等の鋭利物は黄と整理します。"
+          },
+          {
+            stem: "感染性廃棄物について、次の記述のうち正しいものの組み合わせとして最も適切なものはどれか。<br><br>ア　感染のおそれのある注射針やガーゼは、感染性廃棄物に含まれる。<br>イ　感染性廃棄物は、分別・梱包し、表示によって非感染性廃棄物と区別する。<br>ウ　特別管理産業廃棄物管理責任者は、医師でなければならない。<br>エ　バイオハザードマークの色は、赤色・橙色・黄色で整理される。<br>オ　注射針など鋭利なものは、赤色で表示する。",
+            ask: "正しいものの組み合わせを1つ選べ。",
+            options: [
+              {id:"a", text:"ア・イ・エ", correct:true, reason:"ア・イ・エが正しい組み合わせです。管理責任者は医師に限定されず、鋭利物は黄色です。"},
+              {id:"b", text:"ア・ウ・オ", correct:false, reason:"ウとオが誤りです。管理責任者は医師に限定されず、注射針など鋭利なものは黄色です。"},
+              {id:"c", text:"イ・ウ・エ", correct:false, reason:"ウが誤りです。特別管理産業廃棄物管理責任者は医師に限られるわけではありません。"},
+              {id:"d", text:"ア・イ・オ", correct:false, reason:"オが誤りです。注射針など鋭利なものは赤色ではなく黄色です。"},
+              {id:"e", text:"ウ・エ・オ", correct:false, reason:"ウとオが誤りです。色の組み合わせだけでなく、管理責任者の要件も確認が必要です。"}
+            ],
+            explanation: "感染性廃棄物は、廃棄物処理法上の特別管理産業廃棄物として厳格に扱います。『医師でなければ管理責任者になれない』『鋭利物は赤』という選択肢に注意します。"
+          },
+          {
+            stem: "感染性廃棄物の取扱いに関する記述として、適切でないものはどれか。",
+            ask: "適切でないものを1つ選べ。",
+            options: [
+              {id:"a", text:"感染性廃棄物は、廃棄物に直接触れることのないよう、容器に入れて取り扱う。", correct:false, reason:"これは適切です。廃棄物に直接触れないよう、容器による取扱いが重要です。"},
+              {id:"b", text:"容器は、密閉できること、収納しやすいこと、破損しにくいことなどを廃棄物の性状に応じて考慮する。", correct:false, reason:"これは適切です。感染性廃棄物は性状に応じて容器を使い分けます。"},
+              {id:"c", text:"感染性廃棄物は、特別管理産業廃棄物として管理される。", correct:false, reason:"これは適切です。感染性廃棄物は特別管理産業廃棄物として扱われます。"},
+              {id:"d", text:"血液が付着したガーゼ等の固形状のものは、原則として赤色の表示で区別する。", correct:true, reason:"ここが誤りです。血液付着ガーゼ等の固形状は橙色です。赤色は血液等の液状又は泥状のものに対応します。"},
+              {id:"e", text:"注射針等の鋭利なものは、黄色の表示で区別する。", correct:false, reason:"これは適切です。注射針等の鋭利なものは黄色と整理します。"}
+            ],
+            explanation: "感染性廃棄物は、容器・分別・表示のセットで理解します。色の暗記だけでなく、容器の性状や特別管理産業廃棄物としての位置づけも押さえます。"
+          }
+        ]
+      },
+      {
+        category: "感染対策向上加算・抗菌薬適正使用",
+        questions: [
+          {
+            stem: "令和8年度診療報酬改定における感染対策や薬剤耐性対策に関連する記述として、最も適切なものはどれか。",
+            ask: "適切なものを1つ選べ。",
+            options: [
+              {id:"a", text:"感染対策向上加算等では、感染対策チームや抗菌薬適正使用支援チームなどの体制が論点となり、令和8年度改定では一部の専従要件について月16時間までの他業務従事が認められる方向で見直された。", correct:true, reason:"感染対策チーム、抗菌薬適正使用支援チーム、専従要件の柔軟化が結びつく点が重要です。"},
+              {id:"b", text:"感染対策向上加算は、感染症患者に対する個別の処置料であり、院内の感染対策体制や抗菌薬適正使用とは関係しない。", correct:false, reason:"感染対策向上加算は、個別処置ではなく、感染対策の体制を評価する性格を持ちます。"},
+              {id:"c", text:"抗菌薬適正使用支援チームは、薬剤費の削減のみを目的とするチームであり、薬剤耐性対策とは区別して扱われる。", correct:false, reason:"抗菌薬適正使用は薬剤耐性対策と深く関係します。薬剤費削減のみを目的とする整理ではありません。"},
+              {id:"d", text:"令和8年度改定では、感染症対策や薬剤耐性対策は基本方針から外れ、医療DXのみが安全対策として示された。", correct:false, reason:"令和8年度改定の基本方針では、感染症対策や薬剤耐性対策の推進が示されています。"},
+              {id:"e", text:"感染対策チームの専従者は、他業務に従事できる時間の上限がなくなったため、感染対策業務に従事する時間は任意となった。", correct:false, reason:"月16時間までという上限のある柔軟化であり、感染対策業務の位置づけが任意になったわけではありません。"}
+            ],
+            explanation: "感染対策向上加算は、院内感染対策の体制評価として理解します。令和8年度改定では、感染症対策・薬剤耐性対策の推進と、専従要件の柔軟化が出題しやすいポイントです。"
+          },
+          {
+            stem: "感染対策向上加算等に関連する次の記述のうち、正しいものの組み合わせとして最も適切なものはどれか。<br><br>ア　令和8年度改定の基本方針では、感染症対策や薬剤耐性対策の推進が示されている。<br>イ　感染対策チームの専従者等について、一定範囲で他業務従事を認める見直しが行われた。<br>ウ　抗菌薬適正使用は、薬剤耐性対策と関係がないため、感染対策とは別個の財務施策として扱う。<br>エ　感染対策向上加算は、個々の感染症治療手技の点数ではなく、医療機関の体制評価として理解する。<br>オ　感染対策チームは、令和8年度改定により廃止され、感染対策は外部委託が必須となった。",
+            ask: "正しいものの組み合わせを1つ選べ。",
+            options: [
+              {id:"a", text:"ア・イ・エ", correct:true, reason:"ア・イ・エが正しい組み合わせです。薬剤耐性対策、専従要件の柔軟化、体制評価という3点を押さえます。"},
+              {id:"b", text:"ア・ウ・オ", correct:false, reason:"ウとオが誤りです。抗菌薬適正使用は薬剤耐性対策と関係し、感染対策チームが廃止されたわけではありません。"},
+              {id:"c", text:"イ・ウ・エ", correct:false, reason:"ウが誤りです。抗菌薬適正使用は薬剤耐性対策と関係します。"},
+              {id:"d", text:"ウ・エ・オ", correct:false, reason:"ウとオが誤りです。感染対策を外部委託必須とする整理ではありません。"},
+              {id:"e", text:"ア・イ・オ", correct:false, reason:"オが誤りです。感染対策チームの廃止ではなく、体制や専従要件が論点です。"}
+            ],
+            explanation: "『感染対策向上加算＝体制評価』『抗菌薬適正使用＝薬剤耐性対策』『令和8年度＝専従要件の一部柔軟化』という形で横断的に整理します。"
+          },
+          {
+            stem: "感染対策向上加算・抗菌薬適正使用に関する記述として、適切でないものはどれか。",
+            ask: "適切でないものを1つ選べ。",
+            options: [
+              {id:"a", text:"感染対策向上加算は、院内感染対策を組織的に行う体制を評価するものとして理解できる。", correct:false, reason:"これは適切です。個別処置料ではなく体制評価として押さえます。"},
+              {id:"b", text:"抗菌薬適正使用支援チームは、抗菌薬の適正使用や薬剤耐性対策と関連する論点である。", correct:false, reason:"これは適切です。薬剤耐性対策と結びつけて理解します。"},
+              {id:"c", text:"感染対策チームの専従者等については、令和8年度改定で一定範囲の他業務従事が認められる見直しが示された。", correct:false, reason:"これは適切です。月16時間までという上限のある柔軟化が示されています。"},
+              {id:"d", text:"感染症対策は令和8年度改定の基本方針から外れ、診療報酬上の評価は薬価制度のみに集約された。", correct:true, reason:"これが誤りです。令和8年度改定では、安心・安全で質の高い医療の推進の中で感染症対策や薬剤耐性対策が示されています。"},
+              {id:"e", text:"感染対策は、医療安全と同様に、患者が安心して医療を受けるための体制整備と結びつく。", correct:false, reason:"これは適切です。感染対策は患者安全・医療の質と関係します。"}
+            ],
+            explanation: "感染対策は『感染症名の暗記』より、組織体制・地域連携・抗菌薬適正使用・薬剤耐性対策として問われる可能性が高いです。"
+          }
+        ]
+      },
+      {
+        category: "感染症サーベイランスと医師事務作業補助者",
+        questions: [
+          {
+            stem: "令和8年度診療報酬改定における医師事務作業補助者の業務範囲に関する記述として、最も適切なものはどれか。",
+            ask: "適切なものを1つ選べ。",
+            options: [
+              {id:"a", text:"医師の指示の下で行う行政上の業務として、救急医療情報システムへの入力や感染症サーベイランス事業に係る入力等が含まれる。", correct:true, reason:"感染症サーベイランス事業に係る入力は、医師事務作業補助者の業務範囲の明確化で示された重要論点です。"},
+              {id:"b", text:"感染症サーベイランス事業に係る入力は、感染対策チームの専従者だけが行う業務であり、医師事務作業補助者の業務には含まれない。", correct:false, reason:"医師の指示の下で行う行政上の業務として、感染症サーベイランス事業に係る入力が含まれます。"},
+              {id:"c", text:"医師事務作業補助者は、感染症サーベイランス入力を行う場合、医師の指示を受けずに届出対象疾患の診断を行う。", correct:false, reason:"医師事務作業補助者は医師の指示の下で事務作業を補助します。診断を行う職種として整理するのは誤りです。"},
+              {id:"d", text:"医師事務作業補助者の業務範囲は診断書作成補助に限定され、診療記録や検査オーダーへの代行入力は含まれない。", correct:false, reason:"診断書等の文書作成補助に加え、診療記録・検査オーダー等への代行入力も業務範囲に含まれます。"},
+              {id:"e", text:"感染症サーベイランス入力は、病院の財務会計業務であるため、医師事務作業補助体制加算とは関係しない。", correct:false, reason:"感染症サーベイランス入力は行政上の業務として整理されます。財務会計業務とする理解は不適切です。"}
+            ],
+            explanation: "過去受験者メモの『感染関係』は、医師事務作業補助者の業務範囲と絡めて出る可能性があります。感染症サーベイランス入力は、医師事務作業補助者の業務として明確化された行政上の業務です。"
+          },
+          {
+            stem: "医師事務作業補助者が医師の指示の下で行う業務として、正しいものの組み合わせとして最も適切なものはどれか。<br><br>ア　診断書・診療情報提供書等の文書作成補助<br>イ　診療記録・検査オーダー等への代行入力<br>ウ　感染症サーベイランス事業に係る入力<br>エ　医師の指示を受けずに検査オーダーの内容を決定すること<br>オ　入院時の案内等の病棟における患者対応業務",
+            ask: "正しいものの組み合わせを1つ選べ。",
+            options: [
+              {id:"a", text:"ア・イ・ウ・オ", correct:true, reason:"ア・イ・ウ・オが正しい組み合わせです。エは医師の指示を受けずに判断する点が誤りです。"},
+              {id:"b", text:"ア・イ・エ・オ", correct:false, reason:"エが誤りです。医師事務作業補助者は医師の指示の下で業務を行い、検査オーダー内容を独自に決定するものではありません。"},
+              {id:"c", text:"ア・ウ・エ", correct:false, reason:"エが誤りで、イとオも正しい業務に含まれます。"},
+              {id:"d", text:"イ・ウ・エ・オ", correct:false, reason:"エが誤りです。また、アの文書作成補助も代表的な業務です。"},
+              {id:"e", text:"ウ・エ・オ", correct:false, reason:"エが誤りで、ア・イも正しい業務です。感染症サーベイランスだけでなく周辺業務も押さえます。"}
+            ],
+            explanation: "医師事務作業補助者は、医師の指示の下で、文書作成補助、代行入力、医療の質向上に資する事務作業、病棟での患者対応、行政上の入力業務等を担います。"
+          },
+          {
+            stem: "感染症サーベイランスと医師事務作業補助者に関する記述として、適切でないものはどれか。",
+            ask: "適切でないものを1つ選べ。",
+            options: [
+              {id:"a", text:"感染症サーベイランス事業に係る入力は、医師事務作業補助者が行う行政上の業務に含まれる。", correct:false, reason:"これは適切です。行政上の業務として明確化されています。"},
+              {id:"b", text:"医師事務作業補助者の業務は、医師の指示の下で行うことが前提となる。", correct:false, reason:"これは適切です。医師の指示の下で行う点が重要です。"},
+              {id:"c", text:"院内がん登録等の統計・調査・入力作業は、医療の質の向上に資する事務作業として整理される。", correct:false, reason:"これは適切です。感染症サーベイランス以外の統計・調査・入力作業も押さえます。"},
+              {id:"d", text:"感染症サーベイランス入力を行った医師事務作業補助者は、当該感染症の診断を行った者として扱われる。", correct:true, reason:"これが誤りです。医師事務作業補助者は入力等の事務作業を補助するのであり、診断を行う者として整理されるわけではありません。"},
+              {id:"e", text:"救急医療情報システムへの入力も、医師事務作業補助者の行政上の業務として整理される。", correct:false, reason:"これは適切です。感染症サーベイランス入力と並んで押さえたい業務です。"}
+            ],
+            explanation: "感染症サーベイランス入力は『感染症そのもの』というより、医療機関の事務・行政対応、タスクシフトの論点として出題されやすいです。"
+          }
+        ]
+      },
+      {
+        category: "院内感染対策・医療安全・施設設計",
+        questions: [
+          {
+            stem: "医療機関の施設設計・運用と院内感染対策に関する記述として、最も適切なものはどれか。",
+            ask: "適切なものを1つ選べ。",
+            options: [
+              {id:"a", text:"施設の詳細設計段階では、患者動線を最大化することを最優先し、院内感染や空調に配慮したゾーニング計画は運用開始後に検討する。", correct:false, reason:"患者動線は最大化ではなく最小化が基本です。また、院内感染や空調に配慮したゾーニングは詳細設計段階で考慮します。"},
+              {id:"b", text:"施設の詳細設計段階では、院内感染や空調に配慮したゾーニング計画、将来の施設増築を考慮したレイアウト等が検討される。", correct:true, reason:"詳細設計では院内感染、空調、将来の増築等を考慮したゾーニング・レイアウトが重要です。"},
+              {id:"c", text:"院内感染対策は医療安全と別領域であるため、患者にとって安心・安全に医療を受ける体制とは関係しない。", correct:false, reason:"院内感染対策は患者安全・医療の質と密接に関係します。"},
+              {id:"d", text:"院内感染防止マニュアルは、病院の広報活動のための資料であり、職員教育や業務プロセスとは関係しない。", correct:false, reason:"院内感染防止マニュアルは、職員教育や業務プロセス、患者安全と関係します。広報資料としてだけ見るのは不適切です。"},
+              {id:"e", text:"清潔性は患者の快適性とは関係するが、施設設計上の原則としては安全性より優先されないため考慮しない。", correct:false, reason:"施設設計では、安全性、清潔性、快適性、わかりやすさ、使いやすさなどを総合的に考えます。"}
+            ],
+            explanation: "院内感染対策は、委員会やマニュアルだけでなく、動線・ゾーニング・空調・清潔性など施設設計とも結びつきます。"
+          },
+          {
+            stem: "医療安全・院内感染対策に関連する次の記述のうち、正しいものの組み合わせとして最も適切なものはどれか。<br><br>ア　院内感染防止マニュアルの遵守は、患者が安心して医療を受けるための体制と関係する。<br>イ　施設設計の観点では、安全性・清潔性・快適性・わかりやすさ・使いやすさなどが考慮される。<br>ウ　施設の詳細設計では、院内感染や空調に配慮したゾーニング計画が論点となる。<br>エ　患者動線は長いほど各部門の稼働率が上がるため、最小化ではなく最大化を目指す。<br>オ　院内感染対策は医療安全と関係しないため、職員教育やマニュアル整備の対象から外す。",
+            ask: "正しいものの組み合わせを1つ選べ。",
+            options: [
+              {id:"a", text:"ア・イ・ウ", correct:true, reason:"ア・イ・ウが正しい組み合わせです。動線最大化や院内感染対策を教育対象外とする整理は不適切です。"},
+              {id:"b", text:"ア・エ・オ", correct:false, reason:"エとオが誤りです。患者動線は最小化が基本で、院内感染対策は医療安全や職員教育と関係します。"},
+              {id:"c", text:"イ・ウ・エ", correct:false, reason:"エが誤りです。患者動線は最大化ではなく、移動距離の最小化を考えます。"},
+              {id:"d", text:"ウ・エ・オ", correct:false, reason:"エとオが誤りです。院内感染対策は安全管理上の重要論点です。"},
+              {id:"e", text:"ア・イ・オ", correct:false, reason:"オが誤りです。院内感染対策は医療安全・職員教育・マニュアル整備と関係します。"}
+            ],
+            explanation: "試験では『院内感染』を単独で聞くより、施設設計、医療安全、BSC、病院機能評価のような周辺論点と組み合わせる形が考えられます。"
+          },
+          {
+            stem: "院内感染対策を医療経営上の管理課題として捉える場合の記述として、適切でないものはどれか。",
+            ask: "適切でないものを1つ選べ。",
+            options: [
+              {id:"a", text:"院内感染防止マニュアルの整備・遵守は、患者安全や医療の質の確保と関係する。", correct:false, reason:"これは適切です。マニュアルの整備・遵守は患者安全や医療の質に関係します。"},
+              {id:"b", text:"感染性廃棄物の分別・表示と、院内感染防止策は同じ概念ではないが、いずれも医療機関の安全管理に関係する。", correct:false, reason:"これは適切です。廃棄物管理と院内感染防止は別概念ですが、安全管理上は関連します。"},
+              {id:"c", text:"職員教育や研修は、院内感染対策を現場に定着させるための手段となる。", correct:false, reason:"これは適切です。感染対策は現場での実践が重要であり、研修・教育と結びつきます。"},
+              {id:"d", text:"院内感染対策は、医療安全ではなく経理部門の支払処理に限られるため、診療現場の業務プロセスとは関係しない。", correct:true, reason:"これが誤りです。院内感染対策は診療現場の業務プロセス、患者安全、職員教育と関係します。"},
+              {id:"e", text:"動線やゾーニング、空調への配慮は、院内感染リスクを考えるうえで施設面からの対策となる。", correct:false, reason:"これは適切です。施設設計・ゾーニングも感染対策と関係します。"}
+            ],
+            explanation: "医療経営士2級では、院内感染対策を『現場管理』『医療安全』『施設設計』『委託・廃棄物管理』の横串で理解しておくと対応しやすくなります。"
+          }
+        ]
+      },
+      {
+        category: "統合問題：感染対策をめぐる横断整理",
+        questions: [
+          {
+            stem: "ある病院では、感染症対応の体制整備、感染性廃棄物の分別、医師事務作業補助者の業務整理を同時に見直している。次の記述として、適切でないものはどれか。",
+            ask: "適切でないものを1つ選べ。",
+            options: [
+              {id:"a", text:"血液が付着したガーゼ等の固形状の感染性廃棄物は、橙色の表示で区別する。", correct:false, reason:"これは適切です。血液付着ガーゼ等の固形状は橙色です。"},
+              {id:"b", text:"注射針等の鋭利な感染性廃棄物は、黄色の表示で区別する。", correct:false, reason:"これは適切です。注射針等の鋭利なものは黄色です。"},
+              {id:"c", text:"医師事務作業補助者は、医師の指示の下で感染症サーベイランス事業に係る入力を行うことがある。", correct:false, reason:"これは適切です。行政上の業務として感染症サーベイランス入力が含まれます。"},
+              {id:"d", text:"感染対策チームや抗菌薬適正使用支援チームは、感染症対策や薬剤耐性対策を進めるうえで重要な体制である。", correct:false, reason:"これは適切です。感染症対策と薬剤耐性対策の体制として押さえます。"},
+              {id:"e", text:"感染性廃棄物は、感染対策チームが確認すれば、バイオハザード表示を行わずに通常の一般廃棄物と同じ流れで排出できる。", correct:true, reason:"これが誤りです。感染性廃棄物は分別・梱包・表示によって非感染性廃棄物と区別して扱います。"}
+            ],
+            explanation: "統合問題では、色の暗記、体制評価、医師事務作業補助者の業務範囲を同時に問われる可能性があります。『感染対策チームが確認したから通常廃棄物でよい』という整理は危険です。"
+          },
+          {
+            stem: "感染症対策に関する次の記述のうち、正しいものの組み合わせとして最も適切なものはどれか。<br><br>ア　感染性廃棄物は、分別・梱包・表示により非感染性廃棄物と区別する。<br>イ　血液等の液状又は泥状の感染性廃棄物は、赤色で表示する。<br>ウ　医師事務作業補助者の業務には、医師の指示の下で行う感染症サーベイランス事業に係る入力が含まれる。<br>エ　抗菌薬適正使用は、薬剤耐性対策と関係しない。<br>オ　院内感染対策は、施設設計や動線・ゾーニングとは関係しない。",
+            ask: "正しいものの組み合わせを1つ選べ。",
+            options: [
+              {id:"a", text:"ア・イ・ウ", correct:true, reason:"ア・イ・ウが正しい組み合わせです。エとオは、薬剤耐性対策や施設設計との関係を切り離している点が誤りです。"},
+              {id:"b", text:"ア・エ・オ", correct:false, reason:"エとオが誤りです。抗菌薬適正使用は薬剤耐性対策と関係し、院内感染対策は施設設計やゾーニングとも関係します。"},
+              {id:"c", text:"イ・ウ・エ", correct:false, reason:"エが誤りです。抗菌薬適正使用は薬剤耐性対策と結びつきます。またアも正しい記述です。"},
+              {id:"d", text:"ウ・エ・オ", correct:false, reason:"エとオが誤りです。感染対策を医療機関の体制・施設設計から切り離さないようにします。"},
+              {id:"e", text:"ア・イ・オ", correct:false, reason:"オが誤りです。院内感染対策は施設設計・動線・ゾーニングとも関係します。"}
+            ],
+            explanation: "この問題は、廃棄物、医師事務、抗菌薬適正使用、施設設計を横断しています。専門分野ではこのような長めの選択肢問題として出る可能性があります。"
+          },
+          {
+            stem: "感染症対策を医療経営士2級の試験対策として整理する場合、最も適切な学習方針はどれか。",
+            ask: "適切なものを1つ選べ。",
+            options: [
+              {id:"a", text:"感染症名と治療薬の細かな対応を中心に覚え、医療廃棄物や医師事務作業補助者の業務範囲は試験範囲から外してよい。", correct:false, reason:"医療経営士2級では、感染症そのものの医学知識より、廃棄物管理・体制・診療報酬・事務業務との関係が出やすいです。"},
+              {id:"b", text:"感染性廃棄物の色分け、感染対策向上加算等の体制、抗菌薬適正使用、感染症サーベイランス入力、院内感染対策と施設設計を横断して整理する。", correct:true, reason:"これが適切です。今回の出題候補を横断的に押さえる学習方針です。"},
+              {id:"c", text:"感染性廃棄物は、色分けを覚えれば十分であり、分別・梱包・管理責任者・委託との関係は確認しなくてよい。", correct:false, reason:"色分けは重要ですが、分別・梱包、特別管理産業廃棄物、管理責任者、委託との関係も出題されやすいです。"},
+              {id:"d", text:"感染症サーベイランスは公衆衛生の用語であり、診療報酬や医師事務作業補助者の問題とは接点がない。", correct:false, reason:"令和8年度改定では、医師事務作業補助者の行政上の業務として感染症サーベイランス事業に係る入力が示されています。"},
+              {id:"e", text:"抗菌薬適正使用は薬剤の購入価格に関する管理会計の論点であり、感染対策や薬剤耐性対策とは分けて覚える。", correct:false, reason:"抗菌薬適正使用は薬剤耐性対策と結びつけて理解します。購入価格だけの管理会計論点ではありません。"}
+            ],
+            explanation: "感染症対策は、医学知識として深掘りするより、医療機関の管理体制・診療報酬・廃棄物・事務業務・施設設計として押さえるのが効率的です。"
+          }
+        ]
+      }
+    ];
+
+    let quiz = [];
+    let current = 0;
+    let selected = null;
+    let answered = false;
+    let score = 0;
+    let history = [];
+
+    function shuffle(array){
+      const a = array.slice();
+      for(let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random() * (i+1));
+        const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
+
+    function makeQuiz(){
+      const picked = bank.map(cat => {
+        const q = cat.questions[Math.floor(Math.random() * cat.questions.length)];
+        return Object.assign({}, q, {
+          category: cat.category,
+          options: shuffle(q.options)
+        });
+      });
+      quiz = shuffle(picked);
+    }
+
+    function $(id){ return document.getElementById(id); }
+
+    function render(){
+      answered = false;
+      selected = null;
+      const q = quiz[current];
+      $("questionArea").style.display = "block";
+      $("finalArea").classList.remove("show");
+      $("category").textContent = q.category;
+      $("stem").innerHTML = q.stem;
+      $("ask").textContent = q.ask;
+      $("counter").textContent = "問題 " + (current + 1) + " / " + quiz.length;
+      $("scoreNow").textContent = "正答 " + score;
+      $("barFill").style.width = Math.round((current / quiz.length) * 100) + "%";
+      $("answerBtn").style.display = "inline-block";
+      $("answerBtn").disabled = false;
+      $("nextBtn").style.display = "none";
+      $("feedback").className = "feedback";
+      $("feedback").innerHTML = "";
+      $("toast").classList.remove("show");
+
+      const choices = $("choices");
+      choices.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice";
+        btn.dataset.id = opt.id;
+        btn.innerHTML = '<span class="num">' + (idx + 1) + '</span><span>' + opt.text + '</span>';
+        btn.addEventListener("click", () => choose(opt.id));
+        choices.appendChild(btn);
+      });
+      setTimeout(() => window.scrollTo({top:0, behavior:"smooth"}), 20);
+    }
+
+    function choose(id){
+      if(answered) return;
+      selected = id;
+      $("toast").classList.remove("show");
+      document.querySelectorAll(".choice").forEach(btn => {
+        btn.classList.toggle("selected", btn.dataset.id === id);
+      });
+    }
+
+    function showAnswer(){
+      if(!selected){
+        $("toast").classList.add("show");
+        return;
+      }
+      answered = true;
+      const q = quiz[current];
+      const selectedOpt = q.options.find(o => o.id === selected);
+      const correctOpt = q.options.find(o => o.correct);
+      const isCorrect = selectedOpt && selectedOpt.correct;
+      if(isCorrect) score++;
+
+      document.querySelectorAll(".choice").forEach(btn => {
+        const opt = q.options.find(o => o.id === btn.dataset.id);
+        btn.disabled = true;
+        if(opt.correct) btn.classList.add("correct");
+        if(btn.dataset.id === selected && !opt.correct) btn.classList.add("incorrect");
+      });
+
+      const fb = $("feedback");
+      fb.className = "feedback show " + (isCorrect ? "ok" : "bad");
+      fb.innerHTML = `
+        <h2>${isCorrect ? "正解です" : "不正解です"}</h2>
+        <p><strong>正答：</strong>${correctOpt.text}</p>
+        <p><strong>${isCorrect ? "理由" : "選んだ選択肢の確認"}：</strong>${selectedOpt.reason}</p>
+        <p class="small"><strong>解説：</strong>${q.explanation}</p>
+      `;
+      history.push({
+        category:q.category,
+        stem:q.stem.replace(/<br>/g, " ").replace(/<[^>]+>/g, ""),
+        correct:isCorrect,
+        selected:selectedOpt.text,
+        answer:correctOpt.text
+      });
+      $("scoreNow").textContent = "正答 " + score;
+      $("answerBtn").disabled = true;
+      $("nextBtn").style.display = "inline-block";
+      $("barFill").style.width = Math.round(((current + 1) / quiz.length) * 100) + "%";
+    }
+
+    function next(){
+      if(current < quiz.length - 1){
+        current++;
+        render();
+      }else{
+        showFinal();
+      }
+    }
+
+    function showFinal(){
+      $("questionArea").style.display = "none";
+      $("finalArea").classList.add("show");
+      $("counter").textContent = "完了";
+      $("barFill").style.width = "100%";
+      $("finalScore").textContent = score + " / " + quiz.length + " 問正解";
+      const msg = score === quiz.length ? "満点です。感染性廃棄物と令和8年度改定の接点までよく押さえられています。" :
+        score >= 4 ? "かなり良い仕上がりです。色分け・サーベイランス入力・体制評価の細部を確認しましょう。" :
+        "復習ポイントは、感染性廃棄物の色分け、感染対策向上加算の体制評価、医師事務作業補助者の業務範囲です。";
+      $("finalMessage").textContent = msg;
+      const review = $("review");
+      review.innerHTML = "";
+      history.forEach((h, idx) => {
+        const item = document.createElement("div");
+        item.className = "reviewItem";
+        item.innerHTML = `<strong>問${idx+1}｜${h.category}</strong><br>${h.correct ? "○" : "×"}　${h.stem}<br><span style="color:#cbd5e1">正答：${h.answer}</span>`;
+        review.appendChild(item);
+      });
+      setTimeout(() => window.scrollTo({top:0, behavior:"smooth"}), 20);
+    }
+
+    function reset(){
+      current = 0; selected = null; answered = false; score = 0; history = [];
+      makeQuiz();
+      render();
+    }
+
+    $("answerBtn").addEventListener("click", showAnswer);
+    $("nextBtn").addEventListener("click", next);
+    $("retryBtn").addEventListener("click", reset);
+    reset();
+  </script>
+</body>
+</html>
