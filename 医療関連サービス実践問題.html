@@ -1,0 +1,1443 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>医療関連サービス実践問題</title>
+  <style>
+    :root {
+      --bg: #0b1018;
+      --panel: #121a26;
+      --panel2: #182234;
+      --text: #e8edf5;
+      --muted: #aab6c8;
+      --line: #2c3a50;
+      --accent: #7dd3c7;
+      --accent2: #f0b86a;
+      --danger: #ff8a8a;
+      --ok: #9ae6b4;
+      --shadow: 0 18px 50px rgba(0,0,0,.28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(125,211,199,.08), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(240,184,106,.08), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    a { color: var(--accent); }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 18px 14px 72px;
+    }
+
+    header {
+      padding: 22px 0 12px;
+    }
+
+    .top-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    .title-card {
+      background: linear-gradient(180deg, rgba(24,34,52,.95), rgba(18,26,38,.95));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 7vw, 42px);
+      letter-spacing: .02em;
+      line-height: 1.22;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      font-size: 12px;
+    }
+
+    .card {
+      background: rgba(18,26,38,.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-top: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .notice {
+      border-left: 4px solid var(--accent2);
+      background: rgba(240,184,106,.08);
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: #f5dfbd;
+      font-size: 14px;
+    }
+
+    .start-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 760px) {
+      .start-grid {
+        grid-template-columns: 1.2fr .8fr;
+        align-items: start;
+      }
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 9px;
+      text-align: left;
+    }
+
+    .summary-table th {
+      color: var(--muted);
+      font-weight: 700;
+      background: rgba(255,255,255,.03);
+    }
+
+    .summary-table td:last-child,
+    .summary-table th:last-child {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .05s ease, opacity .2s ease, background .2s ease;
+    }
+
+    button:active { transform: translateY(1px); }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7dd3c7, #9ae6b4);
+      color: #081017;
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .btn-secondary {
+      background: #233047;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (min-width: 560px) {
+      .btn-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .quiz-head {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .progress-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar {
+      height: 10px;
+      background: #0d1421;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width .3s ease;
+    }
+
+    .category {
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 999px;
+      border: 1px solid rgba(125,211,199,.4);
+      color: var(--accent);
+      background: rgba(125,211,199,.08);
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .question {
+      font-size: clamp(18px, 4.7vw, 23px);
+      font-weight: 800;
+      line-height: 1.55;
+      margin: 10px 0 16px;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      border-radius: 15px;
+      padding: 13px;
+      cursor: pointer;
+      min-height: 58px;
+    }
+
+    .option input {
+      width: 20px;
+      height: 20px;
+      margin-top: 3px;
+      accent-color: var(--accent);
+    }
+
+    .option.selected {
+      border-color: rgba(125,211,199,.85);
+      background: rgba(125,211,199,.09);
+    }
+
+    .option.correct {
+      border-color: rgba(154,230,180,.9);
+      background: rgba(154,230,180,.09);
+    }
+
+    .option.wrong {
+      border-color: rgba(255,138,138,.9);
+      background: rgba(255,138,138,.08);
+    }
+
+    .option-label {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .result-box {
+      display: none;
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .result-box.show { display: block; }
+
+    .judgement {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .judgement.ok {
+      background: rgba(154,230,180,.12);
+      color: var(--ok);
+      border: 1px solid rgba(154,230,180,.45);
+    }
+
+    .judgement.ng {
+      background: rgba(255,138,138,.12);
+      color: var(--danger);
+      border: 1px solid rgba(255,138,138,.45);
+    }
+
+    .explain-title {
+      color: var(--accent2);
+      font-weight: 800;
+      margin-top: 10px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .hidden { display: none !important; }
+
+    .score {
+      font-size: clamp(28px, 8vw, 44px);
+      line-height: 1.1;
+      font-weight: 900;
+      margin: 0 0 10px;
+    }
+
+    .review-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .review-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.025);
+    }
+
+    .review-item b { color: var(--text); }
+
+    footer {
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="top-link" href="./index.html">← Indexに戻る</a>
+      <div class="title-card">
+        <h1>医療関連サービス実践問題</h1>
+        <p class="lead">令和6年度の医療関連サービス実態調査を中心に、委託率の順位、上位・中位・低位業務、前回調査との比較、委託管理の考え方を確認します。</p>
+        <div class="meta-row">
+          <span class="pill">全8問</span>
+          <span class="pill">各カテゴリ3問プールからランダム出題</span>
+          <span class="pill">選択肢も毎回ランダム</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="start" class="start-grid">
+        <div class="card">
+          <div class="notice">
+            令和6年度値では、検体検査は94.8％です。予想問題集のような「95％前後の上位業務」としては重要ですが、厳密に「95％を超える」と表現された場合は注意してください。
+          </div>
+          <p>
+            出題は、8カテゴリから1問ずつランダムに選ばれます。回答後に解説を確認し、「次の問題へ」で進んでください。
+          </p>
+          <button class="btn-primary" id="startBtn">問題を開始する</button>
+        </div>
+
+        <div class="card">
+          <table class="summary-table" aria-label="令和6年度委託率の主な数値">
+            <thead>
+              <tr><th>主な業務</th><th>委託率</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>寝具類洗濯</td><td>97.2%</td></tr>
+              <tr><td>医療廃棄物処理</td><td>95.6%</td></tr>
+              <tr><td>検体検査</td><td>94.8%</td></tr>
+              <tr><td>医療用ガス供給設備保守点検</td><td>94.5%</td></tr>
+              <tr><td>院内清掃</td><td>87.8%</td></tr>
+              <tr><td>患者等給食</td><td>72.9%</td></tr>
+              <tr><td>医療事務</td><td>37.3%</td></tr>
+              <tr><td>患者搬送</td><td>14.3%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="quiz" class="card hidden" aria-live="polite">
+        <div class="quiz-head">
+          <div class="progress-wrap">
+            <div class="bar" aria-hidden="true"><span id="progressBar"></span></div>
+            <div id="progressText">1 / 8</div>
+          </div>
+          <span class="category" id="categoryLabel"></span>
+        </div>
+
+        <div class="question" id="questionText"></div>
+        <ul class="options" id="optionsList"></ul>
+
+        <button class="btn-primary" id="answerBtn" disabled>回答</button>
+
+        <div class="result-box" id="resultBox">
+          <div id="judgement" class="judgement"></div>
+          <div id="choiceFeedback"></div>
+          <div class="explain-title">解説</div>
+          <div id="explanation"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-secondary" id="nextBtn" disabled>次の問題へ</button>
+          <button class="btn-secondary" id="restartBtn">最初からやり直す</button>
+        </div>
+      </section>
+
+      <section id="finish" class="card hidden">
+        <p class="score" id="scoreText"></p>
+        <p class="muted" id="scoreMessage"></p>
+        <div class="btn-row">
+          <button class="btn-primary" id="againBtn">もう一度ランダム出題する</button>
+          <button class="btn-secondary" id="reviewBtn">今回の結果を確認する</button>
+        </div>
+        <div id="review" class="review-list hidden"></div>
+      </section>
+    </main>
+
+    <footer>
+      参考：一般財団法人医療関連サービス振興会「令和6年度 医療関連サービス実態調査」、医療経営士2級予想問題集、過去受験者メモ。GitHub Pagesなどの静的ページでそのまま利用できます。
+    </footer>
+  </div>
+
+  <script>
+    const QUESTION_POOLS = [
+  [
+    {
+      "category": "委託率上位業務",
+      "stem": "2024（令和6）年度の医療関連サービス実態調査（病院調査編）における、委託率の上位3業務の組み合わせとして最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "寝具類洗濯・医療廃棄物処理・検体検査",
+          "correct": true,
+          "feedback": "正しい組み合わせです。令和6年度の委託率は寝具類洗濯97.2％、医療廃棄物処理95.6％、検体検査94.8％です。"
+        },
+        {
+          "text": "検体検査・患者等給食・医療事務",
+          "correct": false,
+          "feedback": "検体検査は上位ですが、患者等給食は72.9％、医療事務は37.3％であり、上位3業務には入りません。"
+        },
+        {
+          "text": "寝具類洗濯・院内清掃・患者等給食",
+          "correct": false,
+          "feedback": "寝具類洗濯は最上位ですが、院内清掃87.8％、患者等給食72.9％は上位3業務ではありません。"
+        },
+        {
+          "text": "医療用ガス供給設備保守点検・医療機器保守点検・滅菌消毒",
+          "correct": false,
+          "feedback": "医療用ガス供給設備保守点検は94.5％と高率ですが、医療機器保守点検は86.2％、滅菌消毒は43.5％です。"
+        },
+        {
+          "text": "医療廃棄物処理・院内物品管理・医療事務",
+          "correct": false,
+          "feedback": "医療廃棄物処理は上位ですが、院内物品管理37.2％、医療事務37.3％は中位以下です。"
+        }
+      ],
+      "explanation": "委託率の上位3業務は、寝具類洗濯97.2％、医療廃棄物処理95.6％、検体検査94.8％です。検体検査は令和6年度値では厳密には95％未満なので、「95％超」ではなく「上位3業務」「おおむね95％前後」と整理すると安全です。"
+    },
+    {
+      "category": "委託率上位業務",
+      "stem": "2024（令和6）年度の医療関連サービス実態調査（病院調査編）において、委託率が最も高い業務はどれか。",
+      "choices": [
+        {
+          "text": "寝具類洗濯",
+          "correct": true,
+          "feedback": "正解です。寝具類洗濯は97.2％で、令和6年度調査における最上位です。"
+        },
+        {
+          "text": "医療廃棄物処理",
+          "correct": false,
+          "feedback": "医療廃棄物処理は95.6％で非常に高いですが、寝具類洗濯97.2％を下回ります。"
+        },
+        {
+          "text": "検体検査",
+          "correct": false,
+          "feedback": "検体検査は94.8％で上位ですが、最上位ではありません。"
+        },
+        {
+          "text": "医療用ガス供給設備保守点検",
+          "correct": false,
+          "feedback": "医療用ガス供給設備保守点検は94.5％で高率ですが、最上位ではありません。"
+        },
+        {
+          "text": "院内清掃",
+          "correct": false,
+          "feedback": "院内清掃は87.8％で高いものの、最上位ではありません。"
+        }
+      ],
+      "explanation": "令和6年度調査では、寝具類洗濯97.2％が最も高く、次いで医療廃棄物処理95.6％、検体検査94.8％、医療用ガス供給設備保守点検94.5％です。"
+    },
+    {
+      "category": "委託率上位業務",
+      "stem": "次のア〜ウと委託率の組み合わせとして、最も適切なものはどれか。ア：寝具類洗濯、イ：医療廃棄物処理、ウ：検体検査",
+      "choices": [
+        {
+          "text": "ア 97.2％　イ 95.6％　ウ 94.8％",
+          "correct": true,
+          "feedback": "正しい組み合わせです。"
+        },
+        {
+          "text": "ア 95.6％　イ 97.2％　ウ 94.8％",
+          "correct": false,
+          "feedback": "寝具類洗濯と医療廃棄物処理の数値が逆です。寝具類洗濯が97.2％です。"
+        },
+        {
+          "text": "ア 94.8％　イ 95.6％　ウ 97.2％",
+          "correct": false,
+          "feedback": "検体検査は94.8％であり、97.2％ではありません。"
+        },
+        {
+          "text": "ア 87.8％　イ 95.6％　ウ 94.5％",
+          "correct": false,
+          "feedback": "87.8％は院内清掃、94.5％は医療用ガス供給設備保守点検の数値です。"
+        },
+        {
+          "text": "ア 72.9％　イ 86.2％　ウ 94.8％",
+          "correct": false,
+          "feedback": "72.9％は患者等給食、86.2％は医療機器保守点検の数値です。"
+        }
+      ],
+      "explanation": "上位業務は数値まで並べ替え問題にされやすいです。寝具類洗濯97.2％、医療廃棄物処理95.6％、検体検査94.8％をセットで押さえます。"
+    }
+  ],
+  [
+    {
+      "category": "委託率の順位比較",
+      "stem": "2024（令和6）年度調査における委託率を高い順に並べたものとして、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "寝具類洗濯 ＞ 医療廃棄物処理 ＞ 検体検査 ＞ 医療用ガス供給設備保守点検 ＞ 院内清掃",
+          "correct": true,
+          "feedback": "正しい順序です。"
+        },
+        {
+          "text": "寝具類洗濯 ＞ 検体検査 ＞ 医療廃棄物処理 ＞ 医療用ガス供給設備保守点検 ＞ 院内清掃",
+          "correct": false,
+          "feedback": "医療廃棄物処理95.6％は検体検査94.8％より高いです。"
+        },
+        {
+          "text": "医療廃棄物処理 ＞ 寝具類洗濯 ＞ 検体検査 ＞ 院内清掃 ＞ 医療用ガス供給設備保守点検",
+          "correct": false,
+          "feedback": "寝具類洗濯97.2％が最上位です。また医療用ガス供給設備保守点検94.5％は院内清掃87.8％より高いです。"
+        },
+        {
+          "text": "検体検査 ＞ 医療用ガス供給設備保守点検 ＞ 寝具類洗濯 ＞ 医療廃棄物処理 ＞ 院内清掃",
+          "correct": false,
+          "feedback": "検体検査と医療用ガスは高率ですが、寝具類洗濯と医療廃棄物処理を上回りません。"
+        },
+        {
+          "text": "院内清掃 ＞ 医療機器保守点検 ＞ 患者等給食 ＞ 医療廃棄物処理 ＞ 寝具類洗濯",
+          "correct": false,
+          "feedback": "院内清掃・医療機器保守点検・患者等給食はいずれも上位3業務を下回ります。"
+        }
+      ],
+      "explanation": "上位5つは、寝具類洗濯97.2％、医療廃棄物処理95.6％、検体検査94.8％、医療用ガス供給設備保守点検94.5％、院内清掃87.8％です。"
+    },
+    {
+      "category": "委託率の順位比較",
+      "stem": "次の業務を2024（令和6）年度調査の委託率が高い順に並べたものとして、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "患者等給食 ＞ 院内情報コンピュータ・システム ＞ 滅菌消毒 ＞ 医療事務",
+          "correct": true,
+          "feedback": "正しい順序です。患者等給食72.9％、院内情報コンピュータ・システム51.7％、滅菌消毒43.5％、医療事務37.3％です。"
+        },
+        {
+          "text": "院内情報コンピュータ・システム ＞ 患者等給食 ＞ 医療事務 ＞ 滅菌消毒",
+          "correct": false,
+          "feedback": "患者等給食72.9％は院内情報コンピュータ・システム51.7％を上回ります。"
+        },
+        {
+          "text": "滅菌消毒 ＞ 患者等給食 ＞ 院内情報コンピュータ・システム ＞ 医療事務",
+          "correct": false,
+          "feedback": "滅菌消毒43.5％は、患者等給食や院内情報コンピュータ・システムより低いです。"
+        },
+        {
+          "text": "医療事務 ＞ 滅菌消毒 ＞ 院内情報コンピュータ・システム ＞ 患者等給食",
+          "correct": false,
+          "feedback": "医療事務37.3％は、この4業務の中では最も低い値です。"
+        },
+        {
+          "text": "患者等給食 ＞ 滅菌消毒 ＞ 医療事務 ＞ 院内情報コンピュータ・システム",
+          "correct": false,
+          "feedback": "院内情報コンピュータ・システム51.7％は滅菌消毒43.5％や医療事務37.3％より高いです。"
+        }
+      ],
+      "explanation": "患者等給食は72.9％と比較的高い一方、医療事務は37.3％です。病院現場の感覚だけでなく、調査上の順位で押さえることが大切です。"
+    },
+    {
+      "category": "委託率の順位比較",
+      "stem": "次の業務を2024（令和6）年度調査の委託率が低い順に並べたものとして、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "患者搬送 ＜ 医療情報サービス ＜ 医業経営コンサルティング ＜ 在宅医療サポート",
+          "correct": true,
+          "feedback": "正しい順序です。患者搬送14.3％、医療情報サービス15.0％、医業経営コンサルティング22.2％、在宅医療サポート22.8％です。"
+        },
+        {
+          "text": "医療情報サービス ＜ 患者搬送 ＜ 医業経営コンサルティング ＜ 在宅医療サポート",
+          "correct": false,
+          "feedback": "患者搬送14.3％は医療情報サービス15.0％より低いです。"
+        },
+        {
+          "text": "患者搬送 ＜ 在宅医療サポート ＜ 医療情報サービス ＜ 医業経営コンサルティング",
+          "correct": false,
+          "feedback": "在宅医療サポート22.8％は、医療情報サービス15.0％より高いです。"
+        },
+        {
+          "text": "医業経営コンサルティング ＜ 医療情報サービス ＜ 患者搬送 ＜ 在宅医療サポート",
+          "correct": false,
+          "feedback": "医業経営コンサルティング22.2％は、患者搬送や医療情報サービスより高いです。"
+        },
+        {
+          "text": "患者搬送 ＜ 医業経営コンサルティング ＜ 医療情報サービス ＜ 在宅医療サポート",
+          "correct": false,
+          "feedback": "医療情報サービス15.0％は医業経営コンサルティング22.2％より低いです。"
+        }
+      ],
+      "explanation": "低位業務は、患者搬送14.3％、医療情報サービス15.0％、医業経営コンサルティング22.2％、在宅医療サポート22.8％の順です。"
+    }
+  ],
+  [
+    {
+      "category": "中位・低位業務",
+      "stem": "2024（令和6）年度調査における医療事務の委託率について、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "医療事務の委託率は37.3％で、患者等給食の72.9％を下回る。",
+          "correct": true,
+          "feedback": "正解です。医療事務は37.3％で、患者等給食よりかなり低い値です。"
+        },
+        {
+          "text": "医療事務の委託率は72.9％で、患者等給食と同水準である。",
+          "correct": false,
+          "feedback": "72.9％は患者等給食の委託率です。医療事務は37.3％です。"
+        },
+        {
+          "text": "医療事務の委託率は87.8％で、院内清掃と同水準である。",
+          "correct": false,
+          "feedback": "87.8％は院内清掃の委託率です。医療事務は37.3％です。"
+        },
+        {
+          "text": "医療事務の委託率は94.8％で、検体検査と同水準である。",
+          "correct": false,
+          "feedback": "94.8％は検体検査の委託率です。医療事務は37.3％です。"
+        },
+        {
+          "text": "医療事務の委託率は14.3％で、患者搬送と同水準である。",
+          "correct": false,
+          "feedback": "14.3％は患者搬送の委託率です。医療事務は37.3％です。"
+        }
+      ],
+      "explanation": "医療事務は外部委託の代表例として思い浮かびやすいですが、調査上は37.3％です。上位業務と比べて高くない点が問われやすいところです。"
+    },
+    {
+      "category": "中位・低位業務",
+      "stem": "2024（令和6）年度調査における患者搬送の委託率について、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "患者搬送は14.3％で、調査対象業務の中では低位に位置する。",
+          "correct": true,
+          "feedback": "正解です。患者搬送は14.3％です。"
+        },
+        {
+          "text": "患者搬送は51.7％で、院内情報コンピュータ・システムと同水準である。",
+          "correct": false,
+          "feedback": "51.7％は院内情報コンピュータ・システムの委託率です。患者搬送は14.3％です。"
+        },
+        {
+          "text": "患者搬送は72.9％で、患者等給食と同水準である。",
+          "correct": false,
+          "feedback": "72.9％は患者等給食の委託率です。患者搬送は14.3％です。"
+        },
+        {
+          "text": "患者搬送は86.2％で、医療機器保守点検と同水準である。",
+          "correct": false,
+          "feedback": "86.2％は医療機器保守点検の委託率です。患者搬送は14.3％です。"
+        },
+        {
+          "text": "患者搬送は95.6％で、医療廃棄物処理と同水準である。",
+          "correct": false,
+          "feedback": "95.6％は医療廃棄物処理の委託率です。患者搬送は14.3％です。"
+        }
+      ],
+      "explanation": "患者搬送は医療関連サービスマーク認定サービスとして一覧に示されていますが、委託率は14.3％で低位です。"
+    },
+    {
+      "category": "中位・低位業務",
+      "stem": "2024（令和6）年度調査における中位業務の委託率として、最も適切な組み合わせはどれか。",
+      "choices": [
+        {
+          "text": "院内情報コンピュータ・システム 51.7％、滅菌消毒 43.5％、院内物品管理 37.2％",
+          "correct": true,
+          "feedback": "正しい組み合わせです。"
+        },
+        {
+          "text": "院内情報コンピュータ・システム 72.9％、滅菌消毒 51.7％、院内物品管理 43.5％",
+          "correct": false,
+          "feedback": "72.9％は患者等給食、51.7％は院内情報コンピュータ・システム、43.5％は滅菌消毒です。"
+        },
+        {
+          "text": "院内情報コンピュータ・システム 37.3％、滅菌消毒 37.2％、院内物品管理 22.8％",
+          "correct": false,
+          "feedback": "37.3％は医療事務、22.8％は在宅医療サポートです。"
+        },
+        {
+          "text": "院内情報コンピュータ・システム 87.8％、滅菌消毒 86.2％、院内物品管理 72.9％",
+          "correct": false,
+          "feedback": "87.8％は院内清掃、86.2％は医療機器保守点検、72.9％は患者等給食です。"
+        },
+        {
+          "text": "院内情報コンピュータ・システム 15.0％、滅菌消毒 14.3％、院内物品管理 22.2％",
+          "correct": false,
+          "feedback": "15.0％は医療情報サービス、14.3％は患者搬送、22.2％は医業経営コンサルティングです。"
+        }
+      ],
+      "explanation": "中位業務では、院内情報コンピュータ・システム51.7％、滅菌消毒43.5％、院内物品管理37.2％、医療事務37.3％あたりを整理しておくと、順位問題に対応しやすくなります。"
+    }
+  ],
+  [
+    {
+      "category": "前回調査との比較",
+      "stem": "令和3年度調査と令和6年度調査の比較で、統計的に有意な差がみられた5業種の組み合わせとして、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "滅菌消毒・医療廃棄物処理・院内物品管理・在宅酸素供給装置保守点検・在宅医療サポート",
+          "correct": true,
+          "feedback": "正しい組み合わせです。"
+        },
+        {
+          "text": "検体検査・患者等給食・院内清掃・医療事務・患者搬送",
+          "correct": false,
+          "feedback": "これらは一覧に含まれる業務ですが、有意差がみられた5業種の組み合わせではありません。"
+        },
+        {
+          "text": "寝具類洗濯・医療用ガス供給設備保守点検・医療機器保守点検・医療情報サービス・医業経営コンサルティング",
+          "correct": false,
+          "feedback": "いずれも調査対象ですが、有意差がみられた5業種の組み合わせではありません。"
+        },
+        {
+          "text": "医療廃棄物処理・検体検査・寝具類洗濯・医療用ガス供給設備保守点検・院内清掃",
+          "correct": false,
+          "feedback": "上位委託率の業務が多く含まれますが、有意差のあった5業種ではありません。"
+        },
+        {
+          "text": "院内物品管理・医療事務・患者等給食・患者搬送・院内清掃",
+          "correct": false,
+          "feedback": "院内物品管理は含まれますが、他の4業種は有意差がみられた5業種には含まれません。"
+        }
+      ],
+      "explanation": "前回調査との比較で有意差がみられたのは、滅菌消毒、医療廃棄物処理、院内物品管理、在宅酸素供給装置保守点検、在宅医療サポートの5業種です。"
+    },
+    {
+      "category": "前回調査との比較",
+      "stem": "令和3年度から令和6年度にかけて委託率が上昇した業務の組み合わせとして、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "滅菌消毒・院内物品管理・在宅酸素供給装置保守点検・在宅医療サポート",
+          "correct": true,
+          "feedback": "正しい組み合わせです。これらは令和3年度から令和6年度にかけて委託率が上昇しています。"
+        },
+        {
+          "text": "検体検査・医療廃棄物処理・医療機器保守点検・患者搬送",
+          "correct": false,
+          "feedback": "これらは令和3年度から令和6年度にかけて低下しています。"
+        },
+        {
+          "text": "寝具類洗濯・医療用ガス供給設備保守点検・医療事務・患者搬送",
+          "correct": false,
+          "feedback": "寝具類洗濯と患者搬送は低下、医療用ガスは同率、医療事務はわずかに上昇です。"
+        },
+        {
+          "text": "患者等給食・検体検査・医療廃棄物処理・医療機器保守点検",
+          "correct": false,
+          "feedback": "患者等給食はわずかに上昇していますが、検体検査、医療廃棄物処理、医療機器保守点検は低下しています。"
+        },
+        {
+          "text": "院内清掃・医療用ガス供給設備保守点検・寝具類洗濯・検体検査",
+          "correct": false,
+          "feedback": "院内清掃はわずかに上昇、医療用ガスは同率ですが、寝具類洗濯と検体検査は低下しています。"
+        }
+      ],
+      "explanation": "令和3年度から令和6年度にかけて、滅菌消毒38.6％→43.5％、院内物品管理32.5％→37.2％、在宅酸素供給装置保守点検47.8％→56.4％、在宅医療サポート15.8％→22.8％と上昇しています。"
+    },
+    {
+      "category": "前回調査との比較",
+      "stem": "令和6年度調査における前回調査との比較について、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "母比率の差の検定により、5業種で約95％の確率で統計的に有意な差があったとされている。",
+          "correct": true,
+          "feedback": "正解です。検定結果として5業種の有意差が示されています。"
+        },
+        {
+          "text": "すべての医療関連サービスで、前回調査から統計的に有意な上昇がみられた。",
+          "correct": false,
+          "feedback": "すべてではありません。有意差が示されたのは5業種です。"
+        },
+        {
+          "text": "委託率上位3業務は、いずれも前回調査から統計的に有意な上昇がみられた。",
+          "correct": false,
+          "feedback": "上位3業務のうち、医療廃棄物処理は有意差の対象ですが、寝具類洗濯と検体検査は5業種に含まれません。"
+        },
+        {
+          "text": "在宅医療サポートは前回調査から低下しており、有意差もみられなかった。",
+          "correct": false,
+          "feedback": "在宅医療サポートは15.8％から22.8％に上昇し、有意差がみられた5業種に含まれます。"
+        },
+        {
+          "text": "医療用ガス供給設備保守点検は前回調査から大きく低下し、有意差がみられた。",
+          "correct": false,
+          "feedback": "医療用ガス供給設備保守点検は令和3年度・令和6年度とも94.5％です。有意差のあった5業種には含まれません。"
+        }
+      ],
+      "explanation": "令和6年度資料では、令和3年度と令和6年度の母集団病院における委託率の差を検定し、5業種で統計的に有意な差があったとされています。"
+    }
+  ],
+  [
+    {
+      "category": "医療関連サービスマーク",
+      "stem": "令和6年度調査資料において、サービス名に付された「※」の意味として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "医療関連サービスマーク認定サービスであることを示す。",
+          "correct": true,
+          "feedback": "正解です。資料中の注記で、※は医療関連サービスマーク認定サービスを示すとされています。"
+        },
+        {
+          "text": "令和3年度から令和6年度にかけて委託率が上昇したサービスであることを示す。",
+          "correct": false,
+          "feedback": "上昇を示す記号ではありません。※は医療関連サービスマーク認定サービスを示します。"
+        },
+        {
+          "text": "委託率が95％以上であるサービスであることを示す。",
+          "correct": false,
+          "feedback": "95％以上を示す記号ではありません。患者搬送など委託率の低いサービスにも※が付されています。"
+        },
+        {
+          "text": "統計的に有意な差がみられたサービスであることを示す。",
+          "correct": false,
+          "feedback": "有意差を示す記号ではありません。※は医療関連サービスマーク認定サービスを示します。"
+        },
+        {
+          "text": "病院が直接実施しなければならないサービスであることを示す。",
+          "correct": false,
+          "feedback": "直接実施義務を示す記号ではありません。医療関連サービスマーク認定サービスを示します。"
+        }
+      ],
+      "explanation": "資料上の※は、医療関連サービスマーク認定サービスであることを示します。委託率の高低や前回調査との差を示す記号ではありません。"
+    },
+    {
+      "category": "医療関連サービスマーク",
+      "stem": "令和6年度調査資料において、医療関連サービスマーク認定サービスであることを示す「※」が付されている組み合わせとして、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "検体検査・患者等給食・患者搬送",
+          "correct": true,
+          "feedback": "正しい組み合わせです。いずれも※が付されています。"
+        },
+        {
+          "text": "医療廃棄物処理・医療事務・医業経営コンサルティング",
+          "correct": false,
+          "feedback": "これらには資料上、※が付されていません。"
+        },
+        {
+          "text": "医療情報サービス・院内物品管理・在宅医療サポート",
+          "correct": false,
+          "feedback": "これらには資料上、※が付されていません。"
+        },
+        {
+          "text": "医療事務・院内情報コンピュータ・システム・医療情報サービス",
+          "correct": false,
+          "feedback": "これらには資料上、※が付されていません。"
+        },
+        {
+          "text": "医療廃棄物処理・医療情報サービス・患者搬送",
+          "correct": false,
+          "feedback": "患者搬送には※が付されていますが、医療廃棄物処理と医療情報サービスには付されていません。"
+        }
+      ],
+      "explanation": "資料上、※が付されているものには、検体検査、滅菌消毒、患者等給食、患者搬送、医療機器保守点検、医療用ガス供給設備保守点検、寝具類洗濯、院内清掃、在宅酸素供給装置保守点検などがあります。"
+    },
+    {
+      "category": "医療関連サービスマーク",
+      "stem": "令和6年度調査資料の表示に関する記述として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "委託率が低い患者搬送にも、医療関連サービスマーク認定サービスを示す※が付されている。",
+          "correct": true,
+          "feedback": "正解です。患者搬送は14.3％ですが、資料上は※が付されています。"
+        },
+        {
+          "text": "委託率が高い医療廃棄物処理には、医療関連サービスマーク認定サービスを示す※が付されている。",
+          "correct": false,
+          "feedback": "資料上、医療廃棄物処理には※が付されていません。委託率の高さと※の有無は同じではありません。"
+        },
+        {
+          "text": "医療関連サービスマーク認定サービスを示す※は、委託率が80％以上のサービスに限って付されている。",
+          "correct": false,
+          "feedback": "患者搬送14.3％にも※が付されているため、80％以上に限られません。"
+        },
+        {
+          "text": "医療事務には、医療関連サービスマーク認定サービスを示す※が付されている。",
+          "correct": false,
+          "feedback": "資料上、医療事務には※が付されていません。"
+        },
+        {
+          "text": "医療情報サービスには、医療関連サービスマーク認定サービスを示す※が付されている。",
+          "correct": false,
+          "feedback": "資料上、医療情報サービスには※が付されていません。"
+        }
+      ],
+      "explanation": "※の有無は委託率の高さとは別に整理します。患者搬送は低率ですが※付き、医療廃棄物処理は高率ですが資料上※なしです。"
+    }
+  ],
+  [
+    {
+      "category": "委託管理と医療機関の責任",
+      "stem": "医療関連サービスを外部委託する場合の医療機関の対応として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "委託先に業務を任せる場合でも、契約内容、業務品質、患者安全、個人情報保護等を医療機関側で管理する。",
+          "correct": true,
+          "feedback": "正解です。委託しても、医療機関側の管理責任は残ります。"
+        },
+        {
+          "text": "委託契約を締結すれば、当該業務に関する患者安全上の管理は委託先に一任される。",
+          "correct": false,
+          "feedback": "委託先の業務管理は重要ですが、医療機関側の患者安全上の管理責任が消えるわけではありません。"
+        },
+        {
+          "text": "医療関連サービスでは、委託率が高い業務ほど契約内容の確認は不要となる。",
+          "correct": false,
+          "feedback": "委託率の高さにかかわらず、契約内容・範囲・責任分担の確認が必要です。"
+        },
+        {
+          "text": "検体検査や患者等給食は専門業者への委託が多いため、医療機関側で結果や提供内容を確認する必要はない。",
+          "correct": false,
+          "feedback": "委託しても、検査結果の利用や食事提供の適切性は医療機関の診療・療養環境に直結します。確認が必要です。"
+        },
+        {
+          "text": "個人情報を扱う業務は委託できるが、委託後は医療機関の個人情報保護体制の対象外となる。",
+          "correct": false,
+          "feedback": "委託先で個人情報を扱う場合も、医療機関は委託先管理を含めた個人情報保護体制を整える必要があります。"
+        }
+      ],
+      "explanation": "医療関連サービスは外部委託の論点ですが、委託は責任の丸投げではありません。契約、品質管理、安全管理、個人情報保護、感染対策などを医療機関が確認する視点が重要です。"
+    },
+    {
+      "category": "委託管理と医療機関の責任",
+      "stem": "医療関連サービスの委託管理に関する記述として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "検体検査では検体の取扱いと結果報告、患者等給食では食事内容と提供体制、院内清掃では感染対策上の清掃品質が管理上の論点となる。",
+          "correct": true,
+          "feedback": "正解です。業務ごとに管理すべき品質や安全上の視点が異なります。"
+        },
+        {
+          "text": "検体検査は委託率が高いため、検査結果の報告体制よりも委託費の低さを優先して契約を選定する。",
+          "correct": false,
+          "feedback": "コストも重要ですが、検査結果の精度・報告体制・緊急時対応などの品質管理が重要です。"
+        },
+        {
+          "text": "患者等給食は診療行為ではないため、治療食や嚥下状態との関係を委託契約に含める必要はない。",
+          "correct": false,
+          "feedback": "患者等給食は療養環境や栄養管理に関係します。治療食・嚥下状態・提供体制の確認が重要です。"
+        },
+        {
+          "text": "院内清掃は清掃業者の一般的な清掃水準で足り、感染対策上の手順を病院側が確認する必要はない。",
+          "correct": false,
+          "feedback": "院内清掃は感染対策と密接に関係します。区域やリスクに応じた清掃手順・品質確認が必要です。"
+        },
+        {
+          "text": "医療機器保守点検は委託先が実施するため、医療機関側で点検記録を把握する必要はない。",
+          "correct": false,
+          "feedback": "点検を委託しても、医療機関側が点検状況や記録を把握し、機器の安全使用につなげる必要があります。"
+        }
+      ],
+      "explanation": "委託管理では、業務ごとのリスクに応じて品質・安全・記録・報告体制を確認します。単に委託率や委託費だけで判断するものではありません。"
+    },
+    {
+      "category": "委託管理と医療機関の責任",
+      "stem": "医療関連サービスの外部委託に関する記述として、適切でないものはどれか。",
+      "choices": [
+        {
+          "text": "外部委託した業務については、医療機関側の安全管理や委託先管理の必要性はなくなる。",
+          "correct": true,
+          "feedback": "この記述は適切ではありません。委託しても、医療機関側の安全管理や委託先管理は必要です。"
+        },
+        {
+          "text": "委託契約では、業務範囲、責任分担、報告方法、緊急時対応などを確認することが重要である。",
+          "correct": false,
+          "feedback": "これは適切な記述です。業務範囲や責任分担を明確にすることが重要です。"
+        },
+        {
+          "text": "患者に直接影響する業務では、委託先の品質管理体制を確認することが必要である。",
+          "correct": false,
+          "feedback": "これは適切な記述です。患者安全や療養環境に関係する業務では品質管理が重要です。"
+        },
+        {
+          "text": "個人情報を扱う業務では、委託先の情報管理体制も確認対象となる。",
+          "correct": false,
+          "feedback": "これは適切な記述です。委託先の個人情報管理は重要な確認事項です。"
+        },
+        {
+          "text": "感染対策と関係する業務では、病院の感染対策方針と委託業務の手順を整合させる必要がある。",
+          "correct": false,
+          "feedback": "これは適切な記述です。院内清掃や廃棄物処理などでは感染対策との整合が重要です。"
+        }
+      ],
+      "explanation": "設問は「適切でないもの」を選ぶ形式です。外部委託は業務実施を外部に任せることですが、医療機関側の管理や責任が消えるわけではありません。"
+    }
+  ],
+  [
+    {
+      "category": "医療廃棄物処理と感染性廃棄物",
+      "stem": "感染性廃棄物の表示に関する組み合わせとして、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "液状又は泥状のもの：赤色、固形状のもの：橙色、鋭利なもの：黄色",
+          "correct": true,
+          "feedback": "正しい組み合わせです。"
+        },
+        {
+          "text": "液状又は泥状のもの：橙色、固形状のもの：赤色、鋭利なもの：黄色",
+          "correct": false,
+          "feedback": "液状又は泥状は赤色、固形状は橙色です。"
+        },
+        {
+          "text": "液状又は泥状のもの：黄色、固形状のもの：橙色、鋭利なもの：赤色",
+          "correct": false,
+          "feedback": "鋭利なものは黄色です。液状又は泥状は赤色です。"
+        },
+        {
+          "text": "液状又は泥状のもの：赤色、固形状のもの：黄色、鋭利なもの：橙色",
+          "correct": false,
+          "feedback": "固形状は橙色、鋭利なものは黄色です。"
+        },
+        {
+          "text": "液状又は泥状のもの：黄色、固形状のもの：赤色、鋭利なもの：橙色",
+          "correct": false,
+          "feedback": "液状又は泥状は赤色、固形状は橙色、鋭利なものは黄色です。"
+        }
+      ],
+      "explanation": "感染性廃棄物は、性状に応じた表示の整理も出題されやすい論点です。血液等が付着したガーゼ等の固形状のものは橙色、血液等の液状・泥状のものは赤色、注射針等の鋭利なものは黄色と整理します。"
+    },
+    {
+      "category": "医療廃棄物処理と感染性廃棄物",
+      "stem": "医療廃棄物処理に関する記述として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "医療廃棄物処理は令和6年度調査で95.6％と委託率が高いが、委託しても医療機関側の分別・保管・契約・記録管理は重要である。",
+          "correct": true,
+          "feedback": "正解です。委託率は高いですが、管理責任の視点は残ります。"
+        },
+        {
+          "text": "医療廃棄物処理は委託率が37.3％であり、医療事務と同程度である。",
+          "correct": false,
+          "feedback": "37.3％は医療事務です。医療廃棄物処理は95.6％です。"
+        },
+        {
+          "text": "医療廃棄物処理は委託率が14.3％であり、患者搬送と同程度である。",
+          "correct": false,
+          "feedback": "14.3％は患者搬送です。医療廃棄物処理は95.6％です。"
+        },
+        {
+          "text": "医療廃棄物処理を委託した場合、感染性廃棄物の分別は委託先が院内で判断するため、医療機関側の手順は不要となる。",
+          "correct": false,
+          "feedback": "分別や保管は院内での適切な手順が重要です。委託先に任せきりにはできません。"
+        },
+        {
+          "text": "医療廃棄物処理は患者に直接接しない業務であるため、感染対策上のリスク管理とは関係しない。",
+          "correct": false,
+          "feedback": "医療廃棄物処理は感染対策と密接に関係します。"
+        }
+      ],
+      "explanation": "医療廃棄物処理は委託率が非常に高い業務ですが、院内での分別・保管・表示・記録・委託先管理が重要です。"
+    },
+    {
+      "category": "医療廃棄物処理と感染性廃棄物",
+      "stem": "医療廃棄物処理と医療関連サービス実態調査に関する記述として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "医療廃棄物処理の委託率は令和3年度97.5％から令和6年度95.6％に低下しているが、なお高い水準である。",
+          "correct": true,
+          "feedback": "正解です。低下はしていますが、95.6％と高水準です。"
+        },
+        {
+          "text": "医療廃棄物処理の委託率は令和3年度95.6％から令和6年度97.5％に上昇している。",
+          "correct": false,
+          "feedback": "令和3年度は97.5％、令和6年度は95.6％です。順序が逆です。"
+        },
+        {
+          "text": "医療廃棄物処理の委託率は令和6年度14.3％で、患者搬送と同水準である。",
+          "correct": false,
+          "feedback": "14.3％は患者搬送です。医療廃棄物処理は95.6％です。"
+        },
+        {
+          "text": "医療廃棄物処理は令和6年度調査で委託率が最も低い業務である。",
+          "correct": false,
+          "feedback": "医療廃棄物処理は95.6％で上位業務です。最も低いのは患者搬送14.3％です。"
+        },
+        {
+          "text": "医療廃棄物処理は令和6年度調査では調査対象に含まれていない。",
+          "correct": false,
+          "feedback": "医療廃棄物処理は調査対象に含まれており、令和6年度は95.6％です。"
+        }
+      ],
+      "explanation": "医療廃棄物処理は令和3年度97.5％、令和6年度95.6％です。前回より低下していても、病院業務委託としては非常に高い水準です。"
+    }
+  ],
+  [
+    {
+      "category": "SPD・院内物品管理",
+      "stem": "院内物品管理・SPDに関する記述として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "SPDは物品の在庫管理・定数配置・搬送・発注支援などを通じて院内物流を効率化する仕組みであるが、発注先や購買方針の決定を病院側が管理する視点は残る。",
+          "correct": true,
+          "feedback": "正解です。SPDは院内物流の効率化に有効ですが、購買方針や発注先管理を病院が把握することが重要です。"
+        },
+        {
+          "text": "SPDを導入した場合、医療材料の購買方針や発注先の決定権限は常にSPD業者へ移る。",
+          "correct": false,
+          "feedback": "SPD業者が実務を担う場合でも、発注先や購買方針の管理は病院側の重要な論点です。"
+        },
+        {
+          "text": "SPDは診療報酬請求を外部委託する仕組みであり、院内物品管理とは関係しない。",
+          "correct": false,
+          "feedback": "SPDは院内物流・物品管理に関する仕組みです。診療報酬請求そのものではありません。"
+        },
+        {
+          "text": "院内物品管理の委託率は令和6年度97.2％であり、寝具類洗濯と同水準である。",
+          "correct": false,
+          "feedback": "97.2％は寝具類洗濯です。院内物品管理は37.2％です。"
+        },
+        {
+          "text": "院内物品管理は委託率が高いため、医療材料の過剰在庫や欠品リスクの管理は不要となる。",
+          "correct": false,
+          "feedback": "委託しても在庫過多や欠品リスクの管理は必要です。"
+        }
+      ],
+      "explanation": "SPDは院内物品管理・物流管理の効率化に関する論点です。業務を委託しても、購買方針、発注先、在庫水準、欠品時対応などを病院が管理する視点は残ります。"
+    },
+    {
+      "category": "SPD・院内物品管理",
+      "stem": "2024（令和6）年度調査における院内物品管理の委託率について、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "院内物品管理は37.2％で、医療事務37.3％とほぼ同水準である。",
+          "correct": true,
+          "feedback": "正解です。院内物品管理37.2％、医療事務37.3％です。"
+        },
+        {
+          "text": "院内物品管理は87.8％で、院内清掃と同水準である。",
+          "correct": false,
+          "feedback": "87.8％は院内清掃です。院内物品管理は37.2％です。"
+        },
+        {
+          "text": "院内物品管理は72.9％で、患者等給食と同水準である。",
+          "correct": false,
+          "feedback": "72.9％は患者等給食です。院内物品管理は37.2％です。"
+        },
+        {
+          "text": "院内物品管理は51.7％で、院内情報コンピュータ・システムと同水準である。",
+          "correct": false,
+          "feedback": "51.7％は院内情報コンピュータ・システムです。院内物品管理は37.2％です。"
+        },
+        {
+          "text": "院内物品管理は95.6％で、医療廃棄物処理と同水準である。",
+          "correct": false,
+          "feedback": "95.6％は医療廃棄物処理です。院内物品管理は37.2％です。"
+        }
+      ],
+      "explanation": "院内物品管理は37.2％で、医療事務37.3％に近い値です。院内清掃87.8％や患者等給食72.9％より低い点を整理しておきます。"
+    },
+    {
+      "category": "SPD・院内物品管理",
+      "stem": "院内物品管理と他の業務委託率の比較として、最も適切なものはどれか。",
+      "choices": [
+        {
+          "text": "院内物品管理37.2％は、院内清掃87.8％や医療機器保守点検86.2％を大きく下回る。",
+          "correct": true,
+          "feedback": "正解です。院内物品管理は中位以下で、院内清掃や医療機器保守点検より低い値です。"
+        },
+        {
+          "text": "院内物品管理37.2％は、寝具類洗濯97.2％より高い。",
+          "correct": false,
+          "feedback": "寝具類洗濯97.2％が大きく上回ります。"
+        },
+        {
+          "text": "院内物品管理37.2％は、患者搬送14.3％より低い。",
+          "correct": false,
+          "feedback": "院内物品管理37.2％は患者搬送14.3％より高いです。"
+        },
+        {
+          "text": "院内物品管理37.2％は、検体検査94.8％とほぼ同水準である。",
+          "correct": false,
+          "feedback": "検体検査94.8％は院内物品管理を大きく上回ります。"
+        },
+        {
+          "text": "院内物品管理37.2％は、患者等給食72.9％より高い。",
+          "correct": false,
+          "feedback": "患者等給食72.9％が院内物品管理37.2％を上回ります。"
+        }
+      ],
+      "explanation": "院内物品管理は、SPDなどの論点と結び付けて問われますが、委託率は37.2％で、院内清掃や医療機器保守点検ほど高くありません。"
+    }
+  ]
+];
+
+    const quizState = {
+      questions: [],
+      currentIndex: 0,
+      selectedIndex: null,
+      answered: false,
+      score: 0,
+      history: []
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildQuiz() {
+      const picked = QUESTION_POOLS.map(pool => {
+        const q = pool[Math.floor(Math.random() * pool.length)];
+        return {
+          ...q,
+          choices: shuffle(q.choices)
+        };
+      });
+      quizState.questions = shuffle(picked);
+      quizState.currentIndex = 0;
+      quizState.selectedIndex = null;
+      quizState.answered = false;
+      quizState.score = 0;
+      quizState.history = [];
+    }
+
+    function showStart(show) {
+      $("start").classList.toggle("hidden", !show);
+      $("quiz").classList.add("hidden");
+      $("finish").classList.add("hidden");
+    }
+
+    function startQuiz() {
+      buildQuiz();
+      $("start").classList.add("hidden");
+      $("finish").classList.add("hidden");
+      $("quiz").classList.remove("hidden");
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderQuestion() {
+      const q = quizState.questions[quizState.currentIndex];
+      quizState.selectedIndex = null;
+      quizState.answered = false;
+
+      const currentNo = quizState.currentIndex + 1;
+      const total = quizState.questions.length;
+      $("progressText").textContent = `${currentNo} / ${total}`;
+      $("progressBar").style.width = `${(currentNo - 1) / total * 100}%`;
+      $("categoryLabel").textContent = q.category;
+      $("questionText").textContent = q.stem;
+
+      const list = $("optionsList");
+      list.innerHTML = "";
+
+      q.choices.forEach((choice, index) => {
+        const li = document.createElement("li");
+        li.className = "option";
+        li.setAttribute("data-index", index);
+        li.innerHTML = `
+          <input type="radio" name="answer" id="opt${index}" aria-label="選択肢${index + 1}">
+          <label class="option-label" for="opt${index}">${choice.text}</label>
+        `;
+        li.addEventListener("click", () => selectOption(index));
+        list.appendChild(li);
+      });
+
+      $("answerBtn").disabled = true;
+      $("nextBtn").disabled = true;
+      $("answerBtn").classList.remove("hidden");
+      $("resultBox").classList.remove("show");
+      $("judgement").className = "judgement";
+      $("judgement").textContent = "";
+      $("choiceFeedback").textContent = "";
+      $("explanation").textContent = "";
+    }
+
+    function selectOption(index) {
+      if (quizState.answered) return;
+      quizState.selectedIndex = index;
+      document.querySelectorAll(".option").forEach((el, i) => {
+        el.classList.toggle("selected", i === index);
+        el.querySelector("input").checked = i === index;
+      });
+      $("answerBtn").disabled = false;
+    }
+
+    function showAnswer() {
+      if (quizState.selectedIndex === null || quizState.answered) return;
+
+      const q = quizState.questions[quizState.currentIndex];
+      const selected = q.choices[quizState.selectedIndex];
+      const correctIndex = q.choices.findIndex(c => c.correct);
+      const isCorrect = selected.correct;
+
+      quizState.answered = true;
+      if (isCorrect) quizState.score++;
+
+      document.querySelectorAll(".option").forEach((el, i) => {
+        el.classList.remove("selected");
+        if (i === correctIndex) el.classList.add("correct");
+        if (i === quizState.selectedIndex && !isCorrect) el.classList.add("wrong");
+      });
+
+      $("resultBox").classList.add("show");
+      $("judgement").className = `judgement ${isCorrect ? "ok" : "ng"}`;
+      $("judgement").textContent = isCorrect ? "正解" : "不正解";
+      $("choiceFeedback").textContent = selected.feedback;
+      $("explanation").textContent = q.explanation;
+      $("answerBtn").classList.add("hidden");
+      $("nextBtn").disabled = false;
+
+      quizState.history.push({
+        no: quizState.currentIndex + 1,
+        category: q.category,
+        stem: q.stem,
+        selected: selected.text,
+        correct: q.choices[correctIndex].text,
+        isCorrect,
+        explanation: q.explanation
+      });
+
+      const total = quizState.questions.length;
+      $("progressBar").style.width = `${(quizState.currentIndex + 1) / total * 100}%`;
+    }
+
+    function nextQuestion() {
+      if (quizState.currentIndex < quizState.questions.length - 1) {
+        quizState.currentIndex++;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      $("quiz").classList.add("hidden");
+      $("finish").classList.remove("hidden");
+      const total = quizState.questions.length;
+      const pct = Math.round((quizState.score / total) * 100);
+      $("scoreText").textContent = `${quizState.score} / ${total} 問正解`;
+      $("scoreMessage").textContent = pct >= 85
+        ? "上位業務と中位・低位業務の区別がよく整理できています。"
+        : pct >= 60
+          ? "主要な順位はつかめています。医療事務、院内物品管理、患者搬送などの中位・低位業務をもう一度確認すると安定します。"
+          : "上位3業務、患者等給食、医療事務、患者搬送の数値から確認しましょう。";
+      $("review").classList.add("hidden");
+      $("review").innerHTML = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderReview() {
+      const review = $("review");
+      review.innerHTML = "";
+      quizState.history.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "review-item";
+        div.innerHTML = `
+          <div class="small">${item.no}問目｜${item.category}｜${item.isCorrect ? "正解" : "不正解"}</div>
+          <b>${item.stem}</b>
+          <div class="muted">選択：${item.selected}</div>
+          <div class="muted">正答：${item.correct}</div>
+          <div>${item.explanation}</div>
+        `;
+        review.appendChild(div);
+      });
+      review.classList.toggle("hidden");
+    }
+
+    $("startBtn").addEventListener("click", startQuiz);
+    $("answerBtn").addEventListener("click", showAnswer);
+    $("nextBtn").addEventListener("click", nextQuestion);
+    $("restartBtn").addEventListener("click", startQuiz);
+    $("againBtn").addEventListener("click", startQuiz);
+    $("reviewBtn").addEventListener("click", renderReview);
+  </script>
+</body>
+</html>
