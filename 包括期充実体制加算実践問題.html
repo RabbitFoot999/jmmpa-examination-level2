@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>包括期充実体制加算実践問題</title>
+  <style>
+    :root {
+      --bg: #0f1720;
+      --panel: #172232;
+      --panel2: #111b29;
+      --text: #e6edf5;
+      --muted: #a7b4c4;
+      --line: #2b3a4d;
+      --accent: #8cc7b5;
+      --accent2: #d6b277;
+      --danger: #e88e8e;
+      --ok: #92d59b;
+      --shadow: 0 16px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #182638 0%, var(--bg) 46%, #0b1119 100%);
+      color: var(--text);
+      line-height: 1.75;
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--accent); }
+    .wrap { width: min(940px, calc(100% - 28px)); margin: 0 auto; padding: 22px 0 44px; }
+    header {
+      padding: 26px 0 20px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--accent);
+      border: 1px solid rgba(140,199,181,.35);
+      background: rgba(140,199,181,.08);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 13px;
+      letter-spacing: .03em;
+    }
+    h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(26px, 6vw, 40px);
+      line-height: 1.22;
+      letter-spacing: .02em;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .notice {
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: rgba(214,178,119,.08);
+      border: 1px solid rgba(214,178,119,.25);
+      border-radius: var(--radius);
+      color: #e5d5b8;
+      font-size: 14px;
+    }
+    .study-points {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 18px 0 10px;
+    }
+    .point {
+      background: rgba(23,34,50,.82);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 12px;
+      min-height: 86px;
+    }
+    .point b { display: block; color: var(--accent2); font-size: 18px; margin-bottom: 4px; }
+    .point span { color: var(--muted); font-size: 12px; line-height: 1.5; display: block; }
+    .card {
+      background: linear-gradient(180deg, rgba(23,34,50,.96), rgba(17,27,41,.98));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .progress {
+      flex: 1;
+      height: 10px;
+      background: #0b121c;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      min-width: 80px;
+    }
+    .bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width .25s; }
+    .category {
+      display: inline-flex;
+      color: #cfe7df;
+      background: rgba(140,199,181,.1);
+      border: 1px solid rgba(140,199,181,.25);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 13px;
+      margin: 8px 0 12px;
+    }
+    .question {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 4px 0 14px;
+      line-height: 1.65;
+    }
+    .statements {
+      background: rgba(0,0,0,.16);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin: 10px 0 16px;
+      color: #d9e5ef;
+      font-size: 15px;
+    }
+    .statements div { margin: 4px 0; }
+    .choices { display: grid; gap: 10px; margin: 12px 0; }
+    .choice {
+      width: 100%;
+      text-align: left;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      cursor: pointer;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
+    }
+    .choice:active { transform: scale(.99); }
+    .choice:hover { border-color: rgba(140,199,181,.55); }
+    .choice.selected {
+      border-color: var(--accent);
+      background: rgba(140,199,181,.12);
+    }
+    .choice.correct {
+      border-color: rgba(146,213,155,.8);
+      background: rgba(146,213,155,.13);
+    }
+    .choice.wrong {
+      border-color: rgba(232,142,142,.85);
+      background: rgba(232,142,142,.11);
+    }
+    .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    button.action {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: var(--accent);
+      color: #08110f;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button.secondary {
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    button.action:disabled { opacity: .45; cursor: not-allowed; }
+    .result {
+      margin-top: 16px;
+      border-radius: 16px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      display: none;
+    }
+    .result.show { display: block; }
+    .judgement { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .judgement.ok { color: var(--ok); }
+    .judgement.ng { color: var(--danger); }
+    .explain-title { color: var(--accent2); font-weight: 800; margin-top: 8px; }
+    .feedback { color: #d9e5ef; font-size: 15px; }
+    .mini { color: var(--muted); font-size: 13px; }
+    .summary { display: none; margin-top: 18px; }
+    .summary.show { display: block; }
+    .scorebig { font-size: clamp(28px, 8vw, 46px); font-weight: 900; color: var(--accent2); margin: 0 0 6px; }
+    .review-list { display: grid; gap: 10px; margin-top: 16px; }
+    .review-item { border: 1px solid var(--line); background: rgba(255,255,255,.035); border-radius: 14px; padding: 12px; }
+    .footer-note { color: var(--muted); font-size: 12px; margin-top: 20px; }
+    @media (max-width: 720px) {
+      .study-points { grid-template-columns: repeat(2, 1fr); }
+      .wrap { width: min(100% - 20px, 940px); padding-top: 12px; }
+      .card { padding: 15px; }
+      .question { font-size: 17px; }
+      .choice { font-size: 15px; padding: 12px; }
+    }
+    @media (max-width: 390px) {
+      .study-points { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .progress { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="top">
+    <header>
+      <div class="eyebrow">医療経営士2級対策｜令和8年度診療報酬改定</div>
+      <h1>包括期充実体制加算実践問題</h1>
+      <p class="lead">高齢者救急・在宅医療・介護保険施設等の後方支援を担う中小病院の評価について、点数、算定期間、施設基準、実績要件を確認します。</p>
+      <div class="notice">各カテゴリから1問ずつ、合計6問をランダム出題します。選択肢の順番も毎回変わります。</div>
+      <div class="study-points" aria-label="重要ポイント">
+        <div class="point"><b>80点/日</b><span>入院した日から起算して14日を限度</span></div>
+        <div class="point"><b>200床未満</b><span>人口の少ない地域では280床未満</span></div>
+        <div class="point"><b>包括期病棟</b><span>地域包括医療病棟または地域包括ケア病棟</span></div>
+        <div class="point"><b>後方支援</b><span>緊急入院15件、下り搬送等8％、退院支援3回</span></div>
+      </div>
+    </header>
+
+    <main class="card" id="quizCard">
+      <div class="topbar">
+        <div id="counter">問題 1 / 6</div>
+        <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+        <div id="score">正答 0</div>
+      </div>
+      <div class="category" id="category"></div>
+      <div class="question" id="question"></div>
+      <div class="statements" id="statements" style="display:none;"></div>
+      <div class="choices" id="choices"></div>
+      <div class="buttons">
+        <button class="action" id="answerBtn" disabled>回答</button>
+        <button class="action secondary" id="nextBtn" style="display:none;">次の問題へ</button>
+      </div>
+      <div class="result" id="result"></div>
+    </main>
+
+    <section class="card summary" id="summary">
+      <p class="scorebig" id="finalScore"></p>
+      <p id="finalComment"></p>
+      <div class="buttons">
+        <button class="action" id="restartBtn">もう一度ランダム出題</button>
+      </div>
+      <div class="review-list" id="review"></div>
+    </section>
+
+    <p class="footer-note">学習用に要点を整理した問題です。実際の算定では告示・通知・疑義解釈等の正式資料を確認してください。</p>
+  </div>
+
+<script>
+const banks = [
+  {
+    category: "趣旨と位置づけ",
+    questions: [
+      {
+        q: "包括期充実体制加算の評価対象として、最も適切なものはどれか。",
+        choices: [
+          {t: "地域で高齢者救急を受け入れ、在宅医療や介護保険施設等の後方支援を担う体制と実績", correct: true, fb: "正しいです。地域の中小病院が、在宅・施設からの緊急入院や退院支援を担う機能を評価します。"},
+          {t: "救命救急センターを中心に、高度急性期の手術件数と救急搬送件数を総合的に評価する体制", correct: false, fb: "これは急性期総合体制加算や急性期病院一般入院基本料に近い内容です。包括期充実体制加算は、高度急性期拠点ではなく包括期の後方支援が中心です。"},
+          {t: "回復期リハビリテーション病棟における実績指数と退院前訪問の取組", correct: false, fb: "回復期リハビリテーション強化体制加算に近い内容です。包括期充実体制加算は、地域包括医療病棟・地域包括ケア病棟を持つ病院の後方支援を評価します。"},
+          {t: "外来で生活習慣病管理料を算定する医療機関の継続的な療養指導体制", correct: false, fb: "外来医療の評価とは異なります。包括期充実体制加算は入院医療、特に包括期入院医療の後方支援に関する評価です。"},
+          {t: "特定機能病院等から紹介患者を受け入れる診療所・中小病院の初診時の評価", correct: false, fb: "特定機能病院等紹介患者受入加算に近い内容です。包括期充実体制加算は入院後方支援に関する評価です。"}
+        ],
+        exp: "包括期充実体制加算は、高齢者救急、在宅医療、介護保険施設等の後方支援を担う病院を評価する新設加算です。"
+      },
+      {
+        q: "包括期充実体制加算について、適切なものを1つ選べ。",
+        choices: [
+          {t: "在宅医療・介護保険施設等の後方支援を担う保険医療機関に入院している患者に対する加算である。", correct: true, fb: "正しいです。施設基準に適合し届出を行った保険医療機関の入院患者について算定します。"},
+          {t: "外来患者に対して初診時または再診時に算定する物価高騰対応の加算である。", correct: false, fb: "物価対応料の説明に近い内容です。包括期充実体制加算は入院患者に対する評価です。"},
+          {t: "急性期一般入院料1を算定する大規模病院の総合性を評価する加算である。", correct: false, fb: "大規模急性期病院向けではありません。急性期病院一般入院基本料や急性期一般入院基本料を算定する病棟を有しないことが要件に含まれます。"},
+          {t: "地域包括診療加算を届け出る診療所のかかりつけ医機能を評価する加算である。", correct: false, fb: "かかりつけ医機能の外来評価とは異なります。包括期充実体制加算は病院の入院後方支援の評価です。"},
+          {t: "救急外来を24時間提供する体制について、救急外来受診時に算定する加算である。", correct: false, fb: "救急外来医学管理料に近い内容です。包括期充実体制加算は、入院後の包括期医療と後方支援の体制・実績を評価します。"}
+        ],
+        exp: "出題では名称から“包括評価”と誤解しやすいですが、ポイントは在宅・施設・高齢者救急の後方支援です。"
+      },
+      {
+        q: "次の記述のうち、包括期充実体制加算の趣旨に最も合うものはどれか。",
+        choices: [
+          {t: "地域包括ケアシステムの中で、在宅・施設からの緊急入院を受け入れ、退院支援までつなげる病院機能を評価する。", correct: true, fb: "正しいです。平時からの連携、必要時の入院受入、充実した退院支援が評価の中心です。"},
+          {t: "重症患者に対して高度な集中治療を提供する病床の専従医師配置を評価する。", correct: false, fb: "集中治療系の評価とは異なります。包括期充実体制加算は包括期入院医療を担う病院の地域連携・後方支援が中心です。"},
+          {t: "外来の逆紹介割合を高めるため、特定機能病院の外来機能分化を評価する。", correct: false, fb: "外来機能分化の評価とは異なります。包括期充実体制加算は入院医療の後方支援に関する加算です。"},
+          {t: "電子処方箋や電子カルテ情報共有サービスの活用体制を評価する。", correct: false, fb: "医療DX関連の評価とは異なります。ICT連携が関連する場面はありますが、この加算の中心は後方支援の体制・実績です。"},
+          {t: "ロボット支援手術を多数実施する病院の手術室運用を評価する。", correct: false, fb: "手術実績の評価ではありません。包括期充実体制加算は中小病院による在宅・施設等の後方支援を評価します。"}
+        ],
+        exp: "高齢者救急を受け入れ、在宅医療・介護保険施設等の後方支援を担う点を押さえます。"
+      }
+    ]
+  },
+  {
+    category: "点数・算定期間・病床規模",
+    questions: [
+      {
+        q: "包括期充実体制加算の点数と算定期間の組み合わせとして、最も適切なものはどれか。",
+        choices: [
+          {t: "80点／日、入院した日から起算して14日を限度", correct: true, fb: "正しいです。80点／日、14日限度です。"},
+          {t: "80点／日、入院した日から起算して30日を限度", correct: false, fb: "80点／日は合っていますが、算定期間は30日ではなく14日を限度とします。"},
+          {t: "40点／日、入院した日から起算して14日を限度", correct: false, fb: "40点／日は身体的拘束最小化推進体制加算などと混同しやすい数字です。包括期充実体制加算は80点／日です。"},
+          {t: "49点／日、入院した日から起算して14日を限度", correct: false, fb: "49点は地域包括医療病棟入院料1の入院物価対応料の例と混同しやすい数字です。包括期充実体制加算は80点／日です。"},
+          {t: "580点、緊急入院時に1回算定", correct: false, fb: "地域包括ケア病棟の在宅患者支援病床初期加算の改定前点数などと混同しやすい内容です。包括期充実体制加算は1日につき80点です。"}
+        ],
+        exp: "数値は“80点／日・14日限度”で押さえます。30日や40点は関連項目との混同に注意です。"
+      },
+      {
+        q: "包括期充実体制加算の病床規模に関する施設基準として、最も適切なものはどれか。",
+        choices: [
+          {t: "許可病床数200床未満。ただし人口の少ない地域に所在する場合は280床未満。", correct: true, fb: "正しいです。通常は200床未満、人口少数地域では280床未満です。"},
+          {t: "許可病床数200床以上。ただし人口の少ない地域に所在する場合は300床以上。", correct: false, fb: "病床規模の方向が逆です。中小病院の後方支援を評価するため、200床未満が基本です。"},
+          {t: "許可病床数400床未満。ただし特定機能病院は500床未満。", correct: false, fb: "400床や500床ではありません。予想問題集でも500床未満という誤答が使われています。"},
+          {t: "許可病床数100床未満。ただし地域医療支援病院は200床未満。", correct: false, fb: "100床未満ではありません。基本は200床未満です。"},
+          {t: "病床数の要件はなく、地域包括医療病棟を有すれば病院規模にかかわらず届出できる。", correct: false, fb: "病床規模の要件があります。基本は許可病床数200床未満です。"}
+        ],
+        exp: "試験対策上は、200床未満、人口少数地域は280床未満をセットで覚えます。"
+      },
+      {
+        q: "ア〜ウの記述について、包括期充実体制加算に関する正しい組み合わせを選べ。",
+        statements: [
+          "ア　点数は1日につき80点である。",
+          "イ　算定期間は、入院した日から起算して14日を限度とする。",
+          "ウ　許可病床数は、通常200床未満が基準となる。"
+        ],
+        choices: [
+          {t: "ア・イ・ウ", correct: true, fb: "正しいです。3つとも包括期充実体制加算の基本的な数字です。"},
+          {t: "ア・イ", correct: false, fb: "アとイは正しいですが、ウも正しいです。許可病床数は通常200床未満です。"},
+          {t: "ア・ウ", correct: false, fb: "アとウは正しいですが、イも正しいです。14日を限度として算定します。"},
+          {t: "イ・ウ", correct: false, fb: "イとウは正しいですが、アも正しいです。点数は1日につき80点です。"},
+          {t: "ウのみ", correct: false, fb: "ウは正しいですが、アとイも正しいです。80点／日、14日限度も基本事項です。"}
+        ],
+        exp: "基本数字は、80点／日、14日限度、200床未満です。人口少数地域では280床未満も押さえます。"
+      }
+    ]
+  },
+  {
+    category: "算定対象となる病棟・届出",
+    questions: [
+      {
+        q: "包括期充実体制加算の病棟要件として、最も適切なものはどれか。",
+        choices: [
+          {t: "地域包括医療病棟入院料又は地域包括ケア病棟入院料を算定する病棟を有する病院であること。", correct: true, fb: "正しいです。地域包括医療病棟または地域包括ケア病棟を有することが要件です。"},
+          {t: "急性期病院A一般入院料又は急性期病院B一般入院料を算定する病棟を有する病院であること。", correct: false, fb: "急性期病院一般入院基本料を算定する病棟を有しないことが要件に含まれます。"},
+          {t: "特定機能病院入院基本料を算定する一般病棟を有する病院であること。", correct: false, fb: "特定機能病院の高度急性期評価ではありません。包括期の後方支援を担う中小病院の評価です。"},
+          {t: "回復期リハビリテーション病棟入院料1を算定する病棟を有する病院であること。", correct: false, fb: "回復期リハ病棟ではなく、地域包括医療病棟または地域包括ケア病棟が対象です。"},
+          {t: "療養病棟入院基本料1を算定する病棟を有すれば、地域包括系病棟の有無は問われない。", correct: false, fb: "地域包括医療病棟または地域包括ケア病棟を有することが必要です。療養病棟だけでは要件を満たしません。"}
+        ],
+        exp: "対象は地域包括医療病棟・地域包括ケア病棟を持つ病院です。急性期A/Bや回リハと混同しないようにします。"
+      },
+      {
+        q: "包括期充実体制加算の施設基準として、適切なものを1つ選べ。",
+        choices: [
+          {t: "協力対象施設入所者入院加算及び入退院支援加算1に係る届出を行っている。", correct: true, fb: "正しいです。介護施設等からの受入と入退院支援の体制が重視されています。"},
+          {t: "急性期総合体制加算1及び看護・多職種協働加算1に係る届出を行っている。", correct: false, fb: "急性期の総合性や多職種協働の加算とは別の評価です。包括期充実体制加算では協力対象施設入所者入院加算、入退院支援加算1の届出が示されています。"},
+          {t: "外来・在宅ベースアップ評価料及び物価対応料の届出を行っている。", correct: false, fb: "賃上げ・物価対応の評価とは別です。後方支援の体制に関する届出がポイントです。"},
+          {t: "地域医療体制確保加算2及び外科医療確保特別加算の届出を行っている。", correct: false, fb: "医師の働き方改革や外科医療確保の評価ではありません。包括期充実体制加算は在宅・施設後方支援が中心です。"},
+          {t: "電子的診療情報連携体制整備加算及び遠隔電子処方箋活用加算の届出を行っている。", correct: false, fb: "医療DX関連の評価とは別です。包括期充実体制加算では入院受入と退院支援の体制が問われます。"}
+        ],
+        exp: "届出のキーワードは、協力対象施設入所者入院加算と入退院支援加算1です。"
+      },
+      {
+        q: "包括期充実体制加算を届け出る病院について、施設基準上の扱いとして最も適切なものはどれか。",
+        choices: [
+          {t: "急性期病院一般入院基本料及び急性期一般入院基本料を算定する病棟を有しないことが求められる。", correct: true, fb: "正しいです。包括期の後方支援に機能を集中させる趣旨と整理できます。"},
+          {t: "急性期病院A一般入院料を算定する病棟を有することが届出の前提となる。", correct: false, fb: "逆です。急性期病院一般入院基本料を算定する病棟を有しないことが要件に含まれます。"},
+          {t: "急性期一般入院料1を算定する病棟と地域包括ケア病棟の併設が基本要件である。", correct: false, fb: "急性期一般入院料を算定する病棟を有しないことが要件です。"},
+          {t: "特定機能病院入院基本料を算定する病院が、地域包括ケア病棟を併設した場合に算定する。", correct: false, fb: "特定機能病院を想定した加算ではありません。中小病院の包括期後方支援を評価するものです。"},
+          {t: "地域包括医療病棟を有しない場合でも、救急搬送件数が多ければ算定できる。", correct: false, fb: "救急実績だけでは足りません。地域包括医療病棟または地域包括ケア病棟を有することが必要です。"}
+        ],
+        exp: "“急性期ABを持つ病院の加算”ではなく、“地域包括医療・地域包括ケアにフルコミットする中小病院の加算”として覚えると整理しやすいです。"
+      }
+    ]
+  },
+  {
+    category: "後方支援の実績要件",
+    questions: [
+      {
+        q: "包括期充実体制加算における後方支援の実績として、最も適切な組み合わせを選べ。",
+        choices: [
+          {t: "自宅等からの緊急入院が直近3か月で15件以上、かつ在宅患者緊急入院診療加算1〜3が直近1年で合計12回以上又は協力対象施設入所者入院加算1・2が直近1年で合計4回以上", correct: true, fb: "正しいです。緊急入院15件以上に加え、在宅患者緊急入院診療加算12回以上又は協力対象施設入所者入院加算4回以上が示されています。"},
+          {t: "自宅等からの緊急入院が直近1年で15件以上、かつ在宅患者緊急入院診療加算1〜3が直近3か月で合計12回以上", correct: false, fb: "期間が入れ替わっています。緊急入院15件は直近3か月、在宅患者緊急入院診療加算の12回は直近1年です。"},
+          {t: "救急搬送が直近1年で2,000件以上、かつ全身麻酔手術が直近1年で1,200件以上", correct: false, fb: "急性期病院A一般入院料の実績要件に近い数字です。包括期充実体制加算の後方支援実績とは異なります。"},
+          {t: "退院時共同指導料2と介護支援等連携指導料2が直近1年で合計12回以上", correct: false, fb: "入退院支援の実績は、直近3か月で合計3回以上です。12回以上は在宅患者緊急入院診療加算の実績と混同しやすい数字です。"},
+          {t: "協力対象施設入所者入院加算1・2が直近3か月で合計15回以上", correct: false, fb: "協力対象施設入所者入院加算1・2は直近1年で合計4回以上が基準として示されています。15件は自宅等からの緊急入院の件数です。"}
+        ],
+        exp: "後方支援の実績は、直近3か月15件、直近1年12回又は4回、という期間と数字の対応が狙われやすいです。"
+      },
+      {
+        q: "ア〜エの記述について、包括期充実体制加算の後方支援に関する正しい組み合わせを選べ。",
+        statements: [
+          "ア　原則として3以上の施設の協力医療機関になることが求められる。",
+          "イ　自宅等からの緊急入院が直近3か月で15件以上であることが示されている。",
+          "ウ　在宅患者緊急入院診療加算1〜3の算定回数は、直近1年で合計12回以上が基準として示されている。",
+          "エ　協力対象施設入所者入院加算1・2の算定回数は、直近1年で合計4回以上が基準として示されている。"
+        ],
+        choices: [
+          {t: "ア・イ・ウ・エ", correct: true, fb: "正しいです。4つとも後方支援の体制・実績として押さえたい内容です。"},
+          {t: "ア・イ・ウ", correct: false, fb: "ア・イ・ウは正しいですが、エも正しいです。協力対象施設入所者入院加算1・2は直近1年で合計4回以上が基準です。"},
+          {t: "ア・ウ・エ", correct: false, fb: "ア・ウ・エは正しいですが、イも正しいです。自宅等からの緊急入院は直近3か月で15件以上です。"},
+          {t: "イ・ウ・エ", correct: false, fb: "イ・ウ・エは正しいですが、アも正しいです。原則3以上の施設の協力医療機関になることが求められます。"},
+          {t: "ア・イ", correct: false, fb: "ア・イは正しいですが、ウとエも正しいです。直近1年の12回又は4回も重要です。"}
+        ],
+        exp: "この加算は“体制だけ”ではなく実績も求められます。施設後方支援、緊急入院、在宅・施設からの受入実績をまとめて確認します。"
+      },
+      {
+        q: "包括期充実体制加算の施設後方支援の体制について、適切なものを1つ選べ。",
+        choices: [
+          {t: "原則として3以上の施設の協力医療機関になることが求められる。", correct: true, fb: "正しいです。平時から介護保険施設等と連携する体制が問われます。"},
+          {t: "原則として1施設の協力医療機関になればよく、実績要件は求められない。", correct: false, fb: "3以上の施設が基準として示されています。また実績要件もあります。"},
+          {t: "救急搬送件数が年間1,500件以上であれば、協力医療機関としての体制は問われない。", correct: false, fb: "急性期病院B一般入院料の実績要件に近い数字です。包括期充実体制加算では施設後方支援の体制も問われます。"},
+          {t: "介護保険施設との連携は入退院支援加算2の届出で代替される。", correct: false, fb: "この加算では入退院支援加算1に係る届出が示されています。施設後方支援の体制も別に確認されます。"},
+          {t: "施設後方支援は、退院後訪問指導料の算定実績で評価される。", correct: false, fb: "退院後訪問指導料ではなく、協力医療機関としての体制や緊急入院等の実績が中心です。"}
+        ],
+        exp: "“原則3以上の施設の協力医療機関”は短い表現で出題されやすい数字です。"
+      }
+    ]
+  },
+  {
+    category: "救急・下り搬送・退院支援",
+    questions: [
+      {
+        q: "包括期充実体制加算における救急医療の実績として、最も適切なものはどれか。",
+        choices: [
+          {t: "救急搬送及び下り搬送からの入院が、全入院患者の8％以上である。", correct: true, fb: "正しいです。救急搬送と下り搬送からの入院が全入院患者の8％以上です。"},
+          {t: "救急搬送が年間2,000件以上で、夜間の搬送が1割以上である。", correct: false, fb: "急性期病院A一般入院料に近い数字です。包括期充実体制加算では全入院患者に占める救急搬送及び下り搬送からの入院割合8％以上が示されています。"},
+          {t: "救急搬送及び下り搬送からの入院が、全入院患者の15％以上である。", correct: false, fb: "15％は地域包括医療病棟の救急搬送後患者割合などと混同しやすい数字です。包括期充実体制加算では8％以上です。"},
+          {t: "救急搬送件数が年間500件以上で、全身麻酔手術が年間500件以上である。", correct: false, fb: "急性期病院B一般入院料の実績要件に近い内容です。包括期充実体制加算とは異なります。"},
+          {t: "夜間休日救急搬送医学管理料の算定回数が直近3か月で3回以上である。", correct: false, fb: "この実績ではありません。救急搬送及び下り搬送からの入院割合8％以上がポイントです。"}
+        ],
+        exp: "下り搬送からの入院も含める点が、地域の後方支援機能として重要です。"
+      },
+      {
+        q: "包括期充実体制加算における入退院支援の実績として、最も適切なものはどれか。",
+        choices: [
+          {t: "退院時共同指導料2と介護支援等連携指導料2の算定回数が、直近3か月で合計3回以上である。", correct: true, fb: "正しいです。直近3か月で合計3回以上です。"},
+          {t: "退院時共同指導料1と介護支援等連携指導料1の算定回数が、直近1年で合計12回以上である。", correct: false, fb: "対象となる指導料の区分と期間・回数が異なります。退院時共同指導料2と介護支援等連携指導料2が直近3か月で合計3回以上です。"},
+          {t: "入退院支援加算2の算定回数が、直近3か月で15回以上である。", correct: false, fb: "入退院支援加算2ではありません。届出は入退院支援加算1であり、実績として退院時共同指導料2と介護支援等連携指導料2が示されています。"},
+          {t: "退院前訪問指導料の算定回数が、直近1年で合計4回以上である。", correct: false, fb: "退院前訪問指導料ではありません。4回以上は協力対象施設入所者入院加算1・2の実績と混同しやすい数字です。"},
+          {t: "在宅患者訪問診療料の算定回数が、直近3か月で合計8回以上である。", correct: false, fb: "訪問診療料の算定回数ではありません。入退院支援の実績は退院時共同指導料2と介護支援等連携指導料2です。"}
+        ],
+        exp: "入院受入だけでなく、退院後の生活へつなげる支援が評価されるため、退院時共同指導料2・介護支援等連携指導料2が出てきます。"
+      },
+      {
+        q: "ア〜ウの記述について、包括期充実体制加算の救急・入退院支援に関する正しい組み合わせを選べ。",
+        statements: [
+          "ア　救急搬送及び下り搬送からの入院が全入院患者の8％以上であることが示されている。",
+          "イ　退院時共同指導料2と介護支援等連携指導料2の算定回数が直近3か月で合計3回以上であることが示されている。",
+          "ウ　下り搬送からの入院も、救急医療の実績に含まれる。"
+        ],
+        choices: [
+          {t: "ア・イ・ウ", correct: true, fb: "正しいです。3つともこの加算の後方支援機能を理解するうえで重要です。"},
+          {t: "ア・イ", correct: false, fb: "ア・イは正しいですが、ウも正しいです。下り搬送からの入院も含めて評価されます。"},
+          {t: "ア・ウ", correct: false, fb: "ア・ウは正しいですが、イも正しいです。退院時共同指導料2と介護支援等連携指導料2が直近3か月で合計3回以上です。"},
+          {t: "イ・ウ", correct: false, fb: "イ・ウは正しいですが、アも正しいです。救急搬送及び下り搬送からの入院割合は8％以上です。"},
+          {t: "アのみ", correct: false, fb: "アは正しいですが、イとウも正しいです。入院受入と退院支援を一体で押さえます。"}
+        ],
+        exp: "下り搬送8％と退院支援3回は、予想問題でも問われやすい“数字の要件”です。"
+      }
+    ]
+  },
+  {
+    category: "関連改定との区別",
+    questions: [
+      {
+        q: "令和8年度改定における包括期・在宅医療の評価について、包括期充実体制加算との区別として適切なものを1つ選べ。",
+        choices: [
+          {t: "在宅患者支援病床初期加算では、対象が救急搬送された患者から緊急入院した患者へ広がる形で見直された。", correct: true, fb: "正しいです。包括期充実体制加算そのものではありませんが、同じ後方支援の文脈で整理しておくとよい関連改定です。"},
+          {t: "包括期充実体制加算は、地域包括ケア病棟のリハビリテーション・栄養・口腔連携加算を名称変更したものである。", correct: false, fb: "名称変更ではありません。包括期充実体制加算は後方支援の体制・実績を評価する新設加算です。"},
+          {t: "包括期充実体制加算は、回復期リハビリテーション強化体制加算を地域包括ケア病棟に拡大したものである。", correct: false, fb: "回復期リハビリテーション強化体制加算とは別の加算です。包括期充実体制加算は高齢者救急・在宅・施設後方支援を評価します。"},
+          {t: "在宅患者支援病床初期加算は、救急搬送された患者に対象が絞られる形で見直された。", correct: false, fb: "逆です。救急搬送された患者から緊急入院した患者へ対象が広がる形の見直しです。"},
+          {t: "包括期充実体制加算は、地域包括医療病棟の平均在院日数を20日から21日に延長する加算である。", correct: false, fb: "平均在院日数要件の見直しとは別です。包括期充実体制加算は80点／日、14日限度の後方支援評価です。"}
+        ],
+        exp: "予想問題集では、包括期充実体制加算と在宅患者支援病床初期加算、リハ・栄養・口腔連携加算の混同が選択肢に使われています。"
+      },
+      {
+        q: "包括期充実体制加算と他の令和8年度改定項目の関係について、適切なものを1つ選べ。",
+        choices: [
+          {t: "包括期充実体制加算は、地域包括医療病棟又は地域包括ケア病棟を有する中小病院の後方支援機能を評価する。", correct: true, fb: "正しいです。包括期充実体制加算の中心は後方支援機能です。"},
+          {t: "回復期リハビリテーション強化体制加算は、地域包括ケア病棟で自宅等からの緊急入院が15件以上ある場合に算定する。", correct: false, fb: "回復期リハビリテーション強化体制加算は回復期リハ病棟の質の高い取組を評価する加算です。緊急入院15件以上は包括期充実体制加算の文脈です。"},
+          {t: "急性期総合体制加算は、地域包括ケア病棟で在宅・施設の後方支援を行う病院を評価する加算である。", correct: false, fb: "急性期総合体制加算は総合入院体制加算と急性期充実体制加算の統合・再編であり、急性期の総合性・手術等の集積性を評価します。"},
+          {t: "看護・多職種協働加算は、包括期充実体制加算と同じく200床未満の地域包括ケア病棟で算定する。", correct: false, fb: "看護・多職種協働加算は急性期一般入院料4や急性期病院B一般入院料を算定する病棟での多職種協働を評価します。対象が異なります。"},
+          {t: "物価対応料は、包括期充実体制加算の施設基準を満たす病院だけが算定する。", correct: false, fb: "物価対応料は物件費高騰への対応として基本診療料等に併せて算定されるもので、この加算の施設基準とは別です。"}
+        ],
+        exp: "令和8年度改定の新設項目は似た名称や数字が多いため、何を評価する加算かを軸に区別します。"
+      },
+      {
+        q: "予想問題集の出題形式を踏まえた場合、包括期充実体制加算に関する記述として適切なものはどれか。",
+        choices: [
+          {t: "許可病床数200床未満、人口の少ない地域では280床未満の病院が対象となり得る。", correct: true, fb: "正しいです。500床未満などの数字に置き換えた選択肢に注意します。"},
+          {t: "許可病床数500床未満の地域包括医療病棟又は地域包括ケア病棟で算定できる。", correct: false, fb: "500床未満ではありません。予想問題集でも誤答として使われている典型的な置き換えです。"},
+          {t: "算定期間は、入院した日から起算して30日を限度とする。", correct: false, fb: "30日ではありません。14日を限度として算定します。"},
+          {t: "地域包括ケア病棟のリハビリテーション・栄養・口腔連携加算と同様、計画作成日から14日を限度とする。", correct: false, fb: "包括期充実体制加算は入院した日から起算して14日を限度とします。計画作成日からではありません。"},
+          {t: "急性期病院一般入院基本料を算定する病棟を有する病院が、地域包括ケア病棟も有する場合に算定する。", correct: false, fb: "急性期病院一般入院基本料及び急性期一般入院基本料を算定する病棟を有しないことが要件です。"}
+        ],
+        exp: "試験では、500床、30日、急性期病棟との併設、計画作成日から14日など、周辺制度の数字や表現との混同が狙われやすいです。"
+      }
+    ]
+  }
+];
+
+let quiz = [];
+let current = 0;
+let score = 0;
+let selected = null;
+let answered = false;
+let history = [];
+
+const $ = (id) => document.getElementById(id);
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  quiz = banks.map(bank => {
+    const picked = shuffle(bank.questions)[0];
+    return {...picked, category: bank.category, choices: shuffle(picked.choices)};
+  });
+  current = 0;
+  score = 0;
+  selected = null;
+  answered = false;
+  history = [];
+  $("summary").classList.remove("show");
+  $("quizCard").style.display = "block";
+  renderQuestion();
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function renderQuestion() {
+  const item = quiz[current];
+  selected = null;
+  answered = false;
+  $("counter").textContent = `問題 ${current + 1} / ${quiz.length}`;
+  $("score").textContent = `正答 ${score}`;
+  $("bar").style.width = `${(current / quiz.length) * 100}%`;
+  $("category").textContent = item.category;
+  $("question").textContent = item.q;
+  const st = $("statements");
+  if (item.statements && item.statements.length) {
+    st.style.display = "block";
+    st.innerHTML = item.statements.map(s => `<div>${escapeHtml(s)}</div>`).join("");
+  } else {
+    st.style.display = "none";
+    st.innerHTML = "";
+  }
+  const choices = $("choices");
+  choices.innerHTML = "";
+  item.choices.forEach((choice, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.type = "button";
+    btn.innerHTML = `<b>${idx + 1}.</b> ${escapeHtml(choice.t)}`;
+    btn.addEventListener("click", () => selectChoice(idx));
+    choices.appendChild(btn);
+  });
+  $("answerBtn").disabled = true;
+  $("answerBtn").style.display = "inline-block";
+  $("nextBtn").style.display = "none";
+  $("result").className = "result";
+  $("result").innerHTML = "";
+}
+
+function selectChoice(idx) {
+  if (answered) return;
+  selected = idx;
+  [...document.querySelectorAll(".choice")].forEach((el, i) => {
+    el.classList.toggle("selected", i === idx);
+  });
+  $("answerBtn").disabled = false;
+}
+
+function answer() {
+  if (selected === null || answered) return;
+  answered = true;
+  const item = quiz[current];
+  const chosen = item.choices[selected];
+  const correctIndex = item.choices.findIndex(c => c.correct);
+  const correct = Boolean(chosen.correct);
+  if (correct) score++;
+  [...document.querySelectorAll(".choice")].forEach((el, i) => {
+    if (item.choices[i].correct) el.classList.add("correct");
+    if (i === selected && !item.choices[i].correct) el.classList.add("wrong");
+  });
+  history.push({
+    category: item.category,
+    q: item.q,
+    picked: chosen.t,
+    correct: item.choices[correctIndex].t,
+    ok: correct,
+    exp: item.exp
+  });
+  const result = $("result");
+  result.classList.add("show");
+  result.innerHTML = `
+    <div class="judgement ${correct ? "ok" : "ng"}">${correct ? "正解です" : "不正解です"}</div>
+    <div class="feedback">${escapeHtml(chosen.fb)}</div>
+    <div class="explain-title">解説</div>
+    <div class="feedback">${escapeHtml(item.exp)}</div>
+    <div class="mini">正答：${correctIndex + 1}. ${escapeHtml(item.choices[correctIndex].t)}</div>
+  `;
+  $("score").textContent = `正答 ${score}`;
+  $("answerBtn").style.display = "none";
+  $("nextBtn").style.display = "inline-block";
+  $("bar").style.width = `${((current + 1) / quiz.length) * 100}%`;
+}
+
+function next() {
+  current++;
+  if (current >= quiz.length) {
+    showSummary();
+  } else {
+    renderQuestion();
+    document.getElementById("quizCard").scrollIntoView({behavior: "smooth", block: "start"});
+  }
+}
+
+function showSummary() {
+  $("quizCard").style.display = "none";
+  $("summary").classList.add("show");
+  $("finalScore").textContent = `${score} / ${quiz.length} 問正解`;
+  const rate = score / quiz.length;
+  $("finalComment").textContent = rate >= .85
+    ? "かなり定着しています。数字の置き換えに注意しながら、他の令和8年度改定項目との区別を確認してください。"
+    : rate >= .6
+      ? "基本はつかめています。80点・14日・200床未満・8％・15件の対応関係をもう一度確認しましょう。"
+      : "まずは趣旨と基本数字から復習しましょう。包括期充実体制加算は“高齢者救急・在宅・施設の後方支援”の評価です。";
+  $("review").innerHTML = history.map((h, i) => `
+    <div class="review-item">
+      <div class="mini">${i + 1}. ${escapeHtml(h.category)}｜${h.ok ? "正解" : "不正解"}</div>
+      <div><b>${escapeHtml(h.q)}</b></div>
+      <div class="mini">あなたの回答：${escapeHtml(h.picked)}</div>
+      <div class="mini">正答：${escapeHtml(h.correct)}</div>
+      <div class="feedback">${escapeHtml(h.exp)}</div>
+    </div>
+  `).join("");
+  $("summary").scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"]/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s]));
+}
+
+$("answerBtn").addEventListener("click", answer);
+$("nextBtn").addEventListener("click", next);
+$("restartBtn").addEventListener("click", startQuiz);
+startQuiz();
+</script>
+</body>
+</html>
